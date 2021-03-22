@@ -1,0 +1,70 @@
+{
+  "fight_duration": 120,
+  "rotations": [
+    {
+      "name": "1t_lb_rj_rg",
+      "description": "Keeping all hots rolling on one target, no filler.",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
+        { "spell": "rejuvenation", "target": "tank" },
+        { "spell": "regrowth", "target": "tank" }
+      ]
+    },
+    {
+      "name": "2t_lbx2_rjx2",
+      "description": "Keeping lifebloom and rejuv rolling on two targets, no filler.",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
+        { "spell": "rejuvenation", "target": "tank1" },
+        { "spell": "rejuvenation", "target": "tank2" }
+      ]
+    },
+    {
+      "name": "4t_lbx4",
+      "description": "Always keeping lifebloom up on four targets, no filler.",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank3" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank4" }
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "name": "classic_gear",
+      "description": "Level 70 with naxxramas gear and standard talents",
+      "level": 70,
+      "tree_form": true,
+      "stats": {
+        "primary": {
+          "intelligence": 395,
+          "strength": 77,
+          "spirit": 312,
+          "stamina": 324,
+          "agility": 79
+        },
+        "secondary": {
+          "spell_haste_rating": 0,
+          "spell_crit_rating": 0,
+          "mp5": 70,
+          "spell_damage": 409,
+          "bonus_healing": 1263
+        }
+      },
+      "talents": {
+        "naturalist": 0,
+        "gift_of_nature": 5,
+        "tranquility_spirit": 5,
+        "improved_rejuvenation": 3,
+        "empowered_rejuvenation": 5,
+        "living_spirit": 3,
+        "empowered_touch": 2,
+        "improved_regrowth": 5,
+        "intensity": 3,
+        "tree_of_life": 1
+      }
+    }
+  ]
+}
