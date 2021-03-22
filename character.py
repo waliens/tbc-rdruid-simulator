@@ -1,6 +1,6 @@
 import math
 
-from wow.druid.talents import Talents
+from talents import Talents
 
 BASE_MANA_LOOKUP = [50, 50, 50, 50, 50, 50, 50, 120, 134, 149, 165, 182, 200, 219, 239, 260, 282, 305, 329, 354, 380,
                     392, 420, 449, 479, 509, 524, 554, 584, 614, 629, 659, 689, 704, 734, 749, 779, 809, 824, 854, 869,

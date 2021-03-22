@@ -4,12 +4,12 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from wow.druid.character import Character
-from wow.druid.excel import write_compare_setups_wb
-from wow.druid.plot import plot_rotation
-from wow.druid.rotation import Assignment, Rotation
-from wow.druid.spell import HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM
-from wow.druid.talents import Talents
+from character import Character
+from excel import write_compare_setups_wb
+from plot import plot_rotation
+from rotation import Assignment, Rotation
+from spell import HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM
+from talents import Talents
 
 
 def get_spell_from_assign(assign):

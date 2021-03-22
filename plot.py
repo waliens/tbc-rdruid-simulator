@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.ticker import MultipleLocator
 
-from wow.druid.rotation import SpellEvent, Rotation, Assignment
-from wow.druid.spell import Regrowth, Rejuvenation, HealingTouch, Lifebloom, HealingSpell
+from rotation import SpellEvent, Rotation, Assignment
+from spell import Regrowth, Rejuvenation, HealingTouch, Lifebloom, HealingSpell
 
 HT_COLOR = "#4B7494"
 LB_COLOR = "#31642C"
@@ -87,9 +87,9 @@ def plot_rotation(path, rotation, maxx, height=0.5):
 
 
 def main():
-    from wow.druid.talents import Talents
-    from wow.druid.character import Character
-    from wow.druid.spell import LIFEBLOOM, HEALING_TOUCH, REJUVENATION, REGROWTH
+    from talents import Talents
+    from character import Character
+    from spell import LIFEBLOOM, HEALING_TOUCH, REJUVENATION, REGROWTH
 
     talents = Talents(dict())
     character = Character(talents, tree_form=True)

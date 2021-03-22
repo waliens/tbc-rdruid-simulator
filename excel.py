@@ -6,10 +6,10 @@ from collections import defaultdict
 from xlsxwriter import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
-from wow.druid.character import Stats
-from wow.druid.spell import HealingSpell, Rejuvenation, HealingTouch, Regrowth, Lifebloom, HEALING_TOUCH, REJUVENATION, \
+from character import Stats
+from spell import HealingSpell, Rejuvenation, HealingTouch, Regrowth, Lifebloom, HEALING_TOUCH, REJUVENATION, \
     REGROWTH, LIFEBLOOM
-from wow.druid.talents import Talents
+from talents import Talents
 
 
 def sheet_cell_ref(sheet, row, col):

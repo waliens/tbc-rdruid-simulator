@@ -1,9 +1,9 @@
 from pprint import pprint
 
-from wow.druid.character import Stats
-from wow.druid.spell import HealingSpell, Lifebloom
-from wow.druid.talents import Talents
-from wow.druid.util import bisect_right, sort_by, apply_crit
+from character import Stats
+from spell import HealingSpell, Lifebloom
+from talents import Talents
+from util import bisect_right, sort_by, apply_crit
 
 
 class Assignment(object):

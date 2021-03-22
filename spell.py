@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
-from wow.druid.character import Stats
-from wow.druid.talents import Talents
+from character import Stats
+from talents import Talents
 
 
 class SpellCoefficientPolicy(object):
