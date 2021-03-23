@@ -9,15 +9,27 @@ to compare different setups.
 
 ## Install
 
-See `requirements.txt`.
+Pull repository, install dependencies (see `requirements.txt`) and run `main.py` file.
 
 ## How to use
 
-1. Setup a configuration file containing different HoT rotations and characters stats & talents to evaluate (see example `example_config.json`).
-2. Launch the python `main.py` file passing the config file ```python main.py -f config.json -o ./files```. 
+1. Setup a configuration file (see `example_config.json`). You need to define:
+ - one or more healing spells rotations 
+ - one or more character profiles to evaluate (character stats & talents)
+2. Launch the python `main.py` file passing the config file ```python main.py -f config.json -o ./files```.
+3. Analyze the produced data:
+ - inspect generated timeline for rotations
+ - inspect generated spreadsheets (by importing them on google)
 
 ### Command line interface
 
+Command line parameters:
+
+- `-c/--config`: the filepath to the configuration file
+- `-o/--out_folder`: the output folder where the tool should write output files (spreadsheets, pngs, json)
+- `-g/--graphs`: if specified, the tool generates graph timelines of the generated rotations
+- `-s/--spreadsheets`: if specified, generates spreadsheets presenting the results
+ 
 ## Documentation
 
 Few information about the simulator. 
@@ -46,12 +58,12 @@ field). This simulation will not add any other heal other than the one specified
 all assigments are satisfied the simulator will just wait until an assignment needs to be satisfied again. 
 
 
-The tool can also generate timeline graph based on rotations to show the generated rotations. For example, for the
+The tool can also produce timeline graphs based on the auto-generated rotations. For example, for the
 rotation above:
 
+![example_rotation](https://github.com/waliens/tbc-rdruid-simulator/raw/main/images/example_graph.png)
 
-
-### Character
+### Profiles
 
 For generating stats about a rotation, the simulator needs to know stats and talents of one or several characters.  
 
