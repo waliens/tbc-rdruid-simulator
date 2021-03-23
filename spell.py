@@ -125,6 +125,7 @@ class HealingSpell(object):
     TYPE_HOT = "HOT"
     TYPE_DIRECT = "DIRECT"
     TYPE_HYBRID = "HYBRID"
+    TYPE_CHANNELED = "CHANNELED"
 
     def __init__(self, coef_policy, name, type, rank, mana_cost, lvl, cast_time=0.0, duration=0.0, ticks=0, max_stacks=0, direct_first=True):
         self._coef_policy = coef_policy
@@ -394,6 +395,41 @@ class Lifebloom(HealingSpell):
         return self.cast_time
 
 
+class Tranquility(HealingSpell):
+    def __init__(self, coef_policy, rank, mana_cost, lvl, hot_heal, duration):
+        super().__init__(coef_policy, "Tranquility", HealingSpell.TYPE_CHANNELED, rank, mana_cost, lvl, duration=duration, ticks=4)
+        self.hot_heal = hot_heal
+
+    def get_healing(self, character):
+        bh = character.get_stat(Stats.BONUS_HEALING)
+        coef = self._get_spell_coefficient(character, self.coef_policy)
+        improved = 1 + character.get_talent_points(Talents.GIFT_OF_NATURE) * 0.02
+        return (self.hot_heal + bh * coef) * improved / self.ticks
+
+    @property
+    def excel_formula(self):
+        gift_improved_formula = "(1 + #Talents.{}# * 0.02)".format(Talents.GIFT_OF_NATURE[0])
+        return "((#{identifier}.base_hot_total# + #{spell}.coef# * #Stats.{bh}#) * {improved} / {ticks})".format(
+            identifier=self.identifier,
+            improved=gift_improved_formula,
+            bh=Stats.BONUS_HEALING,
+            spell=self.identifier,
+            ticks=self.ticks)
+
+    @property
+    def coef_excel_formula(self):
+        return self.coef_policy.excel_formula \
+            .replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(Talents.EMPOWERED_REJUVENATION[0])) \
+            .replace("Spell.", self.identifier + ".")
+
+    def _get_spell_coefficient(self, character, coef_policy):
+        return coef_policy.get_coefficient(self, character, hot_duration=self.duration,
+                                           empowered=character.get_talent_points(Talents.EMPOWERED_REJUVENATION) * 0.04)
+
+    def get_effective_cast_time(self, character):
+        return 0
+
+
 DIRECT_HEAL_COEF = DirectCoefficient()
 HOT_HEAL_COEF = HoTCoefficient()
 HYBRID_HEAL_COEF = HybridCoefficient()
@@ -449,4 +485,11 @@ REGROWTH = [
     Regrowth(HYBRID_HEAL_COEF, rank=10, lvl=65, mana_cost=675, cast_time=2, duration=21, min_direct_heal=1215, max_direct_heal=1356, hot_heal=1274)
 ]
 
+TRANQUILITY = [
+    Tranquility(HOT_HEAL_COEF, rank=1, mana_cost=525, lvl=30, hot_heal=4 * 351, duration=8),
+    Tranquility(HOT_HEAL_COEF, rank=2, mana_cost=705, lvl=40, hot_heal=4 * 515, duration=8),
+    Tranquility(HOT_HEAL_COEF, rank=3, mana_cost=975, lvl=50, hot_heal=4 * 765, duration=8),
+    Tranquility(HOT_HEAL_COEF, rank=4, mana_cost=1295, lvl=60, hot_heal=4 * 1097, duration=8),
+    Tranquility(HOT_HEAL_COEF, rank=5, mana_cost=1650, lvl=70, hot_heal=4 * 1518, duration=8)
+]
 

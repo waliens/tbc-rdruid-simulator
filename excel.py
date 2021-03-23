@@ -7,7 +7,7 @@ from xlsxwriter import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 from character import Stats
-from spell import HealingSpell, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM
+from spell import HealingSpell, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from talents import Talents
 
 
@@ -453,6 +453,63 @@ class LifebloomSheetGenerator(SpellSheetGenerator):
         return 17
 
 
+class TranquilitySheetGenerator(SpellSheetGenerator):
+    def write_spell(self, row, spell):
+        col = self.write_cell_and_map(row, self.offset_col, spell.rank, spell.identifier, "rank")
+        col = self.write_cell_and_map(row, col + 1, spell.level, spell.identifier, "level")
+        col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
+        col = self.write_cell_and_map(row, col + 1, spell.duration, spell.identifier, "base_hot_duration")
+        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.ticks, spell.identifier, "base_hot_tick")
+        col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
+        col = self.write_cell_and_map(row, col + 1, parse_formula(spell.coef_excel_formula, self.cell_map),
+                                      spell.identifier, "coef", formula=True)
+        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Talents.{tree}#)".format(
+                                  spell=spell.identifier, tree=Talents.TREE_OF_LIFE[0]), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(spell.excel_formula, self.cell_map),
+                                      spell.identifier, "hot_tick", formula=True)
+        hot_total = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
+        hot_total5 = parse_formula("(#{spell}.hot_tick# * {ticks} * 5)".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, hot_total, spell.identifier, "hot_total", formula=True)
+        col = self.write_cell_and_map(row, col + 1, hot_total5, spell.identifier, "hot_total5", formula=True)
+        hps = parse_formula("(#{spell}.hot_total# / #{spell}.base_hot_duration#)".format(spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, hps, spell.identifier, "hps", formula=True)
+        hpm = parse_formula("(#{spell}.hot_total# / #{spell}.mana_cost#)".format(spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, hpm, spell.identifier, "hpm", formula=True)
+        mps = parse_formula("(#{spell}.mana_cost# / #{spell}.base_hot_duration#)".format(spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, mps, spell.identifier, "mps", formula=True)
+        return col
+
+    def write_spell_header(self):
+        first_row, first_col = self.offset
+        subtitle_row = first_row + 1
+        col = self.write_cell(subtitle_row, first_col, "rank")
+        col = self.write_cell(subtitle_row, col + 1, "level")
+        col = self.write_cell(subtitle_row, col + 1, "mana")
+        col = self.write_cell(subtitle_row, col + 1, "duration")
+        col = self.write_cell(subtitle_row, col + 1, "tick")
+        col = self.write_cell(subtitle_row, col + 1, "total")
+        col = self.write_cell(subtitle_row, col + 1, "coef")
+        self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (tranquility)")
+        second_col = col + 1
+        col = self.write_cell(subtitle_row, col + 1, "mana_cost")
+        col = self.write_cell(subtitle_row, col + 1, "tick")
+        col = self.write_cell(subtitle_row, col + 1, "total")
+        col = self.write_cell(subtitle_row, col + 1, "total 5")
+        col = self.write_cell(subtitle_row, col + 1, "hps")
+        col = self.write_cell(subtitle_row, col + 1, "hpm")
+        col = self.write_cell(subtitle_row, col + 1, "mps")
+        self.worksheet.merge_range(first_row, second_col, first_row, col, "Effective healing")
+        return col
+
+    def write_table_from_bh(self):
+        pass
+
+    @property
+    def n_cols(self):
+        return 14
+
+
 class AssigmentsSheet(ThematicSheet):
     def __init__(self, workbook, sheet, cell_map, assigments, description="", offset=(0, 0)):
         super().__init__(workbook, sheet, cell_map, offset=offset)
@@ -537,7 +594,8 @@ def write_spells_wb(character, name, outfolder):
         HealingTouchSheetGenerator.create_new_sheet(wb, "Healing touch", cell_map, HEALING_TOUCH),
         RejuvenationSheetGenerator.create_new_sheet(wb, "Rejuvenation", cell_map, REJUVENATION),
         RegrowthSheetGenerator.create_new_sheet(wb, "Regrowth", cell_map, REGROWTH),
-        LifebloomSheetGenerator.create_new_sheet(wb, "Lifebloom", cell_map, LIFEBLOOM)
+        LifebloomSheetGenerator.create_new_sheet(wb, "Lifebloom", cell_map, LIFEBLOOM),
+        TranquilitySheetGenerator.create_new_sheet(wb, "Tranquility", cell_map, TRANQUILITY)
     ]
 
     for s in sheets:
