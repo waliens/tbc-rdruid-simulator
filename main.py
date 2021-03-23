@@ -27,16 +27,16 @@ def get_spell_from_assign(assign):
 
 def main(argv):
     parser = ArgumentParser()
-    parser.add_argument("-f", "--filename", type=str, dest="filename", required=True)
+    parser.add_argument("-c", "--config", type=str, dest="config_filepath", required=True)
     parser.add_argument("-g", "--graphs", action="store_true", dest="graphs")
     parser.add_argument("-s", "--spreadsheets", action="store_true", dest="spreadsheets")
-    parser.add_argument("-o", "--out_folder", dest="out_folder")
+    parser.add_argument("-o", "--out_folder", dest="out_folder", default="./generated")
     parser.set_defaults(graphs=False, spreadsheet=False)
     args, _ = parser.parse_known_args(argv)
 
     os.makedirs(args.out_folder, exist_ok=True)
 
-    with open(args.filename, "r", encoding="utf-8") as file:
+    with open(args.config_filepath, "r", encoding="utf-8") as file:
         _in = json.load(file)
 
     characters = [
