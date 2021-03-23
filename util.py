@@ -33,11 +33,14 @@ def bisect_right(a, x, lo=0, hi=None, *, key=None):
 
 def sort_by(t, *arrays, f=None):
     si = sorted(range(len(t)), key=lambda i: t[i])
-    return zip(*[
-        (t[i]) + tuple(arr[i] for arr in arrays)
+    all_sorted = [
+        (t[i], ) + tuple(arr[i] for arr in arrays)
         for i in si
         if f is None or f(t[i], *tuple(arr[i] for arr in arrays))
-    ])
+    ]
+    if len(all_sorted) == 0:
+        return tuple([] for _ in range(len(arrays) + 1))
+    return tuple(zip(*all_sorted))
 
 
 def apply_crit(value, crit_proba):

@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from character import Stats
 from spell import HealingSpell, Lifebloom
 from talents import Talents
@@ -93,7 +91,7 @@ class SpellEvent(Event):
 
             timestamps.extend(t)
             heals.extend(h)
-            string_heals.extend(string_heals)
+            string_heals.extend(s)
         elif self.spell.type == HealingSpell.TYPE_DIRECT:
             timestamps.append(self.start)
             _min, _max = self.spell.get_healing(character)
@@ -114,7 +112,11 @@ class SpellEvent(Event):
             timestamps.extend(t)
             heals.extend(h)
             string_heals.extend(s)
-        return zip(*[(t, h, s) for t, h, s in zip(timestamps, heals, string_heals) if start <= t <= end])
+
+        tuple_array = [(t, h, s) for t, h, s in zip(timestamps, heals, string_heals) if start <= t <= end]
+        if len(tuple_array) == 0:
+            return [], [], []
+        return tuple(zip(*tuple_array))
 
     def __repr__(self):
         return "SpellEvent(start={}, duration={}, end={}, stacks={})".format(self.start, self.duration, self.end, self.stacks)
