@@ -36,7 +36,7 @@ class Assignment(object):
 
 
 class Event(object):
-    def __init__(self, start, duration=0, stacks=0):
+    def __init__(self, start, duration=0, stacks=1):
         self._start = start
         self._duration = duration
         self._stacks = stacks
@@ -67,7 +67,7 @@ class Event(object):
 
 
 class SpellEvent(Event):
-    def __init__(self, start, spell, stacks=0):
+    def __init__(self, start, spell, stacks=1):
         super().__init__(start=start, duration=spell.duration, stacks=stacks)
         self._spell = spell
 
@@ -77,7 +77,7 @@ class SpellEvent(Event):
 
     @staticmethod
     def from_spell(spell, start):
-        return SpellEvent(start, spell, stacks=int(spell.max_stacks > 0))
+        return SpellEvent(start, spell, stacks=1)
 
     def get_heals(self, start, end, character):
         timestamps, heals, string_heals = list(), list(), list()
