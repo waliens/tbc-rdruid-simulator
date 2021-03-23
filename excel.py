@@ -7,8 +7,7 @@ from xlsxwriter import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 from character import Stats
-from spell import HealingSpell, Rejuvenation, HealingTouch, Regrowth, Lifebloom, HEALING_TOUCH, REJUVENATION, \
-    REGROWTH, LIFEBLOOM
+from spell import HealingSpell, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM
 from talents import Talents
 
 
@@ -489,20 +488,44 @@ class AssigmentsSheet(ThematicSheet):
 
 
 class ComparisonSummarySheet(ThematicSheet):
-    def __init__(self, workbook, sheet, cell_map, combinations, offset=(0, 0)):
+    def __init__(self, workbook, sheet, cell_map, combinations, cell_maps, offset=(0, 0)):
         super().__init__(workbook, sheet, cell_map, offset)
-        self._combinations = combinations
+        self._combinations = {(c[0], c[3]): c for c in combinations}
+        self._c_names = list({c[0] for c in combinations})
+        self._r_names = list({c[3] for c in combinations})
+        self._all_cell_maps = cell_maps
 
     @property
     def n_cols(self):
-        pass
+        return len(self._c_names) + 1
 
     @property
     def n_rows(self):
-        pass
+        return len(self._r_names) + 1
 
     def write_sheet(self):
-        pass
+        first_row, first_col = self._offset
+        for i, r_name in enumerate(self._r_names):
+            self.write_cell(first_row + 1 + i, first_col, r_name)
+        for j, c_name in enumerate(self._c_names):
+            self.write_cell(first_row, first_col + j + 1, c_name)
+            for i, r_name in enumerate(self._r_names):
+                merged_name = "{}_{}".format(c_name, r_name)
+                _, character, _, _, assigments, _, stats = self._combinations[(c_name, r_name)]
+                formula = ComparisonSummarySheet.to_formula(stats["string_heals"])
+                formula = "{} / {}".format(formula, stats["duration"])
+                parsed = parse_formula(formula, cell_map=self._all_cell_maps[merged_name])
+                self.write_cell(first_row + 1 + i, first_col + 1 + j, parsed, formula=True)
+
+    @staticmethod
+    def to_formula(heals):
+        heal_dict = defaultdict(lambda: 0)
+        for heal_tokken in heals:
+            heal_dict[heal_tokken] += 1
+        return "(" + "+".join([
+            "({mult} * ({form}))".format(mult=mult, form=form)
+            for form, mult in heal_dict.items()
+        ]) + ")"
 
 
 def write_spells_wb(character, name, outfolder):
@@ -541,4 +564,6 @@ def write_compare_setups_wb(configs, outfolder):
         for s in [char_part, assi_part, htou_part, reju_part, regr_part, lblo_part]:
             s.write_sheet()
 
+    comp = ComparisonSummarySheet.create_new_sheet(wb, "summary", dict(), configs, cell_maps)
+    comp.write_sheet()
     wb.close()
