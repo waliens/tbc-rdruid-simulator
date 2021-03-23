@@ -5,7 +5,7 @@ import sys
 from argparse import ArgumentParser
 
 from character import Character
-from excel import write_compare_setups_wb
+from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
 from rotation import Assignment, Rotation
 from spell import HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM
@@ -29,8 +29,9 @@ def main(argv):
     parser = ArgumentParser()
     parser.add_argument("-f", "--filename", type=str, dest="filename", required=True)
     parser.add_argument("-g", "--graphs", action="store_true", dest="graphs")
+    parser.add_argument("-s", "--spreadsheets", action="store_true", dest="spreadsheets")
     parser.add_argument("-o", "--out_folder", dest="out_folder")
-    parser.set_defaults(graphs=False)
+    parser.set_defaults(graphs=False, spreadsheet=False)
     args, _ = parser.parse_known_args(argv)
 
     os.makedirs(args.out_folder, exist_ok=True)
@@ -79,7 +80,9 @@ def main(argv):
                 maxx=_in["fight_duration"]
             )
 
-    write_compare_setups_wb(combinations, outfolder=args.out_folder)
+    if args.spreadsheets:
+        write_spells_wb(combinations[0][1], "rdruid", outfolder=args.out_folder)
+        write_compare_setups_wb(combinations, outfolder=args.out_folder)
 
 
 if __name__ == "__main__":
