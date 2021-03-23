@@ -9,7 +9,15 @@ to compare different setups.
 
 ## Install
 
-Pull repository, install dependencies (see `requirements.txt`) and run `main.py` file.
+The tool is a Python script, so Python needs to be installed from [Python](https://www.python.org/downloads/) or [Anaconda](https://www.anaconda.com/products/individual#Downloads)
+ 
+Then:
+
+- download the code as a zip file [here](https://github.com/waliens/tbc-rdruid-simulator/archive/refs/heads/main.zip) or using Git: `git clone https://github.com/waliens/tbc-rdruid-simulator.git`
+- open a command line interface and move into the folder downloaded
+- install python dependencies from the `requirements.txt` file: `pip install -r requirements.txt`
+
+You are now up and running. 
 
 ## How to use
 
