@@ -22,6 +22,7 @@ def linear(x1, y1, x2, y2):
 class Stats(object):
     INTELLIGENCE = "intelligence"
     STRENGTH = "strength"
+    BASE_SPIRIT = "base_spirit"
     SPIRIT = "spirit"
     STAMINA = "stamina"
     AGILITY = "agility"
@@ -44,11 +45,11 @@ class Stats(object):
 
     @staticmethod
     def primary():
-        return [Stats.INTELLIGENCE, Stats.STRENGTH, Stats.SPIRIT, Stats.STAMINA, Stats.AGILITY]
+        return [Stats.INTELLIGENCE, Stats.STRENGTH, Stats.BASE_SPIRIT, Stats.STAMINA, Stats.AGILITY]
 
     @staticmethod
     def computed():
-        return [Stats.REGEN_5SR, Stats.SPELL_HASTE, Stats.SPELL_CRIT, Stats.GCD, Stats.MANA]
+        return [Stats.SPIRIT, Stats.REGEN_5SR, Stats.SPELL_HASTE, Stats.SPELL_CRIT, Stats.GCD, Stats.MANA]
 
     @staticmethod
     def get_computed_excel_formula(stat):
@@ -78,13 +79,15 @@ class Character(object):
         self._stats_dict = dict()
         
         for stat in Stats.primary():
-            self._stats_dict["base_" + stat] = primary[stat]
-            self._stats_dict[stat] = primary[stat]
+            read_stat = stat
+            if stat == Stats.BASE_SPIRIT:
+                read_stat = Stats.SPIRIT
+            self._stats_dict[stat] = primary[read_stat]
 
         for stat in Stats.secondary():
             self._stats_dict[stat] = secondary[stat]
 
-        self._stats_dict[Stats.SPIRIT] *= (1 + 0.05 * talents.get(talents.LIVING_SPIRIT))
+        self._stats_dict[Stats.SPIRIT] = self._stats_dict[Stats.BASE_SPIRIT] * (1 + 0.05 * talents.get(talents.LIVING_SPIRIT))
 
         self._stats_dict[Stats.REGEN_5SR] = 5 * 0.00932715221261 * math.sqrt(self._stats_dict[Stats.INTELLIGENCE]) * self._stats_dict[Stats.SPIRIT]
         self._stats_dict[Stats.SPELL_HASTE] = linear(60, 1/10, 70, 1/15.8)(level) * self._stats_dict[Stats.SPELL_HASTE_RATING] / 100

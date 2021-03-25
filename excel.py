@@ -104,20 +104,30 @@ class CharacterSheetGenerator(ThematicSheet):
         self._character = character
         self._description = descr
 
+        talent_img_base_url = "https://legacy-wow.com/talentcalcs/tbc/shared/global/talents/druid/images/restoration"
+        self._talents_url = {
+            talent_name: "{}/{}.jpg".format(talent_img_base_url, talent_name.replace("_", ""))
+            for talent_name, _ in Talents.all()
+        }
+
     @property
     def all_stats(self):
         return list(Stats.primary()) + list(Stats.secondary()) + list(Stats.computed())
 
     def write_talents(self):
         first_row, first_col = self.offset
-        first_col += 3
+        first_col += 4
         self.worksheet.merge_range(first_row, first_col, first_row, first_col + 1, 'Talents')
+        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, 'Talents')
+        col = self.write_cell(first_row + 1, first_col + 2, "Value")
+        self.write_cell(first_row + 1, col + 1, "Max")
 
         for i, talent in enumerate(Talents.all()):
-            col = self.write_cell(first_row + i + 1, first_col, self.human_readable(talent[0]))
-            col = self.write_cell_and_map(first_row + i + 1, col + 1, self._character.talents.get(talent[0]),
+            col = self.write_cell(first_row + i + 2, first_col, self.human_readable(talent[0]))
+            col = self.write_cell(first_row + i + 2, col + 1, "IMAGE(\"{}\")".format(self._talents_url[talent[0]]), formula=True)
+            col = self.write_cell_and_map(first_row + i + 2, col + 1, self._character.talents.get(talent[0]),
                                           cm_group="Talents", cm_key=talent[0])
-            self.write_cell(first_row + i + 1, col + 1, talent[1])
+            self.write_cell(first_row + i + 2, col + 1, talent[1])
 
     def write_character(self):
         first_row, first_col = self.offset
@@ -127,16 +137,20 @@ class CharacterSheetGenerator(ThematicSheet):
             first_row += 1
         self.write_cell(first_row, first_col, "Level")
         self.write_cell_and_map(first_row, first_col + 1, self._character.level, cm_group="Character", cm_key="level")
+        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, 'Primary')
 
-        for i, stat in enumerate(self.all_stats):
-            row = first_row + i + 1
+        row = first_row + 2
+        for i, stat in enumerate(Stats.primary()):
             self.write_cell(row, first_col, self.human_readable(stat))
-            if stat == Stats.SPIRIT:
-                raw_formula = Stats.get_computed_excel_formula(stat)
-                raw_formula = raw_formula.replace("#Stats.base_spirit#", str(self._character.get_stat("base_spirit")))
-                val = parse_formula(raw_formula, cell_map=self.cell_map)
-                formula = True
-            elif stat in Stats.computed():
+            self.write_cell_and_map(row, first_col + 1, self._character.get_stat(stat), "Stats", stat)
+            row += 1
+
+        self.worksheet.merge_range(row, first_col, row, first_col + 1, 'Secondary')
+        row += 1
+
+        for i, stat in enumerate(Stats.secondary() + Stats.computed()):
+            self.write_cell(row, first_col, self.human_readable(stat))
+            if stat in Stats.computed():
                 formula = Stats.get_computed_excel_formula(stat)
                 val = parse_formula(formula, cell_map=self.cell_map)
                 formula = True
@@ -144,6 +158,7 @@ class CharacterSheetGenerator(ThematicSheet):
                 val = self._character.get_stat(stat)
                 formula = True
             self.write_cell_and_map(row, first_col + 1, str(val), cm_group="Stats", cm_key=stat, formula=formula)
+            row += 1
 
     def write_sheet(self):
         self.write_talents()
@@ -151,11 +166,11 @@ class CharacterSheetGenerator(ThematicSheet):
 
     @property
     def n_cols(self):
-        return 6
+        return 8
 
     @property
     def n_rows(self):
-        return max(len(self._character.talents), 1 + len(self.all_stats)) + 1 + (1 if len(self._description) > 0 else 0)
+        return max(len(self._character.talents), 4 + len(self.all_stats)) + 1 + (1 if len(self._description) > 0 else 0)
 
 
 class SpellSheetGenerator(ThematicSheet):
