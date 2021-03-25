@@ -64,7 +64,19 @@
         "improved_regrowth": 5,
         "intensity": 3,
         "tree_of_life": 1
-      }
+      },
+      "buffs": [
+        "gift_of_the_wild",
+        "arcane_intellect",
+        "benediction_of_king",
+        "benediction_of_wisdom_tal",
+        "mana_tide_totem_tal",
+        "wrath_of_air_totem",
+        "totem_of_wrath",
+        "moonkin_aura",
+        "elixir_of_healing_power",
+        "golden_fish_sticks"
+      ]
     }
   ]
 }

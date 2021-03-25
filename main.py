@@ -4,6 +4,7 @@ import os
 import sys
 from argparse import ArgumentParser
 
+from buff import BUFFS, BuffArray
 from character import Character
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
@@ -47,6 +48,7 @@ def main(argv):
                 primary=character["stats"]["primary"],
                 secondary=character["stats"]["secondary"],
                 talents=Talents(character["talents"]),
+                buffs=BuffArray([BUFFS[b] for b in character["buffs"]]),
                 level=character["level"],
                 tree_form=character["tree_form"]
             )

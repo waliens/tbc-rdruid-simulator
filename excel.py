@@ -6,7 +6,8 @@ from collections import defaultdict
 from xlsxwriter import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
-from character import Stats
+from buff import BUFFS
+from character import Stats, Character
 from spell import HealingSpell, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from talents import Talents
 
@@ -117,8 +118,8 @@ class CharacterSheetGenerator(ThematicSheet):
     def write_talents(self):
         first_row, first_col = self.offset
         first_col += 4
-        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 1, 'Talents')
-        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, 'Talents')
+        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 2, 'Talents')
+        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, 'Name')
         col = self.write_cell(first_row + 1, first_col + 2, "Value")
         self.write_cell(first_row + 1, col + 1, "Max")
 
@@ -129,48 +130,75 @@ class CharacterSheetGenerator(ThematicSheet):
                                           cm_group="Talents", cm_key=talent[0])
             self.write_cell(first_row + i + 2, col + 1, talent[1])
 
+    def _write_stat_row(self, row, col, stat):
+        col = self.write_cell(row, col, self.human_readable(stat))
+        base_formula = parse_formula(self._character.get_base_excel_formula(stat), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, base_formula, "Stats", Stats.base(stat), formula=True)
+        buff_formula = parse_formula(self._character.get_buffed_excel_formula(stat), self.cell_map)
+        self.write_cell_and_map(row, col + 1, buff_formula, "Stats", stat, formula=True)
+        return row + 1, col
+
     def write_character(self):
         first_row, first_col = self.offset
         if len(self._description) > 0:
             self.write_cell(first_row, first_col, "Descr.")
             self.write_cell(first_row, first_col + 1, self._description)
             first_row += 1
+
         self.write_cell(first_row, first_col, "Level")
         self.write_cell_and_map(first_row, first_col + 1, self._character.level, cm_group="Character", cm_key="level")
-        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, 'Primary')
+        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 2, 'Primary')
+        self.write_cell(first_row + 2, first_col, "Stat")
+        self.write_cell(first_row + 2, first_col + 1, "Base")
+        self.write_cell(first_row + 2, first_col + 2, "Buffed")
+
+        row = first_row + 3
+        for stat in Stats.primary():
+            row, _ = self._write_stat_row(row, first_col, stat)
+
+        self.worksheet.merge_range(row, first_col, row, first_col + 2, 'Secondary')
+        self.write_cell(row + 1, first_col, "Stat")
+        self.write_cell(row + 1, first_col + 1, "Base")
+        self.write_cell(row + 1, first_col + 2, "Buffed")
+        row += 2
+
+        for stat in Stats.secondary():
+            row, _ = self._write_stat_row(row, first_col, stat)
+
+        self.worksheet.merge_range(row, first_col, row, first_col + 1, 'Others')
+        self.write_cell(row + 1, first_col, "Stat")
+        self.write_cell(row + 1, first_col + 1, "Base")
+        self.write_cell(row + 1, first_col + 2, "Buffed")
+        row += 2
+
+        for i, stat in enumerate(Stats.computed()):
+            row, _ = self._write_stat_row(row, first_col, stat)
+
+    def write_buffs(self):
+        first_row, first_col = self.offset
+        first_col += 9
+        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 1, 'Buffs')
+        self.write_cell(first_row + 1, first_col, "Name")
+        self.write_cell(first_row + 1, first_col + 1, "Active")
 
         row = first_row + 2
-        for i, stat in enumerate(Stats.primary()):
-            self.write_cell(row, first_col, self.human_readable(stat))
-            self.write_cell_and_map(row, first_col + 1, self._character.get_stat(stat), "Stats", stat)
-            row += 1
-
-        self.worksheet.merge_range(row, first_col, row, first_col + 1, 'Secondary')
-        row += 1
-
-        for i, stat in enumerate(Stats.secondary() + Stats.computed()):
-            self.write_cell(row, first_col, self.human_readable(stat))
-            if stat in Stats.computed():
-                formula = Stats.get_computed_excel_formula(stat)
-                val = parse_formula(formula, cell_map=self.cell_map)
-                formula = True
-            else:
-                val = self._character.get_stat(stat)
-                formula = True
-            self.write_cell_and_map(row, first_col + 1, str(val), cm_group="Stats", cm_key=stat, formula=formula)
+        for name, buff in BUFFS.items():
+            col = self.write_cell(row, first_col, self.human_readable(name))
+            self.write_cell_and_map(row, col + 1, int(self._character.buffs.has_buff(name)), "Buff", name)
             row += 1
 
     def write_sheet(self):
+        self.write_buffs()
         self.write_talents()
         self.write_character()
 
     @property
     def n_cols(self):
-        return 8
+        return 11
 
     @property
     def n_rows(self):
-        return max(len(self._character.talents), 4 + len(self.all_stats)) + 1 + (1 if len(self._description) > 0 else 0)
+        return max(len(self._character.talents) + (1 if len(self._description) > 0 else 0), 6 + len(self.all_stats), 2 + len(BUFFS)) + 1
 
 
 class SpellSheetGenerator(ThematicSheet):
