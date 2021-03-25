@@ -85,6 +85,7 @@ _buffs = [
     ("wrath_of_air_totem", [(Stats.BONUS_HEALING, Buff.TYPE_ADDITIVE, 101), (Stats.SPELL_DAMAGE, Buff.TYPE_ADDITIVE, 101)]),
     ("totem_of_wrath", [(Stats.SPELL_CRIT, Buff.TYPE_ADDITIVE, 0.03)]),
     ("moonkin_aura", [(Stats.SPELL_CRIT, Buff.TYPE_ADDITIVE, 0.05)]),
+    ("mark_of_bite", [(p, Buff.TYPE_MULTIPLICATIVE, 0.05) for p in Stats.primary()]),
     # TODO ("vampiric_touch", [(Stats.)])
     # consumables
     ("elixir_of_draenic_wisdom", [(Stats.SPIRIT, Buff.TYPE_ADDITIVE, 30), (Stats.INTELLIGENCE, Buff.TYPE_ADDITIVE, 30)]),
