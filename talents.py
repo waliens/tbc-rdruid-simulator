@@ -2,7 +2,7 @@
 class Talents(object):
     NATURALIST = ("naturalist", 5)
     GIFT_OF_NATURE = ("gift_of_nature", 5)
-    TRANQUILITY_SPIRIT = ("tranquility_spirit", 5)
+    TRANQUILITY_SPIRIT = ("tranquil_spirit", 5)
     IMPROVED_REJUVENATION = ("improved_rejuvenation", 3)
     EMPOWERED_REJUVENATION = ("empowered_rejuvenation", 5)
     LIVING_SPIRIT = ("living_spirit", 3)
