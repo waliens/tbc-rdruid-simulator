@@ -633,30 +633,34 @@ class ComparisonSummarySheet(ThematicSheet):
         ]) + ")"
 
 
-def write_spells_wb(character, name, outfolder):
-    wb = Workbook(os.path.join(outfolder, "character_{}.xlsx".format(name)))
+def write_spell_charac_sheet(workbook, name, character, offset=(0, 0)):
     cell_map = dict()
 
-    character = CharacterSheetGenerator.create_new_sheet(wb, "Character", cell_map, character)
-    row = character.n_rows + 2
-    healingt = HealingTouchSheetGenerator.create_from_sheet(
-        wb, character.worksheet, cell_map, HEALING_TOUCH, offset=(row, 0))
-    row += healingt.n_rows + 2
-    rejuvena = RejuvenationSheetGenerator.create_from_sheet(
-        wb, character.worksheet, cell_map, REJUVENATION, offset=(row, 0))
-    row += rejuvena.n_rows + 2
-    regrowth = RegrowthSheetGenerator.create_from_sheet(
-        wb, character.worksheet, cell_map, REGROWTH, offset=(row, 0))
-    row += regrowth.n_rows + 2
-    lifebloo = LifebloomSheetGenerator.create_from_sheet(
-        wb, character.worksheet, cell_map, LIFEBLOOM, offset=(row, 0))
-    row += lifebloo.n_rows + 2
-    tranquil = TranquilitySheetGenerator.create_from_sheet(
-        wb, character.worksheet, cell_map, TRANQUILITY, offset=(row, 0))
+    charac_sheet = CharacterSheetGenerator.create_new_sheet(workbook, name, cell_map, character, offset=offset)
+    charac_sheet.write_sheet()
 
-    for s in [character, healingt, rejuvena, regrowth, lifebloo, tranquil]:
-        s.write_sheet()
+    spell_sheets = [
+        (HealingTouchSheetGenerator, HEALING_TOUCH),
+        (RejuvenationSheetGenerator, REJUVENATION),
+        (RegrowthSheetGenerator, REGROWTH),
+        (LifebloomSheetGenerator, LIFEBLOOM),
+        (TranquilitySheetGenerator, TRANQUILITY)
+    ]
 
+    row = offset[0]
+    prev_sheet = charac_sheet
+    for cls, spells in spell_sheets:
+        row += prev_sheet.n_rows + 2
+        spell_sheet = cls.create_from_sheet(workbook, charac_sheet.worksheet, cell_map, spells, offset=(row, offset[1]))
+        spell_sheet.write_sheet()
+        prev_sheet = spell_sheet
+
+    return cell_map
+
+
+def write_spells_wb(character, name, outfolder):
+    wb = Workbook(os.path.join(outfolder, "character_{}.xlsx".format(name)))
+    write_spell_charac_sheet(wb, name, character)
     wb.close()
 
 
