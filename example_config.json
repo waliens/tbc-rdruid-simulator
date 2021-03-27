@@ -38,20 +38,16 @@
       "level": 70,
       "tree_form": true,
       "stats": {
-        "primary": {
-          "intelligence": 395,
-          "strength": 77,
-          "spirit": 312,
-          "stamina": 324,
-          "agility": 79
-        },
-        "secondary": {
-          "spell_haste_rating": 0,
-          "spell_crit_rating": 0,
-          "mp5": 70,
-          "spell_damage": 409,
-          "bonus_healing": 1263
-        }
+        "intelligence": 395,
+        "strength": 77,
+        "spirit": 312,
+        "stamina": 324,
+        "agility": 79,
+        "spell_haste_rating": 0,
+        "spell_crit_rating": 0,
+        "mp5": 70,
+        "spell_damage": 409,
+        "bonus_healing": 1263
       },
       "talents": {
         "naturalist": 0,

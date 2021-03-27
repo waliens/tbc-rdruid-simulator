@@ -45,8 +45,16 @@ class Stats(object):
         return [Stats.INTELLIGENCE, Stats.STRENGTH, Stats.SPIRIT, Stats.STAMINA, Stats.AGILITY]
 
     @staticmethod
-    def computed():
+    def others():
         return [Stats.REGEN_5SR, Stats.SPELL_HASTE, Stats.SPELL_CRIT, Stats.GCD, Stats.MANA]
+
+    @staticmethod
+    def computed():
+        return Stats.others() + [Stats.MP5, Stats.BONUS_HEALING, Stats.SPELL_DAMAGE]
+
+    @staticmethod
+    def all_stats():
+        return Stats.primary() + Stats.secondary() + [Stats.REGEN_5SR, Stats.SPELL_HASTE, Stats.SPELL_CRIT, Stats.GCD, Stats.MANA]
 
     @staticmethod
     def get_computed_excel_formula(stat):
@@ -64,6 +72,15 @@ class Stats(object):
             intel_stats = "#Stats.{}#".format(Stats.INTELLIGENCE)
             intel_mana = "MIN(20; {intel}) + (15 * ({intel} - MIN({intel}; 20)))".format(intel=intel_stats)
             return "(CHOOSE(#Character.level# - 57; {}) + {})".format(";".join(map(str, BASE_MANA_LOOKUP[57:])), intel_mana)
+        elif stat == Stats.SPELL_DAMAGE:
+            return "(#Stats.{dmg}# + IF({talent}=1;0.08;IF({talent}=2;0.16;IF({talent}=3; 0.25;0))) * #Stats.{intel}#)".format(
+                dmg=Stats.base(stat), talent="#Talents.{}#".format(Talents.LUNAR_GUIDANCE[0]), intel=Stats.INTELLIGENCE)
+        elif stat == Stats.BONUS_HEALING:
+            return "(#Stats.{heal}# + IF({talent}=1;0.08;IF({talent}=2;0.16;IF({talent}=3; 0.25;0))) * #Stats.{intel}#)".format(
+                heal=Stats.base(stat), talent="#Talents.{}#".format(Talents.LUNAR_GUIDANCE[0]), intel=Stats.INTELLIGENCE)
+        elif stat == Stats.MP5:
+            return "(#Stats.{mp5}# + IF({talent}=1;0.04;IF({talent}=2;0.07;IF({talent}=3;0.1;0))) * #Stats.{intel}#)".format(
+                mp5=Stats.base(stat), talent="#Talents.{}#".format(Talents.DREAMSTATE[0]), intel=Stats.INTELLIGENCE)
         else:
             raise "'{}' is not a computed stat".format(stat)
 

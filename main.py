@@ -45,8 +45,7 @@ def main(argv):
             character["name"],
             character["description"],
             Character(
-                primary=character["stats"]["primary"],
-                secondary=character["stats"]["secondary"],
+                stats=character["stats"],
                 talents=Talents(character["talents"]),
                 buffs=BuffArray([BUFFS[b] for b in character["buffs"]]),
                 level=character["level"],

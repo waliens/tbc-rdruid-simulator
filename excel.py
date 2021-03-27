@@ -111,10 +111,6 @@ class CharacterSheetGenerator(ThematicSheet):
             for talent_name, _ in Talents.all()
         }
 
-    @property
-    def all_stats(self):
-        return list(Stats.primary()) + list(Stats.secondary()) + list(Stats.computed())
-
     def write_talents(self):
         first_row, first_col = self.offset
         first_col += 4
@@ -173,7 +169,7 @@ class CharacterSheetGenerator(ThematicSheet):
         self.write_cell(row + 1, first_col + 2, "Buffed")
         row += 2
 
-        for i, stat in enumerate(Stats.computed()):
+        for i, stat in enumerate(Stats.others()):
             row, _ = self._write_stat_row(row, first_col, stat)
 
     def write_buffs(self):
@@ -202,7 +198,7 @@ class CharacterSheetGenerator(ThematicSheet):
     def n_rows(self):
         return max(
             len(self._character.talents) + (1 if len(self._description) > 0 else 0),
-            7 + len(self.all_stats),
+            7 + len(Stats.all_stats()),
             2 + len(BUFFS)) + 1
 
 

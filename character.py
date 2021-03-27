@@ -6,17 +6,15 @@ from talents import Talents
 
 
 class Character(object):
-    def __init__(self, primary, secondary, talents, buffs, level=70, tree_form=False):
+    def __init__(self, stats, talents, buffs, level=70, tree_form=False):
         self._level = level
         self._stats_dict = dict()
         self._buffs = buffs
         self._all_buffs = BuffArray(BUFFS.values())
         
-        for stat in Stats.primary():
-            self._stats_dict[stat] = primary[stat]
-
-        for stat in Stats.secondary():
-            self._stats_dict[stat] = secondary[stat]
+        for stat in Stats.all_stats():
+            self._stats_dict[stat] = stats.get(stat, 0)
+            self._stats_dict[Stats.base(stat)] = stats.get(stat, 0)
 
         self._stats_dict[Stats.REGEN_5SR] = 5 * 0.00932715221261 * math.sqrt(self._stats_dict[Stats.INTELLIGENCE]) * self._stats_dict[Stats.SPIRIT]
         self._stats_dict[Stats.SPELL_HASTE] = linear(60, 1/10, 70, 1/15.8)(level) * self._stats_dict[Stats.SPELL_HASTE_RATING] / 100
@@ -24,10 +22,12 @@ class Character(object):
         self._stats_dict[Stats.GCD] = 1.5 / (1 + self._stats_dict[Stats.SPELL_HASTE])
         self._stats_dict[Stats.MANA] = BASE_MANA_LOOKUP[level - 1] + (min(20, self._stats_dict[Stats.INTELLIGENCE])+15*(self._stats_dict[Stats.INTELLIGENCE] - min(self._stats_dict[Stats.INTELLIGENCE], 20)))
 
-        base_stats = {Stats.base(k): v for k, v in self._stats_dict.items()}
-        self._stats_dict.update(base_stats)
-
         self._stats_dict[Stats.SPIRIT] = self._stats_dict[Stats.base(Stats.SPIRIT)] * (1 + 0.05 * talents.get(talents.LIVING_SPIRIT))
+        lunar_guidance = [0, 0.08, 0.16, 0.25][talents.get(Talents.LUNAR_GUIDANCE)]
+        self._stats_dict[Stats.SPELL_DAMAGE] += lunar_guidance * self._stats_dict[Stats.INTELLIGENCE]
+        self._stats_dict[Stats.BONUS_HEALING] += lunar_guidance * self._stats_dict[Stats.INTELLIGENCE]
+        dreamstate = [0, 0.04, 0.07, 0.1][talents.get(Talents.DREAMSTATE)]
+        self._stats_dict[Stats.MP5] += dreamstate * self._stats_dict[Stats.INTELLIGENCE]
 
         self._talents = talents
         self._tree_form = tree_form and talents.get(Talents.TREE_OF_LIFE) == 1
@@ -65,13 +65,13 @@ class Character(object):
         return self._stats_dict.get(Stats.base(stat), None)
 
     def get_buffed_excel_formula(self, stat):
-        formula = self._all_buffs.excel_formula(stat, "#Stats.{stat}#".format(stat=Stats.base(stat)))
+        buffed_base = "#Stats.{stat}#".format(stat=Stats.base(stat))
+        if stat in Stats.computed():
+            buffed_base = Stats.get_computed_excel_formula(stat)
+        formula = self._all_buffs.excel_formula(stat, buffed_base)
         if stat == Stats.SPIRIT:
             formula = "(({}) * (1 + 0.05 * #Talents.{}#))".format(formula, Talents.LIVING_SPIRIT[0])
         return formula
 
     def get_base_excel_formula(self, stat):
-        if stat in Stats.computed():
-            return Stats.get_computed_excel_formula(stat)
-        else:
-            return str(self.get_base_stat(stat))
+        return str(self.get_base_stat(stat))

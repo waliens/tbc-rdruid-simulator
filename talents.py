@@ -10,6 +10,8 @@ class Talents(object):
     IMPROVED_REGROWTH = ("improved_regrowth", 5)
     INTENSITY = ("intensity", 3)
     TREE_OF_LIFE = ("tree_of_life", 1)
+    LUNAR_GUIDANCE = ("lunar_guidance", 3)
+    DREAMSTATE = ("dreamstate", 3)
 
     def __init__(self, talents):
         self._talents = {
@@ -24,7 +26,8 @@ class Talents(object):
     def all():
         return [Talents.NATURALIST, Talents.GIFT_OF_NATURE, Talents.TRANQUILITY_SPIRIT,
                 Talents.IMPROVED_REJUVENATION, Talents.EMPOWERED_REJUVENATION, Talents.LIVING_SPIRIT,
-                Talents.EMPOWERED_TOUCH, Talents.IMPROVED_REGROWTH, Talents.INTENSITY, Talents.TREE_OF_LIFE]
+                Talents.EMPOWERED_TOUCH, Talents.IMPROVED_REGROWTH, Talents.INTENSITY, Talents.TREE_OF_LIFE,
+                Talents.DREAMSTATE, Talents.LUNAR_GUIDANCE]
 
     def __len__(self):
         return len(self.all())
