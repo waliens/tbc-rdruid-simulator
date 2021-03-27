@@ -118,14 +118,14 @@ class CharacterSheetGenerator(ThematicSheet):
     def write_talents(self):
         first_row, first_col = self.offset
         first_col += 4
-        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 2, 'Talents')
-        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, 'Name')
-        col = self.write_cell(first_row + 1, first_col + 2, "Value")
+        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 5, 'Talents')
+        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 2, 'Name')
+        col = self.write_cell(first_row + 1, first_col + 3, "Value")
         self.write_cell(first_row + 1, col + 1, "Max")
 
         for i, talent in enumerate(Talents.all()):
             col = self.write_cell(first_row + i + 2, first_col, self.human_readable(talent[0]))
-            col = self.write_cell(first_row + i + 2, col + 1, "IMAGE(\"{}\")".format(self._talents_url[talent[0]]), formula=True)
+            col = self.write_cell(first_row + i + 2, col + 2, "IMAGE(\"{}\")".format(self._talents_url[talent[0]]), formula=True)
             col = self.write_cell_and_map(first_row + i + 2, col + 1, self._character.talents.get(talent[0]),
                                           cm_group="Talents", cm_key=talent[0])
             self.write_cell(first_row + i + 2, col + 1, talent[1])
@@ -145,14 +145,16 @@ class CharacterSheetGenerator(ThematicSheet):
             self.write_cell(first_row, first_col + 1, self._description)
             first_row += 1
 
-        self.write_cell(first_row, first_col, "Level")
-        self.write_cell_and_map(first_row, first_col + 1, self._character.level, cm_group="Character", cm_key="level")
-        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 2, 'Primary')
-        self.write_cell(first_row + 2, first_col, "Stat")
-        self.write_cell(first_row + 2, first_col + 1, "Base")
-        self.write_cell(first_row + 2, first_col + 2, "Buffed")
+        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 1, "Level")
+        self.write_cell_and_map(first_row, first_col + 2, self._character.level, cm_group="Character", cm_key="level")
+        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, "Tree aura on target")
+        self.write_cell_and_map(first_row + 1, first_col + 2, 1, "Target", "tree_of_life")
+        self.worksheet.merge_range(first_row + 2, first_col, first_row + 2, first_col + 2, 'Primary')
+        self.write_cell(first_row + 3, first_col, "Stat")
+        self.write_cell(first_row + 3, first_col + 1, "Base")
+        self.write_cell(first_row + 3, first_col + 2, "Buffed")
 
-        row = first_row + 3
+        row = first_row + 4
         for stat in Stats.primary():
             row, _ = self._write_stat_row(row, first_col, stat)
 
@@ -176,15 +178,15 @@ class CharacterSheetGenerator(ThematicSheet):
 
     def write_buffs(self):
         first_row, first_col = self.offset
-        first_col += 9
+        first_col += 10
         self.worksheet.merge_range(first_row, first_col, first_row, first_col + 1, 'Buffs')
         self.write_cell(first_row + 1, first_col, "Name")
-        self.write_cell(first_row + 1, first_col + 1, "Active")
+        self.write_cell(first_row + 1, first_col + 3, "Active")
 
         row = first_row + 2
         for name, buff in BUFFS.items():
             col = self.write_cell(row, first_col, self.human_readable(name))
-            self.write_cell_and_map(row, col + 1, int(self._character.buffs.has_buff(name)), "Buff", name)
+            self.write_cell_and_map(row, col + 3, int(self._character.buffs.has_buff(name)), "Buff", name)
             row += 1
 
     def write_sheet(self):
@@ -198,7 +200,10 @@ class CharacterSheetGenerator(ThematicSheet):
 
     @property
     def n_rows(self):
-        return max(len(self._character.talents) + (1 if len(self._description) > 0 else 0), 6 + len(self.all_stats), 2 + len(BUFFS)) + 1
+        return max(
+            len(self._character.talents) + (1 if len(self._description) > 0 else 0),
+            7 + len(self.all_stats),
+            2 + len(BUFFS)) + 1
 
 
 class SpellSheetGenerator(ThematicSheet):
@@ -632,16 +637,24 @@ def write_spells_wb(character, name, outfolder):
     wb = Workbook(os.path.join(outfolder, "character_{}.xlsx".format(name)))
     cell_map = dict()
 
-    sheets = [
-        CharacterSheetGenerator.create_new_sheet(wb, "Character", cell_map, character),
-        HealingTouchSheetGenerator.create_new_sheet(wb, "Healing touch", cell_map, HEALING_TOUCH),
-        RejuvenationSheetGenerator.create_new_sheet(wb, "Rejuvenation", cell_map, REJUVENATION),
-        RegrowthSheetGenerator.create_new_sheet(wb, "Regrowth", cell_map, REGROWTH),
-        LifebloomSheetGenerator.create_new_sheet(wb, "Lifebloom", cell_map, LIFEBLOOM),
-        TranquilitySheetGenerator.create_new_sheet(wb, "Tranquility", cell_map, TRANQUILITY)
-    ]
+    character = CharacterSheetGenerator.create_new_sheet(wb, "Character", cell_map, character)
+    row = character.n_rows + 2
+    healingt = HealingTouchSheetGenerator.create_from_sheet(
+        wb, character.worksheet, cell_map, HEALING_TOUCH, offset=(row, 0))
+    row += healingt.n_rows + 2
+    rejuvena = RejuvenationSheetGenerator.create_from_sheet(
+        wb, character.worksheet, cell_map, REJUVENATION, offset=(row, 0))
+    row += rejuvena.n_rows + 2
+    regrowth = RegrowthSheetGenerator.create_from_sheet(
+        wb, character.worksheet, cell_map, REGROWTH, offset=(row, 0))
+    row += regrowth.n_rows + 2
+    lifebloo = LifebloomSheetGenerator.create_from_sheet(
+        wb, character.worksheet, cell_map, LIFEBLOOM, offset=(row, 0))
+    row += lifebloo.n_rows + 2
+    tranquil = TranquilitySheetGenerator.create_from_sheet(
+        wb, character.worksheet, cell_map, TRANQUILITY, offset=(row, 0))
 
-    for s in sheets:
+    for s in [character, healingt, rejuvena, regrowth, lifebloo, tranquil]:
         s.write_sheet()
 
     wb.close()
