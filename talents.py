@@ -1,17 +1,17 @@
 
 class Talents(object):
-    NATURALIST = ("naturalist", 5)
-    GIFT_OF_NATURE = ("gift_of_nature", 5)
-    TRANQUILITY_SPIRIT = ("tranquil_spirit", 5)
-    IMPROVED_REJUVENATION = ("improved_rejuvenation", 3)
-    EMPOWERED_REJUVENATION = ("empowered_rejuvenation", 5)
-    LIVING_SPIRIT = ("living_spirit", 3)
-    EMPOWERED_TOUCH = ("empowered_touch", 2)
-    IMPROVED_REGROWTH = ("improved_regrowth", 5)
-    INTENSITY = ("intensity", 3)
-    TREE_OF_LIFE = ("tree_of_life", 1)
-    LUNAR_GUIDANCE = ("lunar_guidance", 3)
-    DREAMSTATE = ("dreamstate", 3)
+    NATURALIST = ("naturalist", 5, "restoration")
+    GIFT_OF_NATURE = ("gift_of_nature", 5, "restoration")
+    TRANQUILITY_SPIRIT = ("tranquil_spirit", 5, "restoration")
+    IMPROVED_REJUVENATION = ("improved_rejuvenation", 3, "restoration")
+    EMPOWERED_REJUVENATION = ("empowered_rejuvenation", 5, "restoration")
+    LIVING_SPIRIT = ("living_spirit", 3, "restoration")
+    EMPOWERED_TOUCH = ("empowered_touch", 2, "restoration")
+    IMPROVED_REGROWTH = ("improved_regrowth", 5, "restoration")
+    INTENSITY = ("intensity", 3, "restoration")
+    TREE_OF_LIFE = ("tree_of_life", 1, "restoration")
+    LUNAR_GUIDANCE = ("lunar_guidance", 3, "balance")
+    DREAMSTATE = ("dreamstate", 3, "balance")
 
     def __init__(self, talents):
         self._talents = {

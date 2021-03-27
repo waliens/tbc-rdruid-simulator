@@ -105,10 +105,10 @@ class CharacterSheetGenerator(ThematicSheet):
         self._character = character
         self._description = descr
 
-        talent_img_base_url = "https://legacy-wow.com/talentcalcs/tbc/shared/global/talents/druid/images/restoration"
+        talent_img_base_url = "https://legacy-wow.com/talentcalcs/tbc/shared/global/talents/druid/images"
         self._talents_url = {
-            talent_name: "{}/{}.jpg".format(talent_img_base_url, talent_name.replace("_", ""))
-            for talent_name, _ in Talents.all()
+            talent_name: "{}/{}/{}.jpg".format(talent_img_base_url, talent_tree, talent_name.replace("_", ""))
+            for talent_name, _, talent_tree in Talents.all()
         }
 
     def write_talents(self):
