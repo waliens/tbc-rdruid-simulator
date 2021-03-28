@@ -126,7 +126,7 @@ class CharacterSheetGenerator(ThematicSheet):
         for i, talent in enumerate(Talents.all()):
             col = self.write_cell(first_row + i + 2, first_col, self.human_readable(talent[0]))
             col = self.write_cell(first_row + i + 2, col + 2, "IMAGE(\"{}\")".format(self._talents_url[talent[0]]), formula=True)
-            col = self.write_cell_and_map(first_row + i + 2, col + 1, self._character.talents.get(talent[0]),
+            col = self.write_cell_and_map(first_row + i + 2, col + 1, self._character.talents.get(talent),
                                           cm_group="Talents", cm_key=talent[0])
             self.write_cell(first_row + i + 2, col + 1, talent[1])
 
