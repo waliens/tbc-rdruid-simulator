@@ -4,7 +4,8 @@ from talents import Talents
 from util import bisect_right, sort_by, apply_crit
 
 
-class Assignment(object):
+class SingleAssignment(object):
+    """single target and single spell assigment"""
     def __init__(self, spell, target, allow_fade=True, fade_at_stacks=1):
         self._target = target
         self._spell = spell
@@ -33,6 +34,23 @@ class Assignment(object):
 
     def __str__(self):
         return self.spell.identifier + "-" + self.target
+
+
+class Assignments(object):
+    def __init__(self, assigments, name="", description=""):
+        self._description = description
+        self._assigments = assigments
+        self._name = name
+
+    def __len__(self):
+        return len(self._assigments)
+
+    def __iter__(self):
+        return iter(self._assigments)
+
+    @property
+    def name(self):
+        return self._name
 
 
 class Event(object):

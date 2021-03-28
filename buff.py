@@ -37,7 +37,8 @@ class Buff(object):
 
 
 class BuffArray(object):
-    def __init__(self, buffs):
+    def __init__(self, buffs, name=""):
+        self._name = name
         self._buffs = buffs
         self._additive = defaultdict(lambda: list())
         self._multiplicative = defaultdict(lambda: list())
@@ -48,6 +49,10 @@ class BuffArray(object):
                     self._additive[stat].append(buff)
                 elif type == Buff.TYPE_MULTIPLICATIVE:
                     self._multiplicative[stat].append(buff)
+
+    @property
+    def name(self):
+        return self._name
 
     def __len__(self):
         return len(self._buffs)

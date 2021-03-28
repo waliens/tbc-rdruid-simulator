@@ -16,14 +16,18 @@ def sheet_cell_ref(sheet, row, col):
     return "'" + sheet.name + "'!" + xl_rowcol_to_cell(row, col, row_abs=True, col_abs=True)
 
 
-def parse_formula(formula, cell_map):
+def parse_formula(formula, cell_map, ignore_missing=False):
     pattern = re.compile(r"#([a-zA-Z_0-9 -]+)\.([a-zA-Z_0-9 -]+)#")
     array = []
     start = 0
     for match in pattern.finditer(formula):
         mstart, mend = match.regs[0][0], match.regs[-1][1]
+        key = (match.group(1), match.group(2))
         array.append(formula[start:mstart])
-        array.append(cell_map[(match.group(1), match.group(2))])
+        if key not in cell_map and ignore_missing:
+            array.append("#{}.{}#".format(*key))
+        else:
+            array.append(cell_map[key])
         start = mend + 1
     array.append(formula[start:])
     return "".join(array)
@@ -589,44 +593,85 @@ class AssigmentsSheet(ThematicSheet):
 
 
 class ComparisonSummarySheet(ThematicSheet):
-    def __init__(self, workbook, sheet, cell_map, combinations, cell_maps, offset=(0, 0)):
+    def __init__(self, workbook, sheet, cell_map, combinations, cell_maps, duration, stats_columns=None, offset=(0, 0)):
         super().__init__(workbook, sheet, cell_map, offset)
-        self._combinations = {(c[0], c[3]): c for c in combinations}
-        self._c_names = list({c[0] for c in combinations})
-        self._r_names = list({c[3] for c in combinations})
+        self._combinations = {(c[1], c[3].talents.name, c[3].buffs.name, c[4].name): c for c in combinations}
+        self._a_names = sorted(list({c[4].name for c in combinations}))
+        self._o_names = sorted(list({(c[1], c[3].talents.name, c[3].buffs.name) for c in combinations}))
         self._all_cell_maps = cell_maps
+        self._stats_columns = ["hps", "time_to_oom", "mps"] if stats_columns is None else stats_columns
+        self._fight_duration = duration
 
     @property
     def n_cols(self):
-        return len(self._c_names) + 1
+        return 3 + len(self._a_names) * self.n_stats_columns
 
     @property
     def n_rows(self):
-        return len(self._r_names) + 1
+        return len(self._combinations) + 2
 
-    def write_sheet(self):
-        first_row, first_col = self._offset
-        for i, r_name in enumerate(self._r_names):
-            self.write_cell(first_row + 1 + i, first_col, r_name)
-        for j, c_name in enumerate(self._c_names):
-            self.write_cell(first_row, first_col + j + 1, c_name)
-            for i, r_name in enumerate(self._r_names):
-                merged_name = "{}_{}".format(c_name, r_name)
-                _, character, _, _, assigments, _, stats = self._combinations[(c_name, r_name)]
-                formula = ComparisonSummarySheet.to_formula(stats["string_heals"])
-                formula = "{} / {}".format(formula, stats["duration"])
-                parsed = parse_formula(formula, cell_map=self._all_cell_maps[merged_name])
-                self.write_cell(first_row + 1 + i, first_col + 1 + j, parsed, formula=True)
+    @property
+    def n_stats_columns(self):
+        return len(self._stats_columns)
 
     @staticmethod
-    def to_formula(heals):
+    def to_formula(heals, over_time=None):
         heal_dict = defaultdict(lambda: 0)
         for heal_tokken in heals:
             heal_dict[heal_tokken] += 1
-        return "(" + "+".join([
-            "({mult} * ({form}))".format(mult=mult, form=form)
-            for form, mult in heal_dict.items()
-        ]) + ")"
+        f = "+".join(["({mult} * ({form}))".format(mult=mult, form=form) for form, mult in heal_dict.items()])
+        if over_time is None:
+            return "(" + f + ")"
+        return "({})/{}".format(f, over_time)
+
+    def write_sheet(self):
+        first_row, first_col = self._offset
+
+        # headers
+        self.write_cell(first_row, first_col, "Duration")
+        self.write_cell_and_map(first_row, first_col + 1, self._fight_duration, "Fight", "duration")
+        self.write_cell(first_row + 1, first_col, "Gear")
+        self.write_cell(first_row + 1, first_col + 1, "Talents")
+        self.write_cell(first_row + 1, first_col + 2, "Buffs")
+        for j, a_name in enumerate(self._a_names):
+            start_col = first_col + 3 + j * self.n_stats_columns
+            self._worksheet.merge_range(first_row, start_col, first_row, start_col + self.n_stats_columns - 1, a_name)
+            for jj, col_name in enumerate(self._stats_columns):
+                self.write_cell(first_row + 1, start_col + jj, col_name)
+
+        # data
+        for i, (c_name, t_name, b_name) in enumerate(self._o_names):
+            self.write_cell(first_row + 2 + i, first_col, c_name)
+            self.write_cell(first_row + 2 + i, first_col + 1, t_name)
+            self.write_cell(first_row + 2 + i, first_col + 2, b_name)
+
+            for j, a_name in enumerate(self._a_names):
+                (ref, _, _, character, assignments, rotation, stats) = self._combinations[(c_name, t_name, b_name, a_name)]
+                for jj, stats_name in enumerate(self._stats_columns):
+                    start_col = first_col + 3 + j * self.n_stats_columns
+                    if stats_name == "hps":
+                        formula = ComparisonSummarySheet.to_formula(stats["string_heals"], over_time="#Fight.duration#")
+                    else:
+                        formula = "0"
+                    formula = parse_formula(formula, self.cell_map, ignore_missing=True)
+                    self.write_cell_and_map(
+                        first_row + 2 + i,
+                        start_col + jj,
+                        parse_formula(formula, cell_map=self._all_cell_maps[ref]),
+                        "Comp-{}".format(a_name), stats_name,
+                        formula=True
+                    )
+
+
+        # for j, c_name in enumerate(self._c_names):
+        #     self.write_cell(first_row, first_col + j + 1, c_name)
+        #     for jj, a_name in enumerate(self._a_names):
+        #         merged_name = "{}_{}".format(c_name, a_name)
+        #         _, character, _, _, assigments, _, stats = self._combinations[(c_name, a_name)]
+        #
+        #         formula = ComparisonSummarySheet.to_formula(stats["string_heals"], over_time=stats["duration"])
+        #         parsed = parse_formula(formula, cell_map=self._all_cell_maps[merged_name])
+        #         self.write_cell(first_row + 1 + i, first_col + 1 + j, parsed, formula=True)
 
 
 def write_spell_charac_sheet(workbook, name, character, offset=(0, 0)):
@@ -660,14 +705,14 @@ def write_spells_wb(character, name, outfolder):
     wb.close()
 
 
-def write_compare_setups_wb(configs, outfolder):
+def write_compare_setups_wb(configs, fight_duration, outfolder):
     wb = Workbook(os.path.join(outfolder, "compare.xlsx"))
     cell_maps = defaultdict(lambda: dict())
-    for c_name, character, c_descr, r_name, assigments, r_descr, stats in configs:
-        merged_name = "{}_{}".format(c_name, r_name)
-        sheet, cm = write_spell_charac_sheet(wb, merged_name, character, offset=(0, 0))
-        cell_maps[merged_name].update(cm)
+    for i, (c_name, c_descr, character, assigments, rotation, stats) in enumerate(configs):
+        sheet, cm = write_spell_charac_sheet(wb, "{}".format(i + 1), character, offset=(1, 0))
+        cell_maps[str(i + 1)].update(cm)
 
-    comp = ComparisonSummarySheet.create_new_sheet(wb, "summary", dict(), configs, cell_maps)
+    configs = [(str(i + 1), ) + c for i, c in enumerate(configs)]
+    comp = ComparisonSummarySheet.create_new_sheet(wb, "summary", dict(), configs, cell_maps, fight_duration)
     comp.write_sheet()
     wb.close()

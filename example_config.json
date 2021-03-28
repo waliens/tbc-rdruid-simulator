@@ -34,7 +34,7 @@
   "buffs": [
     {
       "name": "full+hpelixir",
-      "array": [
+      "active": [
         "gift_of_the_wild",
         "arcane_intellect",
         "benediction_of_king",
@@ -49,13 +49,13 @@
     },
     {
       "name": "unbuffed",
-      "array": []
+      "active": []
     }
   ],
   "talents": [
     {
       "name": "deep_resto",
-      "talents": {
+      "points": {
         "naturalist": 0,
         "gift_of_nature": 5,
         "tranquility_spirit": 5,

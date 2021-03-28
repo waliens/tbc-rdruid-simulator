@@ -8,7 +8,7 @@ from buff import BUFFS, BuffArray
 from character import Character
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
-from rotation import Assignment, Rotation
+from rotation import SingleAssignment, Rotation, Assignments
 from spell import HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM
 from talents import Talents
 
@@ -40,50 +40,47 @@ def main(argv):
     with open(args.config_filepath, "r", encoding="utf-8") as file:
         _in = json.load(file)
 
-    characters = [
-        (
-            character["name"],
-            character["description"],
-            Character(
-                stats=character["stats"],
-                talents=Talents(character["talents"]),
-                buffs=BuffArray([BUFFS[b] for b in character["buffs"]]),
-                level=character["level"],
-                tree_form=character["tree_form"]
-            )
-        ) for character in _in["characters"]
-    ]
-
-    rotations = [
-        (
-            rotation["name"],
-            rotation["description"],
-            [Assignment(spell=get_spell_from_assign(assign),
-                        target=assign["target"],
-                        allow_fade=assign.get("allow_fade", True),
-                        fade_at_stacks=assign.get("fade_at_stacks", 1))
-             for assign in rotation["assignments"]]
-        )
-        for rotation in _in["rotations"]
-    ]
+    all_buffs = [BuffArray([BUFFS[b] for b in buff["active"]], name=buff["name"]) for buff in _in["buffs"]]
+    all_talents = [Talents(talent["points"], name=talent["name"]) for talent in _in["talents"]]
+    all_assignments = [Assignments(
+        [
+            SingleAssignment(
+                spell=get_spell_from_assign(assign),
+                target=assign["target"],
+                allow_fade=assign.get("allow_fade", True),
+                fade_at_stacks=assign.get("fade_at_stacks", 1)
+            ) for assign in rotation["assignments"]
+        ],
+        name=rotation["name"],
+        description=["description"]
+    ) for rotation in _in["rotations"]]
 
     combinations = list()
-    for (c_name, c_description, character), (r_name, r_description, assigments) in itertools.product(characters, rotations):
-        rotation = Rotation(assigments)
+    for charac_info, buffs, talents, assignments in itertools.product(_in["characters"], all_buffs, all_talents, all_assignments):
+        character = Character(
+            stats=charac_info["stats"],
+            talents=talents,
+            buffs=buffs,
+            level=charac_info["level"],
+            tree_form=charac_info["tree_form"]
+        )
+
+        comb_name = "_".join([charac_info["name"], talents.name, buffs.name, assignments.name])
+        rotation = Rotation(assignments)
         rotation.optimal_rotation(character, _in["fight_duration"])
         stats = rotation.stats(character, start=0, end=_in["fight_duration"])
-        combinations.append((c_name, character, c_description, r_name, assigments, r_description, stats))
+        combinations.append((charac_info["name"], charac_info["description"], character, assignments, rotation, stats))
 
         if args.graphs:
             plot_rotation(
-                path=os.path.join(args.out_folder, "{}_{}.png".format(c_name, r_name)),
+                path=os.path.join(args.out_folder, "{}.png".format(comb_name)),
                 rotation=rotation,
                 maxx=_in["fight_duration"]
             )
 
     if args.spreadsheets:
-        write_spells_wb(combinations[0][1], "rdruid", outfolder=args.out_folder)
-        write_compare_setups_wb(combinations, outfolder=args.out_folder)
+        write_spells_wb(combinations[0][2], "spells", outfolder=args.out_folder)
+        write_compare_setups_wb(combinations, _in["fight_duration"], outfolder=args.out_folder)
 
 
 if __name__ == "__main__":

@@ -13,7 +13,8 @@ class Talents(object):
     LUNAR_GUIDANCE = ("lunar_guidance", 3, "balance")
     DREAMSTATE = ("dreamstate", 3, "balance")
 
-    def __init__(self, talents):
+    def __init__(self, talents, name=""):
+        self._name = name
         self._talents = {
             t: min(t[1], talents.get(t[0], 0))
             for t in Talents.all()
@@ -21,6 +22,10 @@ class Talents(object):
 
     def get(self, talent):
         return self._talents.get(talent, 0)
+
+    @property
+    def name(self):
+        return self._name
 
     @staticmethod
     def all():

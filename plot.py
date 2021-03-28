@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.ticker import MultipleLocator
 
-from rotation import SpellEvent, Rotation, Assignment
+from rotation import SpellEvent, Rotation, SingleAssignment
 from spell import Regrowth, Rejuvenation, HealingTouch, Lifebloom, HealingSpell
 
 HT_COLOR = "#4B7494"
@@ -98,15 +98,15 @@ def main():
     #     print(cm_group, cm_group.get_healing(character, coef_policy))
 
     rotation = Rotation([
-        # Assignment(LIFEBLOOM[0], "tank1", allow_fade=False),
-        # Assignment(LIFEBLOOM[0], "tank2", allow_fade=False),
-        # Assignment(LIFEBLOOM[0], "tank3", allow_fade=False),
-        # Assignment(LIFEBLOOM[0], "tank4", allow_fade=False),
-        # Assignment(LIFEBLOOM[0], "tank5", allow_fade=False),
-        Assignment(LIFEBLOOM[0], "tank1", allow_fade=False),
-        Assignment(LIFEBLOOM[0], "tank2", allow_fade=False),
-        Assignment(REJUVENATION[-1], "tank1"),
-        Assignment(REJUVENATION[-1], "tank2"),
+        # SingleAssignment(LIFEBLOOM[0], "tank1", allow_fade=False),
+        # SingleAssignment(LIFEBLOOM[0], "tank2", allow_fade=False),
+        # SingleAssignment(LIFEBLOOM[0], "tank3", allow_fade=False),
+        # SingleAssignment(LIFEBLOOM[0], "tank4", allow_fade=False),
+        # SingleAssignment(LIFEBLOOM[0], "tank5", allow_fade=False),
+        SingleAssignment(LIFEBLOOM[0], "tank1", allow_fade=False),
+        SingleAssignment(LIFEBLOOM[0], "tank2", allow_fade=False),
+        SingleAssignment(REJUVENATION[-1], "tank1"),
+        SingleAssignment(REJUVENATION[-1], "tank2"),
     ])
 
     rotation.optimal_rotation(character, fight_duration=-1)
