@@ -651,7 +651,7 @@ def write_spell_charac_sheet(workbook, name, character, offset=(0, 0)):
         spell_sheet.write_sheet()
         prev_sheet = spell_sheet
 
-    return cell_map
+    return charac_sheet, cell_map
 
 
 def write_spells_wb(character, name, outfolder):
@@ -665,18 +665,8 @@ def write_compare_setups_wb(configs, outfolder):
     cell_maps = defaultdict(lambda: dict())
     for c_name, character, c_descr, r_name, assigments, r_descr, stats in configs:
         merged_name = "{}_{}".format(c_name, r_name)
-        sheet = wb.add_worksheet(name=merged_name[:31])
-        cell_map = cell_maps[merged_name]
-        char_part = CharacterSheetGenerator.create_from_sheet(wb, sheet, cell_map, character, c_descr, offset=(0, 0))
-        assi_part = AssigmentsSheet.create_from_sheet(wb, sheet, cell_map, assigments, r_descr, offset=(0, char_part.n_cols + 1))
-        spells_start_row = max(char_part.offset_row + char_part.n_rows + 1, assi_part.offset_row + assi_part.n_rows + 1)
-        htou_part = HealingTouchSheetGenerator.create_from_sheet(wb, sheet, cell_map, HEALING_TOUCH, offset=(spells_start_row, 0))
-        reju_part = RejuvenationSheetGenerator.create_from_sheet(wb, sheet, cell_map, REJUVENATION, offset=(htou_part.offset_row + htou_part.n_rows + 1, 0))
-        regr_part = RegrowthSheetGenerator.create_from_sheet(wb, sheet, cell_map, REGROWTH, offset=(reju_part.offset_row + reju_part.n_rows + 1, 0))
-        lblo_part = LifebloomSheetGenerator.create_from_sheet(wb, sheet, cell_map, LIFEBLOOM, offset=(regr_part.offset_row + regr_part.n_rows + 1, 0))
-
-        for s in [char_part, assi_part, htou_part, reju_part, regr_part, lblo_part]:
-            s.write_sheet()
+        sheet, cm = write_spell_charac_sheet(wb, merged_name, character, offset=(0, 0))
+        cell_maps[merged_name].update(cm)
 
     comp = ComparisonSummarySheet.create_new_sheet(wb, "summary", dict(), configs, cell_maps)
     comp.write_sheet()
