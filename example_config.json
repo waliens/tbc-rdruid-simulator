@@ -31,6 +31,44 @@
       ]
     }
   ],
+  "buffs": [
+    {
+      "name": "full+hpelixir",
+      "array": [
+        "gift_of_the_wild",
+        "arcane_intellect",
+        "benediction_of_king",
+        "benediction_of_wisdom_tal",
+        "mana_tide_totem_tal",
+        "wrath_of_air_totem",
+        "totem_of_wrath",
+        "moonkin_aura",
+        "elixir_of_healing_power",
+        "golden_fish_sticks"
+      ]
+    },
+    {
+      "name": "unbuffed",
+      "array": []
+    }
+  ],
+  "talents": [
+    {
+      "name": "deep_resto",
+      "talents": {
+        "naturalist": 0,
+        "gift_of_nature": 5,
+        "tranquility_spirit": 5,
+        "improved_rejuvenation": 3,
+        "empowered_rejuvenation": 5,
+        "living_spirit": 3,
+        "empowered_touch": 2,
+        "improved_regrowth": 5,
+        "intensity": 3,
+        "tree_of_life": 1
+      }
+    }
+  ],
   "characters": [
     {
       "name": "classic_gear",
@@ -48,31 +86,7 @@
         "mp5": 70,
         "spell_damage": 409,
         "bonus_healing": 1263
-      },
-      "talents": {
-        "naturalist": 0,
-        "gift_of_nature": 5,
-        "tranquility_spirit": 5,
-        "improved_rejuvenation": 3,
-        "empowered_rejuvenation": 5,
-        "living_spirit": 3,
-        "empowered_touch": 2,
-        "improved_regrowth": 5,
-        "intensity": 3,
-        "tree_of_life": 1
-      },
-      "buffs": [
-        "gift_of_the_wild",
-        "arcane_intellect",
-        "benediction_of_king",
-        "benediction_of_wisdom_tal",
-        "mana_tide_totem_tal",
-        "wrath_of_air_totem",
-        "totem_of_wrath",
-        "moonkin_aura",
-        "elixir_of_healing_power",
-        "golden_fish_sticks"
-      ]
+      }
     }
   ]
 }
