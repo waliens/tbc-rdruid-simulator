@@ -599,7 +599,7 @@ class ComparisonSummarySheet(ThematicSheet):
         self._a_names = sorted(list({c[4].name for c in combinations}))
         self._o_names = sorted(list({(c[1], c[3].talents.name, c[3].buffs.name) for c in combinations}))
         self._all_cell_maps = cell_maps
-        self._stats_columns = ["hps", "time_to_oom", "mps"] if stats_columns is None else stats_columns
+        self._stats_columns = ["hps", "time2oom", "mps"] if stats_columns is None else stats_columns
         self._fight_duration = duration
 
     @property
@@ -649,17 +649,24 @@ class ComparisonSummarySheet(ThematicSheet):
                 (ref, _, _, character, assignments, rotation, stats) = self._combinations[(c_name, t_name, b_name, a_name)]
                 for jj, stats_name in enumerate(self._stats_columns):
                     start_col = first_col + 3 + j * self.n_stats_columns
+                    formula = False
                     if stats_name == "hps":
-                        formula = ComparisonSummarySheet.to_formula(stats["string_heals"], over_time="#Fight.duration#")
+                        content = ComparisonSummarySheet.to_formula(stats["string_heals"], over_time="#Fight.duration#")
+                        formula = True
+                    elif stats_name == "mps":
+                        content = ComparisonSummarySheet.to_formula(stats["string_mana"], over_time="#Fight.duration#")
+                        formula = True
                     else:
-                        formula = "0"
-                    formula = parse_formula(formula, self.cell_map, ignore_missing=True)
+                        content = stats[stats_name]
+                    if formula:
+                        content = parse_formula(content, self.cell_map, ignore_missing=True)
+                        content = parse_formula(content, cell_map=self._all_cell_maps[ref])
                     self.write_cell_and_map(
                         first_row + 2 + i,
                         start_col + jj,
-                        parse_formula(formula, cell_map=self._all_cell_maps[ref]),
+                        content,
                         "Comp-{}".format(a_name), stats_name,
-                        formula=True
+                        formula=formula
                     )
 
 

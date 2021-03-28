@@ -257,6 +257,7 @@ class Timeline():
         timestamps, heals, string_heals = sort_by(timestamps, heals, string_heals, f=(lambda t, h, s: start <= t <= end))
         mana_ticks = [e.start for e in filtered]
         mana_costs = [e.spell.mana_cost - (20 if character.tree_form else 0) for e in filtered]
+        string_mana = ["#{spell}.mana_cost#".format(spell=e.spell.identifier) for e in filtered]
 
         return {
             "uptime": self.uptime(start=start, end=end),
@@ -265,6 +266,7 @@ class Timeline():
             "duration": end - start,
             "mana_costs": mana_costs,
             "mana_ticks": mana_ticks,
+            "string_mana": string_mana,
             "total_mana": sum(mana_costs),
             "heals": heals,
             "string_heals": string_heals,
@@ -465,20 +467,22 @@ class Rotation(object):
         stats["end"] = min([t["end"] for t in timeline_stats])
         stats["duration"] = stats["end"] - stats["start"]
 
-        mana_ticks, mana_costs, heals, timestamps, string_heals = list(), list(), list(), list(), list()
+        mana_ticks, mana_costs, heals, timestamps, string_heals, string_mana = [list() for _ in range(6)]
 
         for timeline_stat in timeline_stats:
             mana_ticks.extend(timeline_stat["mana_ticks"])
             mana_costs.extend(timeline_stat["mana_costs"])
             heals.extend(timeline_stat["heals"])
             string_heals.extend(timeline_stat["string_heals"])
+            string_mana.extend(timeline_stat["string_mana"])
             timestamps.extend(timeline_stat["timestamps"])
 
-        mana_ticks, mana_costs = sort_by(mana_ticks, mana_costs)
+        mana_ticks, mana_costs, string_mana = sort_by(mana_ticks, mana_costs, string_mana)
         timestamps, heals, string_heals = sort_by(timestamps, heals, string_heals)
         stats.update(**{
             "mana_ticks": mana_ticks,
             "mana_costs": mana_costs,
+            "string_mana": string_mana,
             "mana": sum(mana_costs),
             "heals": heals,
             "string_heals": string_heals,
