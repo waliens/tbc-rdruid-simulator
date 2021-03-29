@@ -310,11 +310,11 @@ class Timeline():
 
 class Rotation(object):
     def __init__(self, assignments):
-        self._assigments = assignments
+        self._assignments = assignments
         self._reset_state()
 
     def _reset_state(self):
-        self._timelines = {assignment.identifier: Timeline(str(assignment)) for assignment in self._assigments}
+        self._timelines = {assignment.identifier: Timeline(str(assignment)) for assignment in self._assignments}
         self._gcd_timeline = Timeline("gcd")
         self._cast_timeline = Timeline("cast")
         self._uptime_timeline = Timeline("uptime")
@@ -378,13 +378,13 @@ class Rotation(object):
 
     @property
     def assignments(self):
-        return self._assigments
+        return self._assignments
 
     def _action_at(self, current_time, gcd, character, reaction=0.01):
         """(wait_duration|-1, assigment|None)"""
         lookahead = 9999  # to store the time before a higher priority hot must be reapplied
         wait = 9999
-        for assignment in self._assigments:
+        for assignment in self._assignments:
             # current cast time/gcd prevent from later applying/casting a higher priority cm_group
             cast_time = assignment.spell.get_effective_cast_time(character)
             if max(gcd, cast_time) >= lookahead:
