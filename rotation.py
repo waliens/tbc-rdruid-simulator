@@ -384,30 +384,30 @@ class Rotation(object):
         """(wait_duration|-1, assigment|None)"""
         lookahead = 9999  # to store the time before a higher priority hot must be reapplied
         wait = 9999
-        for assigment in self._assigments:
+        for assignment in self._assigments:
             # current cast time/gcd prevent from later applying/casting a higher priority cm_group
-            cast_time = assigment.spell.get_effective_cast_time(character)
+            cast_time = assignment.spell.get_effective_cast_time(character)
             if max(gcd, cast_time) >= lookahead:
                 continue
 
             # current cm_group not up, so cast !
-            timeline = self._timelines[assigment.identifier]
+            timeline = self._timelines[assignment.identifier]
             if not timeline.is_up_at(current_time):
-                return -1, assigment
+                return -1, assignment
 
             # cm_group is up (can only be a HoT), cast time does not prevent higher priority cm_group to be cast in the future
             spell_event = timeline.event_at(current_time)
             remaining_time = timeline.remaining_uptime(current_time)
-            period = assigment.spell.tick_period
-            if assigment.allow_fade and spell_event.stacks == assigment.fade_at_stacks:
+            period = assignment.spell.tick_period
+            if assignment.allow_fade and spell_event.stacks == assignment.fade_at_stacks:
                 # cast right after last tick, or wait so that casting time
                 # results in landing the heal right after the last tick
                 if cast_time > remaining_time:
-                    return -1, assigment
+                    return -1, assignment
                 else:
                     wait = min(wait, remaining_time - cast_time + reaction)
             elif remaining_time <= period:
-                return -1, assigment
+                return -1, assignment
             else:
                 lookahead = min(lookahead, remaining_time - cast_time - reaction)
                 wait = min(wait, remaining_time - cast_time - period + reaction)
