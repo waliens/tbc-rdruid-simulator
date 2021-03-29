@@ -8,22 +8,8 @@ from buff import BUFFS, BuffArray
 from character import Character
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
-from rotation import SingleAssignment, Rotation, Assignments
-from spell import HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM
+from rotation import Rotation, Assignments
 from talents import Talents
-
-
-def get_spell_from_assign(assign):
-    if assign["spell"] == "healing_touch":
-        return HEALING_TOUCH[assign.get("rank", 13) - 1]
-    elif assign["spell"] == "rejuvenation":
-        return REJUVENATION[assign.get("rank", 13) - 1]
-    elif assign["spell"] == "regrowth":
-        return REGROWTH[assign.get("rank", 10) - 1]
-    elif assign["spell"] == "lifebloom":
-        return LIFEBLOOM[assign.get("rank", 1) - 1]
-    else:
-        raise ValueError("unknown cm_group '{}'".format(assign["spell"]))
 
 
 def main(argv):
@@ -42,18 +28,7 @@ def main(argv):
 
     all_buffs = [BuffArray([BUFFS[b] for b in buff["active"]], name=buff["name"]) for buff in _in["buffs"]]
     all_talents = [Talents(talent["points"], name=talent["name"]) for talent in _in["talents"]]
-    all_assignments = [Assignments(
-        [
-            SingleAssignment(
-                spell=get_spell_from_assign(assign),
-                target=assign["target"],
-                allow_fade=assign.get("allow_fade", True),
-                fade_at_stacks=assign.get("fade_at_stacks", 1)
-            ) for assign in rotation["assignments"]
-        ],
-        name=rotation["name"],
-        description=["description"]
-    ) for rotation in _in["rotations"]]
+    all_assignments = [Assignments.from_dict(rotation) for rotation in _in["rotations"]]
 
     combinations = list()
     for charac_info, buffs, talents, assignments in itertools.product(_in["characters"], all_buffs, all_talents, all_assignments):

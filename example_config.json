@@ -8,7 +8,9 @@
         { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
         { "spell": "rejuvenation", "target": "tank" },
         { "spell": "regrowth", "target": "tank" }
-      ]
+      ],
+      "buffs": { "tank": ["amplify magic", "dampen magic", "tree_of_life"] },
+      "filler": { "spell": "rejuvenation" }
     },
     {
       "name": "2t_lbx2_rjx2",

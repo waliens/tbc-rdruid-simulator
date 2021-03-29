@@ -1,5 +1,5 @@
 from character import Stats
-from spell import HealingSpell, Lifebloom
+from spell import HealingSpell, Lifebloom, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from talents import Talents
 from util import bisect_right, sort_by, apply_crit
 
@@ -36,21 +36,54 @@ class SingleAssignment(object):
         return self.spell.identifier + "-" + self.target
 
 
+def get_spell_from_assign(assign):
+    if assign["spell"] == "healing_touch":
+        return HEALING_TOUCH[assign.get("rank", len(HEALING_TOUCH)) - 1]
+    elif assign["spell"] == "rejuvenation":
+        return REJUVENATION[assign.get("rank", len(REJUVENATION)) - 1]
+    elif assign["spell"] == "regrowth":
+        return REGROWTH[assign.get("rank", len(REGROWTH)) - 1]
+    elif assign["spell"] == "lifebloom":
+        return LIFEBLOOM[assign.get("rank", len(LIFEBLOOM)) - 1]
+    elif assign["tranquility"] == "tranquility":
+        return TRANQUILITY[assign.get("rank", len(TRANQUILITY)) - 1]
+    else:
+        raise ValueError("unknown spell '{}'".format(assign["spell"]))
+
+
 class Assignments(object):
-    def __init__(self, assigments, name="", description=""):
+    def __init__(self, assignments, name="", description="", filler=None, target_buffs=None):
         self._description = description
-        self._assigments = assigments
+        self._assignments = assignments
         self._name = name
+        self._filler = get_spell_from_assign(filler) if filler is not None else filler
+        self._target_buffs = [] if target_buffs is None else target_buffs
 
     def __len__(self):
-        return len(self._assigments)
+        return len(self._assignments)
 
     def __iter__(self):
-        return iter(self._assigments)
+        return iter(self._assignments)
 
     @property
     def name(self):
         return self._name
+
+    @staticmethod
+    def from_dict(data):
+        assignments = [SingleAssignment(
+            spell=get_spell_from_assign(assign),
+            target=assign["target"],
+            allow_fade=assign.get("allow_fade", True),
+            fade_at_stacks=assign.get("fade_at_stacks", 1)
+        ) for assign in data["assignments"]]
+        return Assignments(
+            assignments,
+            name=data["name"],
+            description=data["description"],
+            filler=data.get("filler"),
+            target_buffs=data.get("buffs")
+        )
 
 
 class Event(object):

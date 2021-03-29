@@ -674,7 +674,7 @@ class ComparisonSummarySheet(ThematicSheet):
         #     self.write_cell(first_row, first_col + j + 1, c_name)
         #     for jj, a_name in enumerate(self._a_names):
         #         merged_name = "{}_{}".format(c_name, a_name)
-        #         _, character, _, _, assigments, _, stats = self._combinations[(c_name, a_name)]
+        #         _, character, _, _, assignments, _, stats = self._combinations[(c_name, a_name)]
         #
         #         formula = ComparisonSummarySheet.to_formula(stats["string_heals"], over_time=stats["duration"])
         #         parsed = parse_formula(formula, cell_map=self._all_cell_maps[merged_name])
