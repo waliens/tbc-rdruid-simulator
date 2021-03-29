@@ -37,16 +37,16 @@ class SingleAssignment(object):
 
 
 def get_spell_from_assign(assign):
-    if assign["spell"] == "healing_touch":
-        return HEALING_TOUCH[assign.get("rank", len(HEALING_TOUCH)) - 1]
-    elif assign["spell"] == "rejuvenation":
-        return REJUVENATION[assign.get("rank", len(REJUVENATION)) - 1]
-    elif assign["spell"] == "regrowth":
-        return REGROWTH[assign.get("rank", len(REGROWTH)) - 1]
-    elif assign["spell"] == "lifebloom":
-        return LIFEBLOOM[assign.get("rank", len(LIFEBLOOM)) - 1]
-    elif assign["tranquility"] == "tranquility":
-        return TRANQUILITY[assign.get("rank", len(TRANQUILITY)) - 1]
+    all_spells = {
+        "healing_touch": HEALING_TOUCH,
+        "rejuvenation": REJUVENATION,
+        "regrowth": REGROWTH,
+        "lifebloom": LIFEBLOOM,
+        "tranquility": TRANQUILITY
+    }
+    if assign["spell"] in all_spells:
+        spells = all_spells[assign["spell"]]
+        return spells[assign.get(assign["rank"], len(spells)) - 1]
     else:
         raise ValueError("unknown spell '{}'".format(assign["spell"]))
 
