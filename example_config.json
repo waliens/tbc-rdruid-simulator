@@ -9,28 +9,10 @@
         { "spell": "rejuvenation", "target": "tank" },
         { "spell": "regrowth", "target": "tank" }
       ],
-      "buffs": { "tank": ["amplify magic", "dampen magic", "tree_of_life"] },
+      "buffs": {
+        "tank": ["amplify magic", "dampen magic", "tree_of_life"]
+      },
       "filler": { "spell": "rejuvenation" }
-    },
-    {
-      "name": "2t_lbx2_rjx2",
-      "description": "Keeping lifebloom and rejuv rolling on two targets, no filler.",
-      "assignments": [
-        { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
-        { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
-        { "spell": "rejuvenation", "target": "tank1" },
-        { "spell": "rejuvenation", "target": "tank2" }
-      ]
-    },
-    {
-      "name": "4t_lbx4",
-      "description": "Always keeping lifebloom up on four targets, no filler.",
-      "assignments": [
-        { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
-        { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
-        { "spell": "lifebloom", "allow_fade": false, "target": "tank3" },
-        { "spell": "lifebloom", "allow_fade": false, "target": "tank4" }
-      ]
     }
   ],
   "buffs": [

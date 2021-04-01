@@ -35,6 +35,28 @@ class SingleAssignment(object):
     def __str__(self):
         return self.spell.identifier + "-" + self.target
 
+    @staticmethod
+    def from_dict(**kwargs):
+        return SingleAssignment(
+            spell=get_spell_from_assign(kwargs),
+            target=kwargs["target"],
+            allow_fade=kwargs.get("allow_fade", True),
+            fade_at_stacks=kwargs.get("fade_at_stacks", 1)
+        )
+
+
+class FillerAssignment(SingleAssignment):
+    def __init__(self, assignment, target_suffix):
+        super().__init__(assignment.spell, assignment.target,
+                         allow_fade=assignment.allow_fade,
+                         fade_at_stacks=assignment.fade_at_stacks)
+        self._base_assignment = assignment
+        self._target_suffix = target_suffix
+
+    @property
+    def target(self):
+        return self._base_assignment.target + self._target_suffix
+
 
 def get_spell_from_assign(assign):
     all_spells = {
@@ -46,7 +68,7 @@ def get_spell_from_assign(assign):
     }
     if assign["spell"] in all_spells:
         spells = all_spells[assign["spell"]]
-        return spells[assign.get(assign["rank"], len(spells)) - 1]
+        return spells[assign.get("rank", len(spells)) - 1]
     else:
         raise ValueError("unknown spell '{}'".format(assign["spell"]))
 
@@ -56,7 +78,9 @@ class Assignments(object):
         self._description = description
         self._assignments = assignments
         self._name = name
-        self._filler = get_spell_from_assign(filler) if filler is not None else filler
+        if filler is not None and ("allow_fade" in filler or "fade_at_stacks" in filler):
+            raise ValueError("filler description does not allow fields 'allow_fade' and 'fade_at_stacks'")
+        self._filler = SingleAssignment.from_dict(**filler) if filler is not None else filler
         self._target_buffs = [] if target_buffs is None else target_buffs
 
     def __len__(self):
@@ -66,22 +90,24 @@ class Assignments(object):
         return iter(self._assignments)
 
     @property
+    def filler(self):
+        return self._filler
+
+    @property
+    def has_filler(self):
+        return self._filler is not None
+
+    @property
     def name(self):
         return self._name
 
     @staticmethod
     def from_dict(data):
-        assignments = [SingleAssignment(
-            spell=get_spell_from_assign(assign),
-            target=assign["target"],
-            allow_fade=assign.get("allow_fade", True),
-            fade_at_stacks=assign.get("fade_at_stacks", 1)
-        ) for assign in data["assignments"]]
         return Assignments(
-            assignments,
+            [SingleAssignment.from_dict(**assign) for assign in data["assignments"]],
             name=data["name"],
             description=data["description"],
-            filler=data.get("filler"),
+            filler={"target": "_filler", **data.get("filler")} if "filler" in data else None,
             target_buffs=data.get("buffs")
         )
 
@@ -197,7 +223,7 @@ class Timeline():
 
     def add_spell_event(self, start, spell):
         event = SpellEvent.from_spell(spell, start)
-        if len(self) > 0:  # any cm_group in the pipeline
+        if len(self) > 0:  # any spell in the pipeline
             prev_event = self._events[-1]
             if prev_event.spell.identifier != spell.identifier:
                 raise ValueError("cannot store different spells in a timeline")
@@ -308,6 +334,12 @@ class Timeline():
         }
 
 
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text  # or whatever
+
+
 class Rotation(object):
     def __init__(self, assignments):
         self._assignments = assignments
@@ -318,6 +350,7 @@ class Rotation(object):
         self._gcd_timeline = Timeline("gcd")
         self._cast_timeline = Timeline("cast")
         self._uptime_timeline = Timeline("uptime")
+        self._filler_target_suffixes = list()
         self._rotation_assigments = list()
 
     def _get_regen_per_tick(self, character):
@@ -327,28 +360,29 @@ class Rotation(object):
         out_5sr = 2 * (mp5 + regen) / 5
         return in_5sr, out_5sr
 
-    def optimal_rotation(self, character, fight_duration=120):
+    def optimal_rotation(self, character, fight_duration=120, reaction=0.01, eps=1e-6):
         self._reset_state()
         gcd = character.get_stat(Stats.GCD)
         current_time = 0
         mana = character.get_stat(Stats.MANA)
         last_mana_tick = 2
         while (fight_duration < 0 and mana > 0) or current_time < fight_duration:
-            wait, assignment = self._action_at(current_time, gcd, character)
+            wait, assignment = self._action_at(current_time + eps, gcd, character, reaction=reaction)
             if wait < 0:
+                start_time = current_time + eps
                 cast_time = assignment.spell.get_effective_cast_time(character)
-                self._gcd_timeline.add_busy_event(current_time, gcd)
-                self._cast_timeline.add_busy_event(current_time, cast_time)
-                self._uptime_timeline.add_busy_event(current_time, max(gcd, cast_time))
-                self._timelines[assignment.identifier].add_spell_event(current_time + cast_time, assignment.spell)
+                self._gcd_timeline.add_busy_event(start_time, gcd)
+                self._cast_timeline.add_busy_event(start_time, cast_time)
+                self._uptime_timeline.add_busy_event(start_time, max(gcd, cast_time))
+                self._timelines[assignment.identifier].add_spell_event(start_time + cast_time, assignment.spell)
                 self._rotation_assigments.append(assignment)
-                current_time += max(gcd, cast_time)
+                current_time += max(gcd, cast_time) + eps
                 mana -= assignment.spell.mana_cost - (20 if character.tree_form else 0)
             else:
                 current_time += wait
 
             # evaluate regen
-            ticks, mana_gained = self._regen_ticks(character, start=last_mana_tick, end=current_time)
+            ticks, mana_gained = self._regen_ticks(character, start=last_mana_tick, end=current_time + eps)
             if len(ticks) > 0:
                 last_mana_tick = ticks[-1]
                 mana += sum(mana_gained)
@@ -373,8 +407,20 @@ class Rotation(object):
     def cast_timeline(self):
         return self._cast_timeline
 
+    @property
+    def filler_targets(self):
+        return ["{}{}".format(self._assignments.filler.target, s) for s in self._filler_target_suffixes]
+
     def timeline_by_assignment(self, assigment):
         return self._timelines[assigment.identifier]
+
+    @property
+    def timelines(self):
+        timelines = [(a, self._timelines[a.identifier]) for a in self._assignments]
+        for filler_suffix in self._filler_target_suffixes:
+            f_assign = FillerAssignment(self.assignments.filler, filler_suffix)
+            timelines.append((f_assign, self._timelines[f_assign.identifier]))
+        return timelines
 
     @property
     def assignments(self):
@@ -385,17 +431,18 @@ class Rotation(object):
         lookahead = 9999  # to store the time before a higher priority hot must be reapplied
         wait = 9999
         for assignment in self._assignments:
-            # current cast time/gcd prevent from later applying/casting a higher priority cm_group
+            # current cast time/gcd prevent from later applying/casting a higher priority spell
             cast_time = assignment.spell.get_effective_cast_time(character)
             if max(gcd, cast_time) >= lookahead:
                 continue
 
-            # current cm_group not up, so cast !
+            # current spell not up, so cast !
             timeline = self._timelines[assignment.identifier]
             if not timeline.is_up_at(current_time):
                 return -1, assignment
 
-            # cm_group is up (can only be a HoT), cast time does not prevent higher priority cm_group to be cast in the future
+            # spell is up (can only be a HoT), cast time does not prevent higher priority spell to be µ
+            # cast in the future
             spell_event = timeline.event_at(current_time)
             remaining_time = timeline.remaining_uptime(current_time)
             period = assignment.spell.tick_period
@@ -412,8 +459,31 @@ class Rotation(object):
                 lookahead = min(lookahead, remaining_time - cast_time - reaction)
                 wait = min(wait, remaining_time - cast_time - period + reaction)
 
-        # wait for the lookahead
-        return wait, None
+        # wait for the lookahead, or take filler action
+        return self._check_filler(current_time, wait, character, reaction=reaction)
+
+    def _check_filler(self, current_time, wait, character, reaction=0.01):
+        """attempt to use wait time to"""
+        if not self._assignments.has_filler:
+            return wait, None
+
+        filler = self._assignments.filler
+        cast_time = filler.spell.get_effective_cast_time(character)
+        downtime = max(character.get_stat(Stats.GCD), cast_time)
+        if downtime > wait:
+            return wait, None
+
+        for target_suffix in self._filler_target_suffixes:
+            filler_assignment = FillerAssignment(filler, target_suffix)
+            if self._timelines[filler_assignment.identifier].is_up_at(current_time + reaction):
+                continue
+            return -1, filler_assignment
+
+        new_suffix = "_" + str(len(self._filler_target_suffixes))
+        filler_assignment = FillerAssignment(filler, new_suffix)
+        self._filler_target_suffixes.append(new_suffix)
+        self._timelines[filler_assignment.identifier] = Timeline(str(filler_assignment))
+        return -1, filler_assignment
 
     def stats(self, character, start=0, end=None):
         if end is None:
@@ -454,7 +524,7 @@ class Rotation(object):
         while t < end:
             before = self._cast_timeline.event_before(t)
             ticks.append(t)
-            if t - before.end > 5:
+            if before is None or t - before.end > 5:
                 mana.append(out_5sr)
             else:
                 mana.append(in_5sr)

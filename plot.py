@@ -55,7 +55,7 @@ def plot_timeline(timeline, y, maxx, color, height=2., eps=0.03):
 
 def plot_rotation(path, rotation, maxx, height=0.5):
     duration = rotation.end
-    n_assigments = len(rotation.assignments)
+    n_assigments = len(rotation.timelines)
     n_timelines = 2 + n_assigments
     plt.figure(figsize=(duration / 2, n_timelines / 2))
     plt.xlim(rotation.start, maxx)
@@ -72,11 +72,10 @@ def plot_rotation(path, rotation, maxx, height=0.5):
     plot_timeline(rotation.cast_timeline, height, maxx, color=CAST_COLOR, height=height)
     color_dict = {Regrowth: RG_COLOR, Rejuvenation: RJ_COLOR, HealingTouch: HT_COLOR, Lifebloom: LB_COLOR}
     yticks = np.arange(n_timelines) * height
-    ylabels = ["GCD", "Casts", *[a.target.capitalize() for a in rotation.assignments]]
-    for i, assignment in enumerate(rotation.assignments):
+    ylabels = ["GCD", "Casts", *[a.target.capitalize() for a in rotation.assignments], *rotation.filler_targets]
+    for i, (assignment, timeline) in enumerate(rotation.timelines):
         plot_timeline(
-            rotation.timeline_by_assignment(assignment),
-            (i+2) * height, maxx,
+            timeline, (i+2) * height, maxx,
             color=color_dict[assignment.spell.__class__],
             height=height)
     plt.gca().set_yticks(yticks)
