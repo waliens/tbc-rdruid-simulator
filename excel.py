@@ -6,7 +6,7 @@ from collections import defaultdict
 from xlsxwriter import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
-from buffs import ALL_BUFFS, PLAYER_BUFFS, TARGET_BUFFS, Buff
+from buffs import ALL_BUFFS, PLAYER_BUFFS, TARGET_BUFFS, Buff, CONSUMABLES
 from character import Stats
 from spell import HealingSpell, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from talents import DruidTalents
@@ -182,7 +182,8 @@ class CharacterSheetGenerator(ThematicSheet):
         self.write_cell(first_row + 1, first_col + 3, "Active")
 
         row = first_row + 2
-        for name, buff in PLAYER_BUFFS.items():
+        buff_names = sorted(PLAYER_BUFFS.keys()) + sorted(CONSUMABLES.keys())
+        for name in buff_names:
             col = self.write_cell(row, first_col, self.human_readable(name))
             self.write_cell_and_map(row, col + 3, int(self._character.buffs.has_modifier(name)), "Buff", name)
             row += 1
@@ -211,7 +212,7 @@ class CharacterSheetGenerator(ThematicSheet):
         return max(
             len(self._character.talents) + (1 if len(self._description) > 0 else 0),
             6 + len(Stats.all_stats()),
-            4 + len(PLAYER_BUFFS) + len(TARGET_BUFFS)) + 1
+            4 + len(ALL_BUFFS)) + 1
 
 
 class SpellSheetGenerator(ThematicSheet):

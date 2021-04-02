@@ -23,6 +23,10 @@ class Buff(StatsModifier):
     AMPLIFY_MAGIC = "amplify_magic"
     TREE_OF_LIFE_HEALING = "tree_of_life_healing"
     TREE_OF_LIFE_MANA = "tree_of_life_mana"
+    ATIESH_DRUID = "atiesh_druid"
+    ATIESH_PRIEST = "atiesh_priest"
+    ATIESH_MAGE = "atiesh_mage"
+    ATIESH_LOCK = "atiesh_lock"
 
     @staticmethod
     def player_buffs():
@@ -37,18 +41,25 @@ class Buff(StatsModifier):
                 Buff.TOTEM_OF_WRATH,
                 Buff.MOONKIN_AURA,
                 Buff.MARK_OF_BITE,
-                Buff.ELIXIR_OF_DRAENIC_WISDOM,
-                Buff.ELIXIR_OF_MAJOR_MAGEBLOOD,
-                Buff.ELIXIR_OF_HEALING_POWER,
-                Buff.ELIXIR_OF_MASTERY,
-                Buff.GOLDEN_FISH_STICKS,
-                Buff.TREE_OF_LIFE_MANA}
+                Buff.TREE_OF_LIFE_MANA,
+                Buff.ATIESH_DRUID,
+                Buff.ATIESH_PRIEST,
+                Buff.ATIESH_MAGE,
+                Buff.ATIESH_LOCK}
 
     @staticmethod
     def target_buffs():
         return {Buff.DAMPEN_MAGIC,
                 Buff.AMPLIFY_MAGIC,
                 Buff.TREE_OF_LIFE_HEALING}
+
+    @staticmethod
+    def consumables():
+        return {Buff.ELIXIR_OF_DRAENIC_WISDOM,
+                Buff.ELIXIR_OF_MAJOR_MAGEBLOOD,
+                Buff.ELIXIR_OF_HEALING_POWER,
+                Buff.ELIXIR_OF_MASTERY,
+                Buff.GOLDEN_FISH_STICKS}
 
     @staticmethod
     def all_buffs():
@@ -76,7 +87,11 @@ _constant_buffs = [
     (Buff.ELIXIR_OF_MASTERY, StatsModifier.TYPE_ADDITIVE, [(p, 15) for p in Stats.primary()]),
     (Buff.GOLDEN_FISH_STICKS, StatsModifier.TYPE_ADDITIVE, [(Stats.BONUS_HEALING, 44), (Stats.SPIRIT, 20)]),
     (Buff.DAMPEN_MAGIC, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_DAMAGE, -120), (Stats.BONUS_HEALING, -240)]),
-    (Buff.AMPLIFY_MAGIC, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_DAMAGE, 120), (Stats.BONUS_HEALING, 240)])
+    (Buff.AMPLIFY_MAGIC, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_DAMAGE, 120), (Stats.BONUS_HEALING, 240)]),
+    (Buff.ATIESH_DRUID, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 11)]),
+    (Buff.ATIESH_PRIEST, StatsModifier.TYPE_ADDITIVE, [(Stats.BONUS_HEALING, 64)]),
+    (Buff.ATIESH_MAGE, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_CRIT_RATING, 28)]),
+    (Buff.ATIESH_LOCK, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_DAMAGE, 33)])
 ]
 
 _formula_buffs = [
@@ -89,4 +104,5 @@ ALL_BUFFS.update({n: ConstantStatsModifier(n, t, e, cond_cm_group="Buff" if n no
 ALL_BUFFS.update({n: StatsModifier(n, s, fu, fo, t, cond_cm_group="Buff" if n not in Buff.target_buffs() else "Target") for n, t, s, fu, fo in _formula_buffs})
 
 PLAYER_BUFFS = {n: b for n, b in ALL_BUFFS.items() if n in Buff.player_buffs()}
+CONSUMABLES = {n: b for n, b in ALL_BUFFS.items() if n in Buff.consumables()}
 TARGET_BUFFS = {n: b for n, b in ALL_BUFFS.items() if n in Buff.target_buffs()}

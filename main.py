@@ -54,8 +54,9 @@ def main(argv):
             )
 
     if args.spreadsheets:
-        target_buffs = StatsModifierArray(TARGET_BUFFS.values())
-        write_spells_wb(BuffedCharacter(combinations[0][2], target_buffs), "spells", outfolder=args.out_folder)
+        base_char = combinations[0][2]
+        character = DruidCharacter(_in["characters"][0]["stats"], base_char.talents, StatsModifierArray(ALL_BUFFS.values()))
+        write_spells_wb(character, "spells", outfolder=args.out_folder)
         write_compare_setups_wb(combinations, _in["fight_duration"], outfolder=args.out_folder)
 
 
