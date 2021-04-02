@@ -1,6 +1,7 @@
-from buffs import Buff
-from character import Stats
+from buffs import Buff, ALL_BUFFS
+from character import Stats, BuffedCharacter
 from spell import HealingSpell, Lifebloom, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
+from statsmodifiers import StatsModifierArray
 from talents import DruidTalents
 from util import bisect_right, sort_by, apply_crit
 
@@ -82,7 +83,7 @@ class Assignments(object):
         if filler is not None and ("allow_fade" in filler or "fade_at_stacks" in filler):
             raise ValueError("filler description does not allow fields 'allow_fade' and 'fade_at_stacks'")
         self._filler = SingleAssignment.from_dict(**filler) if filler is not None else filler
-        self._target_buffs = [] if target_buffs is None else target_buffs
+        self._target_buffs = {} if target_buffs is None else target_buffs
 
     def __len__(self):
         return len(self._assignments)
@@ -101,6 +102,9 @@ class Assignments(object):
     @property
     def name(self):
         return self._name
+
+    def buffs(self, target):
+        return StatsModifierArray([ALL_BUFFS[n] for n in self._target_buffs[target]])
 
     @staticmethod
     def from_dict(data):
@@ -495,8 +499,13 @@ class Rotation(object):
 
         targets = {t[1] for t in self._timelines}
 
-        for timeline in self._timelines.values():
-            stats["timelines"][timeline.name] = timeline.stats(character, start=start, end=end)
+        id2assign = {a.identifier: a for a in self._assignments}
+        for identifier, timeline in self._timelines.items():
+            if identifier not in id2assign:
+                comp_character = character
+            else:
+                comp_character = BuffedCharacter(character, self._assignments.buffs(id2assign[identifier].target))
+            stats["timelines"][timeline.name] = timeline.stats(comp_character, start=start, end=end)
             self._per_unit_stats(stats["timelines"][timeline.name], character)
 
         stats.update(**self._merge_timeline_stats(*stats["timelines"].values()))

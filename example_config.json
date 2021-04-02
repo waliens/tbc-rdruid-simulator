@@ -10,7 +10,7 @@
         { "spell": "regrowth", "target": "tank" }
       ],
       "buffs": {
-        "tank": ["amplify magic", "dampen magic", "tree_of_life"]
+        "tank": ["amplify_magic", "dampen_magic", "tree_of_life_healing"]
       },
       "filler": { "spell": "rejuvenation" }
     }
