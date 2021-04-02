@@ -1,5 +1,48 @@
+from abc import abstractmethod
+
+from statsmodifiers import StatsModifier, StatsModifierArray
+from statistics import Stats
+
 
 class Talents(object):
+    def __init__(self, talents, name=""):
+        self._name = name
+        self._talent_tree = dict()
+
+        for t in self.all_talents:
+            name, max_points, _ = t
+            if name not in talents:
+                continue
+            if not (0 <= talents[name] <= max_points):
+                raise ValueError("Invalid number of points {} in talent '{}'".format(talents[name], name))
+            self._talent_tree[t] = talents[name]
+
+    @property
+    def tree(self):
+        return self._talent_tree
+
+    @property
+    @abstractmethod
+    def all_talents(self):
+        pass
+
+    @property
+    @abstractmethod
+    def buff_array(self):
+        pass
+
+    @property
+    def name(self):
+        return self._name
+
+    def __getitem__(self, item):
+        return self.tree.get(item, 0)
+
+    def get(self, talent):
+        return self[talent]
+
+
+class DruidTalents(Talents):
     NATURALIST = ("naturalist", 5, "restoration")
     GIFT_OF_NATURE = ("gift_of_nature", 5, "restoration")
     TRANQUILITY_SPIRIT = ("tranquil_spirit", 5, "restoration")
@@ -13,26 +56,36 @@ class Talents(object):
     LUNAR_GUIDANCE = ("lunar_guidance", 3, "balance")
     DREAMSTATE = ("dreamstate", 3, "balance")
 
-    def __init__(self, talents, name=""):
-        self._name = name
-        self._talents = {
-            t: min(t[1], talents.get(t[0], 0))
-            for t in Talents.all()
-        }
-
-    def get(self, talent):
-        return self._talents.get(talent, 0)
-
     @property
-    def name(self):
-        return self._name
+    def all_talents(self):
+        return self.all()
 
     @staticmethod
     def all():
-        return [Talents.NATURALIST, Talents.GIFT_OF_NATURE, Talents.TRANQUILITY_SPIRIT,
-                Talents.IMPROVED_REJUVENATION, Talents.EMPOWERED_REJUVENATION, Talents.LIVING_SPIRIT,
-                Talents.EMPOWERED_TOUCH, Talents.IMPROVED_REGROWTH, Talents.INTENSITY, Talents.TREE_OF_LIFE,
-                Talents.DREAMSTATE, Talents.LUNAR_GUIDANCE]
+        return [DruidTalents.NATURALIST, DruidTalents.GIFT_OF_NATURE, DruidTalents.TRANQUILITY_SPIRIT,
+                DruidTalents.IMPROVED_REJUVENATION, DruidTalents.EMPOWERED_REJUVENATION, DruidTalents.LIVING_SPIRIT,
+                DruidTalents.EMPOWERED_TOUCH, DruidTalents.IMPROVED_REGROWTH, DruidTalents.INTENSITY, DruidTalents.TREE_OF_LIFE,
+                DruidTalents.DREAMSTATE, DruidTalents.LUNAR_GUIDANCE]
 
     def __len__(self):
         return len(self.all())
+
+    @property
+    def buff_array(self):
+        buffs = list()
+        # living spirit
+        ls_fn = lambda char: (1 + 0.05 * char.talents.get(DruidTalents.LIVING_SPIRIT))
+        ls_fo = "(1 + 0.05 * #Talents.{}#)".format(DruidTalents.LIVING_SPIRIT[0])
+        buffs.append(StatsModifier(name=DruidTalents.LIVING_SPIRIT, stats=[Stats.SPIRIT], _type=StatsModifier.TYPE_MULTIPLICATIVE, functions=[ls_fn], formula=[ls_fo]))
+        # lunar guidance
+        lg_fn = lambda char: [0, 0.08, 0.16, 0.25][char.talents.get(DruidTalents.LUNAR_GUIDANCE)] * char.get_stat(Stats.INTELLIGENCE)
+        lg_talent = "#Talents.{}#".format(DruidTalents.LUNAR_GUIDANCE[0])
+        lg_fo = "(CHOOSE({talent}+1; 0; 8; 16; 25) * #Stats.{intel}# / 100)".format(talent=lg_talent, intel=Stats.INTELLIGENCE)
+        buffs.append(StatsModifier(name=DruidTalents.LUNAR_GUIDANCE[0] + "_spell", stats=[Stats.SPELL_DAMAGE], _type=StatsModifier.TYPE_ADDITIVE, functions=[lg_fn], formula=[lg_fo]))
+        buffs.append(StatsModifier(name=DruidTalents.LUNAR_GUIDANCE[0] + "_healing", stats=[Stats.BONUS_HEALING], _type=StatsModifier.TYPE_ADDITIVE, functions=[lg_fn], formula=[lg_fo]))
+        # dreamstate
+        ds_fn = lambda char: [0, 0.04, 0.07, 0.1][char.talents.get(DruidTalents.DREAMSTATE)] * char.get_stat(Stats.INTELLIGENCE)
+        ds_talent = "#Talents.{}#".format(DruidTalents.DREAMSTATE[0])
+        ds_fo = "(CHOOSE({talent}+1; 0; 4; 7; 10) * #Stats.{intel}# / 100)".format(talent=ds_talent, intel=Stats.INTELLIGENCE)
+        buffs.append(StatsModifier(name=DruidTalents.DREAMSTATE[0], stats=[Stats.MP5], _type=StatsModifier.TYPE_ADDITIVE, functions=[ds_fn], formula=[ds_fo]))
+        return StatsModifierArray(buffs)

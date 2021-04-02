@@ -4,12 +4,13 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from buff import BUFFS, BuffArray
-from character import Character
+from buffs import BUFFS
+from statsmodifiers import StatsModifierArray
+from character import Character, DruidCharacter
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
 from rotation import Rotation, Assignments
-from talents import Talents
+from talents import DruidTalents
 
 
 def main(argv):
@@ -26,18 +27,17 @@ def main(argv):
     with open(args.config_filepath, "r", encoding="utf-8") as file:
         _in = json.load(file)
 
-    all_buffs = [BuffArray([BUFFS[b] for b in buff["active"]], name=buff["name"]) for buff in _in["buffs"]]
-    all_talents = [Talents(talent["points"], name=talent["name"]) for talent in _in["talents"]]
+    all_buffs = [StatsModifierArray([BUFFS[b] for b in buff["active"]], name=buff["name"]) for buff in _in["buffs"]]
+    all_talents = [DruidTalents(talent["points"], name=talent["name"]) for talent in _in["talents"]]
     all_assignments = [Assignments.from_dict(rotation) for rotation in _in["rotations"]]
 
     combinations = list()
     for charac_info, buffs, talents, assignments in itertools.product(_in["characters"], all_buffs, all_talents, all_assignments):
-        character = Character(
+        character = DruidCharacter(
             stats=charac_info["stats"],
             talents=talents,
             buffs=buffs,
-            level=charac_info["level"],
-            tree_form=charac_info["tree_form"]
+            level=charac_info["level"]
         )
 
         comb_name = "_".join([charac_info["name"], talents.name, buffs.name, assignments.name])

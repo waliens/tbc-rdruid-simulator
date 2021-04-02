@@ -83,37 +83,3 @@ def plot_rotation(path, rotation, maxx, height=0.5):
     plt.tight_layout()
     plt.savefig(path)
     plt.close()
-
-
-def main():
-    from talents import Talents
-    from character import Character
-    from spell import LIFEBLOOM, HEALING_TOUCH, REJUVENATION, REGROWTH
-
-    talents = Talents(dict())
-    character = Character(talents, tree_form=True)
-    # spells = LIFEBLOOM + HEALING_TOUCH + REJUVENATION + REGROWTH
-    # for cm_group in spells:
-    #     print(cm_group, cm_group.get_healing(character, coef_policy))
-
-    rotation = Rotation([
-        # SingleAssignment(LIFEBLOOM[0], "tank1", allow_fade=False),
-        # SingleAssignment(LIFEBLOOM[0], "tank2", allow_fade=False),
-        # SingleAssignment(LIFEBLOOM[0], "tank3", allow_fade=False),
-        # SingleAssignment(LIFEBLOOM[0], "tank4", allow_fade=False),
-        # SingleAssignment(LIFEBLOOM[0], "tank5", allow_fade=False),
-        SingleAssignment(LIFEBLOOM[0], "tank1", allow_fade=False),
-        SingleAssignment(LIFEBLOOM[0], "tank2", allow_fade=False),
-        SingleAssignment(REJUVENATION[-1], "tank1"),
-        SingleAssignment(REJUVENATION[-1], "tank2"),
-    ])
-
-    rotation.optimal_rotation(character, fight_duration=-1)
-
-    stats = rotation.stats(character)
-    pprint(stats, depth=1)
-    plot_rotation(rotation, rotation.end, height=0.75)
-
-
-if __name__ == "__main__":
-    main()

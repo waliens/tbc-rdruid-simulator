@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from character import Stats
-from talents import Talents
+from talents import DruidTalents
 
 HEAL_GENERIC_FORMULA = "(({base} + {coef} * ({bh} + 0.25 * #Target.tree_of_life# * #Stats.spirit#)) * {gift})"
 HOT_GENERIC_FORMULA = "({} / {{ticks}})".format(HEAL_GENERIC_FORMULA)
@@ -14,7 +14,7 @@ class SpellCoefficientPolicy(object):
 
     @property
     @abstractmethod
-    def excel_formula(self):
+    def formula(self):
         pass
 
 
@@ -23,7 +23,7 @@ class Under20CoefficientPolicy(SpellCoefficientPolicy):
         return min(1, 1 - (20 - spell.level) * 0.0375)
 
     @property
-    def excel_formula(self):
+    def formula(self):
         return "MIN(1; 1-(20 - #Spell.level#) * 0.0375)"
 
 
@@ -32,7 +32,7 @@ class DownrankCoefficientPolicy(SpellCoefficientPolicy):
         return min(1, (spell.level + 11) / character.level)
 
     @property
-    def excel_formula(self):
+    def formula(self):
         return "MIN(1; (#Spell.level# + 11) / #Character.level#)"
 
 
@@ -41,7 +41,7 @@ class CastTimePolicy(SpellCoefficientPolicy):
         return min(1, cast_time / 3.5) * (1 + empowered)
 
     @property
-    def excel_formula(self):
+    def formula(self):
         return "(MIN(1; #Spell.base_cast_time# / 3.5) * (1 + #Talents.empowered#))"
 
 
@@ -50,7 +50,7 @@ class HotPolicy(SpellCoefficientPolicy):
         return min(1, hot_duration / 15) * (1 + empowered)
 
     @property
-    def excel_formula(self):
+    def formula(self):
         return "(MIN(1; #Spell.base_hot_duration# / 15) * (1 + #Talents.empowered#))"
 
 
@@ -66,8 +66,8 @@ class DirectCoefficient(SpellCoefficientPolicy):
                 self.cast_policy.get_coefficient(spell, character, cast_time=cast_time, hot_duration=hot_duration, empowered=empowered)
 
     @property
-    def excel_formula(self):
-        return "({} * {} * {})".format(self.under20.excel_formula, self.downrank.excel_formula, self.cast_policy.excel_formula)
+    def formula(self):
+        return "({} * {} * {})".format(self.under20.formula, self.downrank.formula, self.cast_policy.formula)
 
 
 class HoTCoefficient(SpellCoefficientPolicy):
@@ -82,9 +82,9 @@ class HoTCoefficient(SpellCoefficientPolicy):
                self.hot_policy.get_coefficient(spell, character, cast_time=cast_time, hot_duration=hot_duration, empowered=empowered)
 
     @property
-    def excel_formula(self):
-        return "({} * {} * {})".format(self.under20.excel_formula, self.downrank.excel_formula,
-                                       self.hot_policy.excel_formula)
+    def formula(self):
+        return "({} * {} * {})".format(self.under20.formula, self.downrank.formula,
+                                       self.hot_policy.formula)
 
 
 class HybridCoefficient(SpellCoefficientPolicy):
@@ -106,15 +106,15 @@ class HybridCoefficient(SpellCoefficientPolicy):
         return direct_portion * cast_coef * under20 * down, over_time_portion * hot_coef * under20 * down
 
     @property
-    def excel_formula(self):
-        cast_coef_formula = self.cast_policy.excel_formula.replace(" * (1 + #Talents.empowered#)", "")
-        hot_coef_formula = self.hot_policy.excel_formula.replace(" * (1 + #Talents.empowered#)", "")
+    def formula(self):
+        cast_coef_formula = self.cast_policy.formula.replace(" * (1 + #Talents.empowered#)", "")
+        hot_coef_formula = self.hot_policy.formula.replace(" * (1 + #Talents.empowered#)", "")
         over_time_portion = "({} / ({} + {}))".format(hot_coef_formula, hot_coef_formula, cast_coef_formula)
         direct_portion = "(1 - {})".format(over_time_portion)
-        under20 = self.under20.excel_formula
-        down = self.downrank.excel_formula
-        return "({} * {} * {} * {})".format(direct_portion, self.cast_policy.excel_formula, under20, down), \
-               "({} * {} * {} * {})".format(over_time_portion, self.hot_policy.excel_formula, under20, down)
+        under20 = self.under20.formula
+        down = self.downrank.formula
+        return "({} * {} * {} * {})".format(direct_portion, self.cast_policy.formula, under20, down), \
+               "({} * {} * {} * {})".format(over_time_portion, self.hot_policy.formula, under20, down)
 
 
 class RegrowthSpellCoefficient(SpellCoefficientPolicy):
@@ -130,9 +130,9 @@ class RegrowthSpellCoefficient(SpellCoefficientPolicy):
         return down * under * 0.286 * (1 + empowered), down * under * 0.6914 * (1 + empowered)
 
     @property
-    def excel_formula(self):
-        under20 = self.under20.excel_formula
-        down = self.downrank.excel_formula
+    def formula(self):
+        under20 = self.under20.formula
+        down = self.downrank.formula
         return "({} * {} * 0.286 * (1 + #Talents.empowered#))".format(under20, down), \
                "({} * {} * 0.7 * (1 + #Talents.empowered#))".format(under20, down)
 
@@ -148,8 +148,8 @@ class TranquilityCoefficient(SpellCoefficientPolicy):
         return down * under * 1.1399 * (1 + empowered)
 
     @property
-    def excel_formula(self):
-        return "({} * {} * 1.1399 * (1 + #Talents.empowered#))".format(self.under20.excel_formula, self.down.excel_formula)
+    def formula(self):
+        return "({} * {} * 1.1399 * (1 + #Talents.empowered#))".format(self.under20.formula, self.down.formula)
 
 
 class LifebloomCoefficient(SpellCoefficientPolicy):
@@ -157,7 +157,7 @@ class LifebloomCoefficient(SpellCoefficientPolicy):
         return 0.3422 * (1 + empowered), 0.518 * (1 + empowered)
 
     @property
-    def excel_formula(self):
+    def formula(self):
         return "(0.3422 * (1 + #Talents.empowered#))", "(0.518 * (1 + #Talents.empowered#))"
 
 
@@ -186,12 +186,12 @@ class HealingSpell(object):
 
     @property
     @abstractmethod
-    def excel_formula(self):
+    def formula(self):
         pass
 
     @property
     @abstractmethod
-    def coef_excel_formula(self):
+    def coef_formula(self):
         pass
 
     @abstractmethod
@@ -261,12 +261,12 @@ class HealingTouch(HealingSpell):
     def get_healing(self, character):
         bh = character.get_stat(Stats.BONUS_HEALING)
         coef = self._get_spell_coefficient(character, self.coef_policy)
-        gift = 1 + character.get_talent_points(Talents.GIFT_OF_NATURE) * 0.02
+        gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         return (self.min_heal + coef * bh) * gift, (self.max_heal + coef * bh) * gift
 
     @property
-    def excel_formula(self):
-        gift_formula = "(1 + #Talents.{}# * 0.02)".format(Talents.GIFT_OF_NATURE[0])
+    def formula(self):
+        gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
         formula = HEAL_GENERIC_FORMULA.format(
             base="{base}",
             coef="#{}.coef#".format(self.identifier),
@@ -277,14 +277,14 @@ class HealingTouch(HealingSpell):
                formula.format(base="#{}.base_max_heal#".format(self.identifier))
 
     @property
-    def coef_excel_formula(self):
-        return self.coef_policy.excel_formula \
-            .replace("#Talents.empowered#", "0.1 * #Talents.{}#".format(Talents.EMPOWERED_TOUCH[0])) \
+    def coef_formula(self):
+        return self.coef_policy.formula \
+            .replace("#Talents.empowered#", "0.1 * #Talents.{}#".format(DruidTalents.EMPOWERED_TOUCH[0])) \
             .replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, self.cast_time,
-                                           empowered=character.get_talent_points(Talents.EMPOWERED_TOUCH) * 0.1)
+                                           empowered=character.talents.get(DruidTalents.EMPOWERED_TOUCH) * 0.1)
 
     def __repr__(self):
         return "{}(type={}, rank={}, level={}, cost={}, cast={}s, hmin={}, hmax={})".format(
@@ -292,7 +292,7 @@ class HealingTouch(HealingSpell):
 
     def get_effective_cast_time(self, character):
         haste = character.get_stat(Stats.SPELL_HASTE)
-        naturalist = character.get_talent_points(Talents.NATURALIST)
+        naturalist = character.talents.get(DruidTalents.NATURALIST)
         return (self.cast_time - 0.1 * naturalist) / (1 + haste)
 
 
@@ -304,13 +304,13 @@ class Rejuvenation(HealingSpell):
     def get_healing(self, character):
         bh = character.get_stat(Stats.BONUS_HEALING)
         coef = self._get_spell_coefficient(character, self.coef_policy)
-        improved = 1 + character.get_talent_points(Talents.GIFT_OF_NATURE) * 0.02 + character.get_talent_points(Talents.IMPROVED_REJUVENATION) * 0.05
+        improved = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02 + character.talents.get(DruidTalents.IMPROVED_REJUVENATION) * 0.05
         return (self.hot_heal + bh * coef) * improved / self.ticks
 
     @property
-    def excel_formula(self):
+    def formula(self):
         gift_improved_formula = "(1 + #Talents.{}# * 0.02 + #Talents.{}# * 0.05)".format(
-            Talents.GIFT_OF_NATURE[0], Talents.IMPROVED_REJUVENATION[0])
+            DruidTalents.GIFT_OF_NATURE[0], DruidTalents.IMPROVED_REJUVENATION[0])
         return HOT_GENERIC_FORMULA.format(
             base="#{}.base_hot_total#".format(self.identifier),
             bh="#Stats.{}#".format(Stats.BONUS_HEALING),
@@ -319,14 +319,14 @@ class Rejuvenation(HealingSpell):
             ticks=self.ticks)
 
     @property
-    def coef_excel_formula(self):
-        return self.coef_policy.excel_formula \
-            .replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(Talents.EMPOWERED_REJUVENATION[0])) \
+    def coef_formula(self):
+        return self.coef_policy.formula \
+            .replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])) \
             .replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, hot_duration=self.duration,
-                                           empowered=character.get_talent_points(Talents.EMPOWERED_REJUVENATION) * 0.04)
+                                           empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     def __repr__(self):
         return "{}(type={}, rank={}, level={}, cost={}, duration={}s, hot_full={}, hot_tick={})".format(
@@ -347,14 +347,14 @@ class Regrowth(HealingSpell):
     def get_healing(self, character):
         bh = character.get_stat(Stats.BONUS_HEALING)
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
-        gift = 1 + character.get_talent_points(Talents.GIFT_OF_NATURE) * 0.02
+        gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         return (self.min_direct_heal + coef_direct * bh) * gift, \
                (self.max_direct_heal + coef_direct * bh) * gift, \
                (self.hot_heal + bh * coef_hot) * gift / self.ticks
 
     @property
-    def excel_formula(self):
-        gift_formula = "(1 + #Talents.{}# * 0.02)".format(Talents.GIFT_OF_NATURE[0])
+    def formula(self):
+        gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
         generic_direct = HEAL_GENERIC_FORMULA.format(
             base="{base}",
             bh="#Stats.{}#".format(Stats.BONUS_HEALING),
@@ -373,14 +373,14 @@ class Regrowth(HealingSpell):
                hot_formula
 
     @property
-    def coef_excel_formula(self):
-        coef_direct_formula, coef_hot_formula = self.coef_policy.excel_formula
-        return coef_direct_formula.replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(Talents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + "."), \
-               coef_hot_formula.replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(Talents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + ".")
+    def coef_formula(self):
+        coef_direct_formula, coef_hot_formula = self.coef_policy.formula
+        return coef_direct_formula.replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + "."), \
+               coef_hot_formula.replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, self.cast_time, self.duration,
-                                           empowered=character.get_talent_points(Talents.EMPOWERED_REJUVENATION) * 0.04)
+                                           empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     def __repr__(self):
         return "{}(type={}, rank={}, level={}, cost={}, cast={}s, duration={}s, hmin={}, hmax={}, hot_full={}, hot_tick={})".format(
@@ -402,17 +402,17 @@ class Lifebloom(HealingSpell):
     def get_healing(self, character):
         bh = character.get_stat(Stats.BONUS_HEALING)
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
-        gift = 1 + character.get_talent_points(Talents.GIFT_OF_NATURE) * 0.02
+        gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         direct_heal = (self.direct_heal + coef_direct * bh) * gift
         return direct_heal, direct_heal, (self.hot_heal + bh * coef_hot) * gift / self.ticks
 
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, self.cast_time, self.duration,
-                                           empowered=character.get_talent_points(Talents.EMPOWERED_REJUVENATION) * 0.04)
+                                           empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     @property
-    def excel_formula(self):
-        gift_formula = "(1 + #Talents.{}# * 0.02)".format(Talents.GIFT_OF_NATURE[0])
+    def formula(self):
+        gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
         generic_direct = HEAL_GENERIC_FORMULA.format(
             base="#{}.base_direct_heal#".format(self.identifier),
             bh="#Stats.{}#".format(Stats.BONUS_HEALING),
@@ -429,13 +429,13 @@ class Lifebloom(HealingSpell):
         return generic_direct, generic_direct, hot_formula
 
     @property
-    def coef_excel_formula(self):
-        coef_direct_formula, coef_hot_formula = self.coef_policy.excel_formula
+    def coef_formula(self):
+        coef_direct_formula, coef_hot_formula = self.coef_policy.formula
         return coef_direct_formula.replace("#Talents.empowered#",
-                                           "0.04 * #Talents.{}#".format(Talents.EMPOWERED_REJUVENATION[0])).replace(
+                                           "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace(
             "Spell.", self.identifier + "."), \
                coef_hot_formula.replace("#Talents.empowered#",
-                                        "0.04 * #Talents.{}#".format(Talents.EMPOWERED_REJUVENATION[0])).replace(
+                                        "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace(
                    "Spell.", self.identifier + ".")
 
     def __repr__(self):
@@ -456,12 +456,12 @@ class Tranquility(HealingSpell):
     def get_healing(self, character):
         bh = character.get_stat(Stats.BONUS_HEALING)
         coef = self._get_spell_coefficient(character, self.coef_policy)
-        improved = 1 + character.get_talent_points(Talents.GIFT_OF_NATURE) * 0.02
+        improved = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         return (self.hot_heal + bh * coef) * improved / self.ticks
 
     @property
-    def excel_formula(self):
-        gift_improved_formula = "(1 + #Talents.{}# * 0.02)".format(Talents.GIFT_OF_NATURE[0])
+    def formula(self):
+        gift_improved_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
         return HOT_GENERIC_FORMULA.format(
             base="#{}.base_hot_total#".format(self.identifier),
             bh="#Stats.{}#".format(Stats.BONUS_HEALING),
@@ -471,14 +471,14 @@ class Tranquility(HealingSpell):
         )
 
     @property
-    def coef_excel_formula(self):
-        return self.coef_policy.excel_formula \
-            .replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(Talents.EMPOWERED_REJUVENATION[0])) \
+    def coef_formula(self):
+        return self.coef_policy.formula \
+            .replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])) \
             .replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, hot_duration=self.duration,
-                                           empowered=character.get_talent_points(Talents.EMPOWERED_REJUVENATION) * 0.04)
+                                           empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     def get_effective_cast_time(self, character):
         return 0
