@@ -58,7 +58,6 @@
       "name": "classic_gear",
       "description": "Level 70 with naxxramas gear and standard talents",
       "level": 70,
-      "tree_form": true,
       "stats": {
         "intelligence": 395,
         "strength": 77,

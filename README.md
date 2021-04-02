@@ -40,11 +40,15 @@ Command line parameters:
  
 ## Documentation
 
-Few information about the simulator. 
+The simulator will generate healing rotations for combinations of character stats, talents, buffs and healing 
+assignments. Therefore, you have to provide at least one of each element in a JSON format (see full example in file
+`example_config.json`).
 
-### Rotation
+###
 
-A rotation is a set of prioritized healing assignments such as:
+### Healing assignments
+
+A set of prioritized healing assignments such as:
 
 ```json
 {
@@ -77,33 +81,20 @@ rotation above:
 
 ![example_rotation](https://github.com/waliens/tbc-rdruid-simulator/raw/main/images/example_graph.png)
 
-### Profiles
+### Buffs
 
-For generating stats about a rotation, the simulator needs to know stats and talents of one or several characters.  
+A list of active buffs to evaluate as a JSON array of buff name. 
+
+Currently supported buffs are: `"gift_of_the_wild", "arcane_intellect", "benediction_of_king", "benediction_of_wisdom", "benediction_of_wisdom_tal", "mana_tide_totem", "mana_tide_totem_tal", "wrath_of_air_totem", "totem_of_wrath", "moonkin_aura", "mark_of_bite", "elixir_of_draenic_wisdom", "elixir_of_major_mageblood", "elixir_of_healing_power", "elixir_of_mastery", "golden_fish_sticks", "tree_of_life_mana", "atiesh_druid", "atiesh_priest", "atiesh_mage", "atiesh_lock"`
+
+### Talents
+
+Talents points as a JSON dictionary:
 
 ```json
 {
-  "name": "classic_gear",
-  "description": "Level 70 with naxxramas gear and standard talents",
-  "level": 70,
-  "tree_form": true,
-  "stats": {
-    "primary": {
-      "intelligence": 395,
-      "strength": 77,
-      "spirit": 312,
-      "stamina": 324,
-      "agility": 79
-    },
-    "secondary": {
-      "spell_haste_rating": 0,
-      "spell_crit_rating": 0,
-      "mp5": 70,
-      "spell_damage": 409,
-      "bonus_healing": 1263
-    }
-  },
-  "talents": {
+  "name": "deep_resto",
+  "points": {
     "naturalist": 0,
     "gift_of_nature": 5,
     "tranquility_spirit": 5,
@@ -114,6 +105,35 @@ For generating stats about a rotation, the simulator needs to know stats and tal
     "improved_regrowth": 5,
     "intensity": 3,
     "tree_of_life": 1
+  }
+}
+```
+ 
+The `name` is the spec name and `points` contains the points dictionary mapping talent name with the number of assigned
+points. 
+
+Currently supported druid talents: `"naturalist", "gift_of_nature", "tranquil_spirit", "improved_rejuvenation", "empowered_rejuvenation", "living_spirit", "empowered_touch", "improved_regrowth", "intensity", "tree_of_life", "lunar_guidance", "dreamstate"`
+  
+### Character profiles
+
+For generating stats about a rotation, the simulator needs to know stats of one or several characters.  
+
+```json
+{
+  "name": "classic_gear",
+  "description": "Level 70 with naxxramas gear and standard talents",
+  "level": 70,
+  "stats": {
+    "intelligence": 395,
+    "strength": 77,
+    "spirit": 312,
+    "stamina": 324,
+    "agility": 79,
+    "spell_haste_rating": 0,
+    "spell_crit_rating": 0,
+    "mp5": 70,
+    "spell_damage": 409,
+    "bonus_healing": 1263
   }
 }
 ```
