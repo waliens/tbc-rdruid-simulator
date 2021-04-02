@@ -54,7 +54,11 @@ A rotation is a set of prioritized healing assignments such as:
     { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
     { "spell": "rejuvenation", "target": "tank" },
     { "spell": "regrowth", "target": "tank" }
-  ]
+  ],
+  "buffs": {
+    "tank": ["amplify_magic", "dampen_magic", "tree_of_life_healing"]
+  },
+  "filler": { "spell": "rejuvenation" }
 }
 ```
 
@@ -65,6 +69,8 @@ and is allowed to fade. By default, max spell rank is used if not specified (but
 field). This simulation will not add any other heal other than the one specified in the rotation. This means that when
 all assigments are satisfied the simulator will just wait until an assignment needs to be satisfied again. 
 
+One can also specify by-target buffs using the `buffs` field. One can also specify a spell to use as filler (see 
+`filler` field). The tool will attempt to cast the filler spell when all other assignments are satisfied. 
 
 The tool can also produce timeline graphs based on the auto-generated rotations. For example, for the
 rotation above:
