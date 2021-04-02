@@ -399,9 +399,11 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         col = self.write_cell_and_map(row, col + 1, parse_formula(hot_tick, self.cell_map), spell.identifier, "hot_tick", formula=True)
         hot_tick = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hot_tick, spell.identifier, "hot_total", formula=True)
-        hps = parse_formula("(#{spell}.avg_heal# + #{spell}.hot_total#) / #{spell}.base_hot_duration#".format(spell=spell.identifier), self.cell_map)
+        avg_total = parse_formula("(#{spell}.avg_heal# + #{spell}.hot_total#)".format(spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, avg_total, spell.identifier, "total", formula=True)
+        hps = parse_formula("(#{spell}.total# / #{spell}.base_hot_duration#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hps, spell.identifier, "hps", formula=True)
-        hpm = parse_formula("(#{spell}.avg_heal# + #{spell}.hot_total#) / #{spell}.mana_cost#".format(spell=spell.identifier), self.cell_map)
+        hpm = parse_formula("(#{spell}.total# / #{spell}.mana_cost#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hpm, spell.identifier, "hpm", formula=True)
         mps = parse_formula("#{spell}.mana_cost# / #{spell}.base_hot_duration#".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mps, spell.identifier, "mps", formula=True)
@@ -428,7 +430,8 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "max")
         col = self.write_cell(subtitle_row, col + 1, "avg (w. crit)")
         col = self.write_cell(subtitle_row, col + 1, "tick")
-        col = self.write_cell(subtitle_row, col + 1, "total")
+        col = self.write_cell(subtitle_row, col + 1, "hot total")
+        col = self.write_cell(subtitle_row, col + 1, "avg total")
         col = self.write_cell(subtitle_row, col + 1, "hps")
         col = self.write_cell(subtitle_row, col + 1, "hpm")
         col = self.write_cell(subtitle_row, col + 1, "mps")
@@ -440,7 +443,7 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 20
+        return 21
 
 
 class LifebloomSheetGenerator(SpellSheetGenerator):
