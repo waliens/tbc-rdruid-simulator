@@ -1,3 +1,4 @@
+from buffs import Buff
 from character import Stats
 from spell import HealingSpell, Lifebloom, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from talents import DruidTalents
@@ -315,7 +316,7 @@ class Timeline():
 
         timestamps, heals, string_heals = sort_by(timestamps, heals, string_heals, f=(lambda t, h, s: start <= t <= end))
         mana_ticks = [e.start for e in filtered]
-        mana_costs = [e.spell.mana_cost - (20 if character.buffs.has_modifier("tree_of_life") else 0) for e in filtered]
+        mana_costs = [e.spell.mana_cost - (20 if character.buffs.has_modifier(Buff.TREE_OF_LIFE_MANA) else 0) for e in filtered]
         string_mana = ["#{spell}.mana_cost#".format(spell=e.spell.identifier) for e in filtered]
 
         return {
@@ -377,7 +378,7 @@ class Rotation(object):
                 self._timelines[assignment.identifier].add_spell_event(start_time + cast_time, assignment.spell)
                 self._rotation_assigments.append(assignment)
                 current_time += max(gcd, cast_time) + eps
-                mana -= assignment.spell.mana_cost - (20 if character.buffs.has_modifier("tree_of_life") else 0)
+                mana -= assignment.spell.mana_cost - (20 if character.buffs.has_modifier(Buff.TREE_OF_LIFE_MANA) else 0)
             else:
                 current_time += wait
 

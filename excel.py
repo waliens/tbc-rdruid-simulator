@@ -6,7 +6,7 @@ from collections import defaultdict
 from xlsxwriter import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
-from buffs import BUFFS
+from buffs import ALL_BUFFS, PLAYER_BUFFS, TARGET_BUFFS, Buff
 from character import Stats
 from spell import HealingSpell, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from talents import DruidTalents
@@ -147,14 +147,12 @@ class CharacterSheetGenerator(ThematicSheet):
 
         self.worksheet.merge_range(first_row, first_col, first_row, first_col + 1, "Level")
         self.write_cell_and_map(first_row, first_col + 2, self._character.level, cm_group="Character", cm_key="level")
-        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 1, "Tree aura on target")
-        self.write_cell_and_map(first_row + 1, first_col + 2, 1, "Target", "tree_of_life")
-        self.worksheet.merge_range(first_row + 2, first_col, first_row + 2, first_col + 2, 'Primary')
-        self.write_cell(first_row + 3, first_col, "Stat")
-        self.write_cell(first_row + 3, first_col + 1, "Base")
-        self.write_cell(first_row + 3, first_col + 2, "Buffed")
+        self.worksheet.merge_range(first_row + 1, first_col, first_row + 1, first_col + 2, 'Primary')
+        self.write_cell(first_row + 2, first_col, "Stat")
+        self.write_cell(first_row + 2, first_col + 1, "Base")
+        self.write_cell(first_row + 2, first_col + 2, "Buffed")
 
-        row = first_row + 4
+        row = first_row + 3
         for stat in Stats.primary():
             row, _ = self._write_stat_row(row, first_col, stat)
 
@@ -179,14 +177,24 @@ class CharacterSheetGenerator(ThematicSheet):
     def write_buffs(self):
         first_row, first_col = self.offset
         first_col += 10
-        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 1, 'Buffs')
+        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 3, 'Player buffs')
         self.write_cell(first_row + 1, first_col, "Name")
         self.write_cell(first_row + 1, first_col + 3, "Active")
 
         row = first_row + 2
-        for name, buff in BUFFS.items():
+        for name, buff in PLAYER_BUFFS.items():
             col = self.write_cell(row, first_col, self.human_readable(name))
             self.write_cell_and_map(row, col + 3, int(self._character.buffs.has_modifier(name)), "Buff", name)
+            row += 1
+
+        self.worksheet.merge_range(row, first_col, row, first_col + 3, 'Target buffs')
+        self.write_cell(row + 1, first_col, "Name")
+        self.write_cell(row + 1, first_col + 3, "Active")
+
+        row += 2
+        for name, buff in TARGET_BUFFS.items():
+            col = self.write_cell(row, first_col, self.human_readable(name))
+            self.write_cell_and_map(row, col + 3, int(self._character.buffs.has_modifier(name)), "Target", name)
             row += 1
 
     def write_sheet(self):
@@ -202,8 +210,8 @@ class CharacterSheetGenerator(ThematicSheet):
     def n_rows(self):
         return max(
             len(self._character.talents) + (1 if len(self._description) > 0 else 0),
-            7 + len(Stats.all_stats()),
-            2 + len(BUFFS)) + 1
+            6 + len(Stats.all_stats()),
+            4 + len(PLAYER_BUFFS) + len(TARGET_BUFFS)) + 1
 
 
 class SpellSheetGenerator(ThematicSheet):
@@ -323,8 +331,8 @@ class RejuvenationSheetGenerator(SpellSheetGenerator):
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.coef_formula, self.cell_map),
                                       spell.identifier, "coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Talents.{tree}#)".format(
-                                  spell=spell.identifier, tree=DruidTalents.TREE_OF_LIFE[0]), self.cell_map)
+        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(
+                                  spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map),
                                       spell.identifier, "hot_tick", formula=True)
@@ -381,7 +389,7 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         coef_direct, coef_hot = spell.coef_formula
         col = self.write_cell_and_map(row, col + 1, parse_formula(coef_direct, self.cell_map), cm_group=spell.identifier, cm_key="direct_coef", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(coef_hot, self.cell_map), cm_group=spell.identifier, cm_key="hot_coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Talents.{tree}#)".format(spell=spell.identifier, tree=DruidTalents.TREE_OF_LIFE[0]), self.cell_map)
+        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         direct_min, direct_max, hot_tick = spell.formula
         col = self.write_cell_and_map(row, col + 1, parse_formula(direct_min, self.cell_map), spell.identifier, "min_heal", formula=True)
@@ -449,7 +457,7 @@ class LifebloomSheetGenerator(SpellSheetGenerator):
                                       cm_group=spell.identifier, cm_key="direct_coef", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(coef_hot, self.cell_map),
                                       cm_group=spell.identifier, cm_key="hot_coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Talents.{tree}#)".format(spell=spell.identifier, tree=DruidTalents.TREE_OF_LIFE[0]), self.cell_map)
+        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         direct_heal, _, hot_heal = spell.formula
         avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * {direct}".format(crit=Stats.SPELL_CRIT, direct=direct_heal), self.cell_map)
@@ -511,8 +519,8 @@ class TranquilitySheetGenerator(SpellSheetGenerator):
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.coef_formula, self.cell_map),
                                       spell.identifier, "coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Talents.{tree}#)".format(
-                                  spell=spell.identifier, tree=DruidTalents.TREE_OF_LIFE[0]), self.cell_map)
+        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(
+                                  spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map),
                                       spell.identifier, "hot_tick", formula=True)

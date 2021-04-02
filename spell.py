@@ -3,7 +3,7 @@ from abc import abstractmethod
 from character import Stats
 from talents import DruidTalents
 
-HEAL_GENERIC_FORMULA = "(({base} + {coef} * ({bh} + 0.25 * #Target.tree_of_life# * #Stats.spirit#)) * {gift})"
+HEAL_GENERIC_FORMULA = "(({base} + {coef} * {bh}) * {gift})"
 HOT_GENERIC_FORMULA = "({} / {{ticks}})".format(HEAL_GENERIC_FORMULA)
 
 

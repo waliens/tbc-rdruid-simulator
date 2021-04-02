@@ -4,9 +4,9 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from buffs import BUFFS
+from buffs import ALL_BUFFS, TARGET_BUFFS
 from statsmodifiers import StatsModifierArray
-from character import Character, DruidCharacter
+from character import Character, DruidCharacter, BuffedCharacter
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
 from rotation import Rotation, Assignments
@@ -27,7 +27,7 @@ def main(argv):
     with open(args.config_filepath, "r", encoding="utf-8") as file:
         _in = json.load(file)
 
-    all_buffs = [StatsModifierArray([BUFFS[b] for b in buff["active"]], name=buff["name"]) for buff in _in["buffs"]]
+    all_buffs = [StatsModifierArray([ALL_BUFFS[b] for b in buff["active"]], name=buff["name"]) for buff in _in["buffs"]]
     all_talents = [DruidTalents(talent["points"], name=talent["name"]) for talent in _in["talents"]]
     all_assignments = [Assignments.from_dict(rotation) for rotation in _in["rotations"]]
 
@@ -54,7 +54,8 @@ def main(argv):
             )
 
     if args.spreadsheets:
-        write_spells_wb(combinations[0][2], "spells", outfolder=args.out_folder)
+        target_buffs = StatsModifierArray(TARGET_BUFFS.values())
+        write_spells_wb(BuffedCharacter(combinations[0][2], target_buffs), "spells", outfolder=args.out_folder)
         write_compare_setups_wb(combinations, _in["fight_duration"], outfolder=args.out_folder)
 
 

@@ -155,7 +155,7 @@ class BuffedCharacter(Character):
     def __init__(self, character, buffs):
         self._character = character
         self._other_buffs = buffs
-        self._merged_buffs = StatsModifierArray.merge(buffs, self._character.effects)
+        self._merged_effects = StatsModifierArray.merge(buffs, self._character.effects)
 
     @property
     def level(self):
@@ -167,11 +167,11 @@ class BuffedCharacter(Character):
 
     @property
     def buffs(self):
-        return self.buffs
+        return StatsModifierArray.merge(self._character.buffs, self._other_buffs)
 
     @property
     def effects(self):
-        return self._merged_buffs
+        return self._merged_effects
 
     @property
     def base_stats(self):
