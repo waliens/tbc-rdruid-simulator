@@ -3,7 +3,7 @@
   "rotations": [
     {
       "name": "1t_lb_rj_rg",
-      "description": "Keeping all hots rolling on one target, no filler.",
+      "description": "Keeping all hots rolling on one target.",
       "assignments": [
         { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
         { "spell": "rejuvenation", "target": "tank" },
@@ -69,7 +69,10 @@
         "mp5": 70,
         "spell_damage": 409,
         "bonus_healing": 1263
-      }
+      },
+      "bonuses": [
+        "idol_of_the_emerald_queen"
+      ]
     }
   ]
 }

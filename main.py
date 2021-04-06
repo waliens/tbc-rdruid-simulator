@@ -4,9 +4,10 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from buffs import ALL_BUFFS, TARGET_BUFFS
+from buffs import ALL_BUFFS
+from items import ITEMS, Gear
 from statsmodifiers import StatsModifierArray
-from character import Character, DruidCharacter, BuffedCharacter
+from character import DruidCharacter
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
 from rotation import Rotation, Assignments
@@ -37,6 +38,7 @@ def main(argv):
             stats=charac_info["stats"],
             talents=talents,
             buffs=buffs,
+            gear=Gear([ITEMS[name] for name in charac_info.get("bonuses")]),
             level=charac_info["level"]
         )
 

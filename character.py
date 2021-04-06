@@ -1,6 +1,7 @@
 import math
 from abc import abstractmethod
 
+from items import Gear
 from statsmodifiers import StatsModifierArray, StatsModifier
 from statistics import Stats, linear, BASE_MANA_LOOKUP, linear_params, RATING_FORMULA
 from talents import Talents
@@ -33,24 +34,30 @@ class Character(object):
 
     @property
     @abstractmethod
+    def gear(self):
+        """return the character gear"""
+        pass
+
+    @property
+    @abstractmethod
     def base_stats(self):
         """Returns a dictionary mapping base stats with their values (base = untalented and unbuffed)
         """
         pass
 
-    def get_stat(self, stat):
+    def get_stat(self, stat, **context):
         """get buffed and talented stat value"""
         base = self.get_base_stat(stat)
-        return self.effects.apply(stat, base, self)
+        return self.effects.apply(stat, base, self, **context)
 
     def get_base_stat(self, stat):
         """get base stat value"""
         return self.base_stats.get(stat, 0)
 
-    def get_formula(self, stat):
+    def get_formula(self, stat, **context):
         """get full formula for a stat"""
         base = "#Stats.{stat}#".format(stat=Stats.base(stat))
-        return self.effects.formula(stat, base)
+        return self.effects.formula(stat, base, **context)
 
     def get_base_formula(self, stat):
         return str(self.get_base_stat(stat))
@@ -120,15 +127,16 @@ def druid_base():
 
 
 class DruidCharacter(Character):
-    def __init__(self, stats, talents: Talents, buffs: StatsModifierArray, level=70):
+    def __init__(self, stats, talents: Talents, buffs: StatsModifierArray, gear: Gear=None, level=70):
         self._level = level
         self._talents = talents
         self._buffs = buffs
+        self._gear = gear if gear is not None else Gear([])
         self._base_stats = dict()
         base = druid_base()
         for stat in Stats.all_stats():
             self._base_stats[stat] = stats.get(stat, 0) + base.get(stat, 0)
-        self._effects = StatsModifierArray.merge(self._talents.buff_array, self._buffs, druid_stats())
+        self._effects = StatsModifierArray.merge(self._talents.buff_array, self._buffs, druid_stats(), self._gear.effects)
 
     @property
     def level(self):
@@ -145,6 +153,10 @@ class DruidCharacter(Character):
     @property
     def effects(self):
         return self._effects
+
+    @property
+    def gear(self):
+        return self._gear
 
     @property
     def base_stats(self):
@@ -172,6 +184,10 @@ class BuffedCharacter(Character):
     @property
     def effects(self):
         return self._merged_effects
+
+    @property
+    def gear(self):
+        return self._character.gear
 
     @property
     def base_stats(self):

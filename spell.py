@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from character import Stats
+from statistics import Stats
 from talents import DruidTalents
 
 HEAL_GENERIC_FORMULA = "(({base} + {coef} * {bh}) * {gift})"
@@ -167,6 +167,12 @@ class HealingSpell(object):
     TYPE_HYBRID = "HYBRID"
     TYPE_CHANNELED = "CHANNELED"
 
+    HEAL_TICK = "tick"
+    HEAL_DIRECT = "direct"
+    HEAL_CAST_TIME = "cast_time"
+    HEAL_MANA_COST = "mana_cost"
+    HEAL_DURATION = "duration"
+
     def __init__(self, coef_policy, name, type, rank, mana_cost, lvl, cast_time=0.0, duration=0.0, ticks=0, max_stacks=0, direct_first=True):
         self._coef_policy = coef_policy
         self._mana_cost = mana_cost
@@ -215,6 +221,10 @@ class HealingSpell(object):
         return self._name
 
     @property
+    def cname(self):
+        return self.name.lower().replace(" ", "_")
+
+    @property
     def rank(self):
         return self._rank
 
@@ -259,7 +269,7 @@ class HealingTouch(HealingSpell):
         self.max_heal = max_heal
 
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING)
+        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_DIRECT)
         coef = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         return (self.min_heal + coef * bh) * gift, (self.max_heal + coef * bh) * gift
@@ -302,7 +312,7 @@ class Rejuvenation(HealingSpell):
         self.hot_heal = hot_heal
 
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING)
+        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_TICK)
         coef = self._get_spell_coefficient(character, self.coef_policy)
         improved = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02 + character.talents.get(DruidTalents.IMPROVED_REJUVENATION) * 0.05
         return (self.hot_heal + bh * coef) * improved / self.ticks
@@ -345,12 +355,13 @@ class Regrowth(HealingSpell):
         self.hot_heal = hot_heal
 
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING)
+        bh_direct = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.TYPE_DIRECT)
+        bh_hot = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.TYPE_HOT)
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
-        return (self.min_direct_heal + coef_direct * bh) * gift, \
-               (self.max_direct_heal + coef_direct * bh) * gift, \
-               (self.hot_heal + bh * coef_hot) * gift / self.ticks
+        return (self.min_direct_heal + coef_direct * bh_direct) * gift, \
+               (self.max_direct_heal + coef_direct * bh_direct) * gift, \
+               (self.hot_heal + bh_hot * coef_hot) * gift / self.ticks
 
     @property
     def formula(self):
@@ -400,11 +411,12 @@ class Lifebloom(HealingSpell):
         self.hot_heal = hot_heal
 
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING)
+        bh_direct = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_DIRECT)
+        bh_hot = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_TICK)
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
-        direct_heal = (self.direct_heal + coef_direct * bh) * gift
-        return direct_heal, direct_heal, (self.hot_heal + bh * coef_hot) * gift / self.ticks
+        direct_heal = (self.direct_heal + coef_direct * bh_direct) * gift
+        return direct_heal, direct_heal, (self.hot_heal + bh_hot * coef_hot) * gift / self.ticks
 
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, self.cast_time, self.duration,
@@ -454,7 +466,7 @@ class Tranquility(HealingSpell):
         self.hot_heal = hot_heal
 
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING)
+        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_TICK)
         coef = self._get_spell_coefficient(character, self.coef_policy)
         improved = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         return (self.hot_heal + bh * coef) * improved / self.ticks
