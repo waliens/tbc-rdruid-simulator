@@ -55,6 +55,7 @@ class DruidTalents(Talents):
     TREE_OF_LIFE = ("tree_of_life", 1, "restoration")
     LUNAR_GUIDANCE = ("lunar_guidance", 3, "balance")
     DREAMSTATE = ("dreamstate", 3, "balance")
+    NURTURING_INSTINCT = ("nurturing_instinct", 2, "feralcombat")
 
     @property
     def all_talents(self):
@@ -65,7 +66,7 @@ class DruidTalents(Talents):
         return [DruidTalents.NATURALIST, DruidTalents.GIFT_OF_NATURE, DruidTalents.TRANQUILITY_SPIRIT,
                 DruidTalents.IMPROVED_REJUVENATION, DruidTalents.EMPOWERED_REJUVENATION, DruidTalents.LIVING_SPIRIT,
                 DruidTalents.EMPOWERED_TOUCH, DruidTalents.IMPROVED_REGROWTH, DruidTalents.INTENSITY, DruidTalents.TREE_OF_LIFE,
-                DruidTalents.DREAMSTATE, DruidTalents.LUNAR_GUIDANCE]
+                DruidTalents.DREAMSTATE, DruidTalents.LUNAR_GUIDANCE, DruidTalents.NURTURING_INSTINCT]
 
     def __len__(self):
         return len(self.all())
@@ -88,4 +89,9 @@ class DruidTalents(Talents):
         ds_talent = "#Talents.{}#".format(DruidTalents.DREAMSTATE[0])
         ds_fo = "(CHOOSE({talent}+1; 0; 4; 7; 10) * #Stats.{intel}# / 100)".format(talent=ds_talent, intel=Stats.INTELLIGENCE)
         buffs.append(StatsModifier(name=DruidTalents.DREAMSTATE[0], stats=[Stats.MP5], _type=StatsModifier.TYPE_ADDITIVE, functions=[ds_fn], formula=[ds_fo]))
+        # nurturing instinct
+        ni_fn = lambda char: 0.5 * char.talents.get(DruidTalents.NURTURING_INSTINCT) * char.get_stat(Stats.AGILITY)
+        ni_talent = "#Talents.{}#".format(DruidTalents.NURTURING_INSTINCT[0])
+        ni_fo = "({talent} * 0.5 * #Stats.{agi}#)".format(talent=ni_talent, agi=Stats.AGILITY)
+        buffs.append(StatsModifier(name=DruidTalents.NURTURING_INSTINCT[0], stats=[Stats.BONUS_HEALING], _type=StatsModifier.TYPE_ADDITIVE, functions=[ni_fn], formula=[ni_fo]))
         return StatsModifierArray(buffs)
