@@ -178,14 +178,14 @@ class SpellEvent(Event):
             timestamps.append(self.start)
             _min, _max = self.spell.get_healing(character)
             heals.append(apply_crit((_max+_min)/2, character.get_stat(Stats.SPELL_CRIT)))
-            string_heals.append("#{spell}.avg_heal#".format(spell=self.spell.identifier))
+            string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
         elif self.spell.type == HealingSpell.TYPE_HYBRID:
-            direct_min, direct_max, tick = self.spell.get_healing(character)
+            direct_avg, tick = self.spell.get_healing(character)
             if self.spell.direct_first or (self.duration >= self.spell.duration):
                 timestamps.append(self.start if self.spell.direct_first else self.end)
-                with_crit = apply_crit((direct_max+direct_min)/2, character.get_stat(Stats.SPELL_CRIT))
-                heals.append(direct_max if isinstance(self.spell, Lifebloom) else with_crit)
-                string_heals.append("#{spell}.avg_heal#".format(spell=self.spell.identifier))
+                with_crit = apply_crit(direct_avg, character.get_stat(Stats.SPELL_CRIT))
+                heals.append(direct_avg if isinstance(self.spell, Lifebloom) else with_crit)
+                string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
             period = self.spell.tick_period
             tick_str = "#{spell}.hot_tick{tick}#".format(spell=self.spell.identifier, tick="" if self.spell.max_stacks == 1 else self.stacks)
             t, h, s = zip(*[(self.start + (i + 1) * period, tick * self.stacks, tick_str)

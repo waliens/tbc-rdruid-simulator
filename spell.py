@@ -262,29 +262,27 @@ class HealingSpell(object):
 
 
 class HealingTouch(HealingSpell):
-    def __init__(self, coef_policy, rank, mana_cost, lvl, min_heal, max_heal, cast_time):
+    def __init__(self, coef_policy, rank, mana_cost, lvl, avg_heal, cast_time):
         super().__init__(coef_policy, "Healing touch", HealingSpell.TYPE_DIRECT, rank, mana_cost, lvl, cast_time=cast_time)
 
-        self.min_heal = min_heal
-        self.max_heal = max_heal
+        self.avg_heal = avg_heal
 
     def get_healing(self, character):
         bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_DIRECT)
         coef = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
-        return (self.min_heal + coef * bh) * gift, (self.max_heal + coef * bh) * gift
+        return (self.avg_heal + coef * bh) * gift
 
     @property
     def formula(self):
         gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
         formula = HEAL_GENERIC_FORMULA.format(
-            base="{base}",
+            base="#{}.base_avg_heal#".format(self.identifier),
             coef="#{}.coef#".format(self.identifier),
             bh="#Stats.{}#".format(Stats.BONUS_HEALING),
             gift=gift_formula
         )
-        return formula.format(base="#{}.base_min_heal#".format(self.identifier)), \
-               formula.format(base="#{}.base_max_heal#".format(self.identifier))
+        return formula
 
     @property
     def coef_formula(self):
@@ -297,8 +295,8 @@ class HealingTouch(HealingSpell):
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_TOUCH) * 0.1)
 
     def __repr__(self):
-        return "{}(type={}, rank={}, level={}, cost={}, cast={}s, hmin={}, hmax={})".format(
-            self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.min_heal, self.max_heal)
+        return "{}(type={}, rank={}, level={}, cost={}, cast={}s, havg={})".format(
+            self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.avg_heal)
 
     def get_effective_cast_time(self, character):
         haste = character.get_stat(Stats.SPELL_HASTE)
@@ -348,10 +346,9 @@ class Rejuvenation(HealingSpell):
 
 
 class Regrowth(HealingSpell):
-    def __init__(self, coef_policy, rank, mana_cost, lvl, min_direct_heal, max_direct_heal, hot_heal, cast_time, duration):
+    def __init__(self, coef_policy, rank, mana_cost, lvl, avg_direct_heal, hot_heal, cast_time, duration):
         super().__init__(coef_policy, "Regrowth", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl, cast_time=cast_time, duration=duration, ticks=7, max_stacks=1)
-        self.min_direct_heal = min_direct_heal
-        self.max_direct_heal = max_direct_heal
+        self.avg_direct_heal = avg_direct_heal
         self.hot_heal = hot_heal
 
     def get_healing(self, character):
@@ -359,15 +356,14 @@ class Regrowth(HealingSpell):
         bh_hot = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.TYPE_HOT)
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
-        return (self.min_direct_heal + coef_direct * bh_direct) * gift, \
-               (self.max_direct_heal + coef_direct * bh_direct) * gift, \
+        return (self.avg_direct_heal + coef_direct * bh_direct) * gift, \
                (self.hot_heal + bh_hot * coef_hot) * gift / self.ticks
 
     @property
     def formula(self):
         gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
-        generic_direct = HEAL_GENERIC_FORMULA.format(
-            base="{base}",
+        direct_formula = HEAL_GENERIC_FORMULA.format(
+            base="#{}.base_avg_direct_heal#".format(self.identifier),
             bh="#Stats.{}#".format(Stats.BONUS_HEALING),
             gift=gift_formula,
             coef="#{}.direct_coef#".format(self.identifier)
@@ -379,9 +375,7 @@ class Regrowth(HealingSpell):
             coef="#{}.hot_coef#".format(self.identifier),
             ticks=self.ticks
         )
-        return generic_direct.format(base="#{}.base_min_direct_heal#".format(self.identifier)), \
-               generic_direct.format(base="#{}.base_max_direct_heal#".format(self.identifier)), \
-               hot_formula
+        return direct_formula, hot_formula
 
     @property
     def coef_formula(self):
@@ -394,9 +388,9 @@ class Regrowth(HealingSpell):
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     def __repr__(self):
-        return "{}(type={}, rank={}, level={}, cost={}, cast={}s, duration={}s, hmin={}, hmax={}, hot_full={}, hot_tick={})".format(
-            self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.duration, self.min_direct_heal,
-            self.max_direct_heal, self.hot_heal, int(self.hot_heal / self.ticks))
+        return "{}(type={}, rank={}, level={}, cost={}, cast={}s, duration={}s, avg_heal={}, hot_full={}, hot_tick={})".format(
+            self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.duration,
+            self.avg_direct_heal, self.hot_heal, int(self.hot_heal / self.ticks))
 
     def get_effective_cast_time(self, character):
         haste = character.get_stat(Stats.SPELL_HASTE)
@@ -416,7 +410,7 @@ class Lifebloom(HealingSpell):
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         direct_heal = (self.direct_heal + coef_direct * bh_direct) * gift
-        return direct_heal, direct_heal, (self.hot_heal + bh_hot * coef_hot) * gift / self.ticks
+        return direct_heal, (self.hot_heal + bh_hot * coef_hot) * gift / self.ticks
 
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, self.cast_time, self.duration,
@@ -425,7 +419,7 @@ class Lifebloom(HealingSpell):
     @property
     def formula(self):
         gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
-        generic_direct = HEAL_GENERIC_FORMULA.format(
+        direct_formula = HEAL_GENERIC_FORMULA.format(
             base="#{}.base_direct_heal#".format(self.identifier),
             bh="#Stats.{}#".format(Stats.BONUS_HEALING),
             gift=gift_formula,
@@ -438,7 +432,7 @@ class Lifebloom(HealingSpell):
             coef="#{}.hot_coef#".format(self.identifier),
             ticks=self.ticks
         )
-        return generic_direct, generic_direct, hot_formula
+        return direct_formula, hot_formula
 
     @property
     def coef_formula(self):
@@ -507,19 +501,19 @@ LIFEBLOOM = [
 ]
 
 HEALING_TOUCH = [
-    HealingTouch(DIRECT_HEAL_COEF, rank=1, mana_cost=25, lvl=1, min_heal=37, max_heal=52, cast_time=1.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=2, mana_cost=55, lvl=8, min_heal=88, max_heal=113, cast_time=2),
-    HealingTouch(DIRECT_HEAL_COEF, rank=3, mana_cost=110, lvl=14, min_heal=195, max_heal=244, cast_time=2.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=4, mana_cost=185, lvl=20, min_heal=363, max_heal=446, cast_time=3),
-    HealingTouch(DIRECT_HEAL_COEF, rank=5, mana_cost=270, lvl=26, min_heal=572, max_heal=695, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=6, mana_cost=335, lvl=32, min_heal=742, max_heal=895, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=7, mana_cost=405, lvl=38, min_heal=936, max_heal=1121, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=8, mana_cost=495, lvl=44, min_heal=1199, max_heal=1428, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=9, mana_cost=600, lvl=50, min_heal=1516, max_heal=1797, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=10, mana_cost=720, lvl=56, min_heal=1890, max_heal=2231, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=11, mana_cost=800, lvl=60, min_heal=2267, max_heal=2678, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=12, mana_cost=820, lvl=62, min_heal=2364, max_heal=2791, cast_time=3.5),
-    HealingTouch(DIRECT_HEAL_COEF, rank=13, mana_cost=935, lvl=69, min_heal=2707, max_heal=3198, cast_time=3.5)
+    HealingTouch(DIRECT_HEAL_COEF, rank=1, mana_cost=25, lvl=1, avg_heal=47, cast_time=1.5),  # min_heal=37, max_heal=52
+    HealingTouch(DIRECT_HEAL_COEF, rank=2, mana_cost=55, lvl=8, avg_heal=106, cast_time=2),  # min_heal=88, max_heal=113
+    HealingTouch(DIRECT_HEAL_COEF, rank=3, mana_cost=110, lvl=14, avg_heal=228, cast_time=2.5),  # min_heal=195, max_heal=244
+    HealingTouch(DIRECT_HEAL_COEF, rank=4, mana_cost=185, lvl=20, avg_heal=417, cast_time=3),  # min_heal=363, max_heal=446
+    HealingTouch(DIRECT_HEAL_COEF, rank=5, mana_cost=270, lvl=26, avg_heal=650, cast_time=3.5),  # min_heal=572, max_heal=695
+    HealingTouch(DIRECT_HEAL_COEF, rank=6, mana_cost=335, lvl=32, avg_heal=838, cast_time=3.5),  # min_heal=742, max_heal=895
+    HealingTouch(DIRECT_HEAL_COEF, rank=7, mana_cost=405, lvl=38, avg_heal=1050, cast_time=3.5),  # min_heal=936, max_heal=1121
+    HealingTouch(DIRECT_HEAL_COEF, rank=8, mana_cost=495, lvl=44, avg_heal=1339, cast_time=3.5),  # min_heal=1199, max_heal=1428
+    HealingTouch(DIRECT_HEAL_COEF, rank=9, mana_cost=600, lvl=50, avg_heal=1685, cast_time=3.5),  # min_heal=1516, max_heal=1797
+    HealingTouch(DIRECT_HEAL_COEF, rank=10, mana_cost=720, lvl=56, avg_heal=2086, cast_time=3.5),  # min_heal=1890, max_heal=2231
+    HealingTouch(DIRECT_HEAL_COEF, rank=11, mana_cost=800, lvl=60, avg_heal=2472, cast_time=3.5),  # min_heal=2267, max_heal=2678
+    HealingTouch(DIRECT_HEAL_COEF, rank=12, mana_cost=820, lvl=62, avg_heal=2577, cast_time=3.5),  # min_heal=2364, max_heal=2791
+    HealingTouch(DIRECT_HEAL_COEF, rank=13, mana_cost=935, lvl=69, avg_heal=2952, cast_time=3.5)  # min_heal=2707, max_heal=3198
 ]
 
 REJUVENATION = [
@@ -539,16 +533,16 @@ REJUVENATION = [
 ]
 
 REGROWTH = [
-    Regrowth(REGROWTH_COEF, rank=1, lvl=12, mana_cost=80, cast_time=2, duration=21, min_direct_heal=84, max_direct_heal=99, hot_heal=98),
-    Regrowth(REGROWTH_COEF, rank=2, lvl=18, mana_cost=135, cast_time=2, duration=21, min_direct_heal=164, max_direct_heal=189, hot_heal=175),
-    Regrowth(REGROWTH_COEF, rank=3, lvl=24, mana_cost=185, cast_time=2, duration=21, min_direct_heal=240, max_direct_heal=275, hot_heal=259),
-    Regrowth(REGROWTH_COEF, rank=4, lvl=30, mana_cost=230, cast_time=2, duration=21, min_direct_heal=318, max_direct_heal=361, hot_heal=343),
-    Regrowth(REGROWTH_COEF, rank=5, lvl=36, mana_cost=275, cast_time=2, duration=21, min_direct_heal=405, max_direct_heal=458, hot_heal=427),
-    Regrowth(REGROWTH_COEF, rank=6, lvl=42, mana_cost=335, cast_time=2, duration=21, min_direct_heal=511, max_direct_heal=576, hot_heal=546),
-    Regrowth(REGROWTH_COEF, rank=7, lvl=48, mana_cost=405, cast_time=2, duration=21, min_direct_heal=646, max_direct_heal=725, hot_heal=686),
-    Regrowth(REGROWTH_COEF, rank=8, lvl=54, mana_cost=485, cast_time=2, duration=21, min_direct_heal=809, max_direct_heal=906, hot_heal=861),
-    Regrowth(REGROWTH_COEF, rank=9, lvl=60, mana_cost=575, cast_time=2, duration=21, min_direct_heal=1003, max_direct_heal=1120, hot_heal=1064),
-    Regrowth(REGROWTH_COEF, rank=10, lvl=65, mana_cost=675, cast_time=2, duration=21, min_direct_heal=1215, max_direct_heal=1356, hot_heal=1274)
+    Regrowth(REGROWTH_COEF, rank=1, lvl=12, mana_cost=80, cast_time=2, duration=21, avg_direct_heal=100, hot_heal=98),  # min_direct_heal=93, max_direct_heal=107,
+    Regrowth(REGROWTH_COEF, rank=2, lvl=18, mana_cost=135, cast_time=2, duration=21, avg_direct_heal=188, hot_heal=175),  # min_direct_heal=175, max_direct_heal=201,
+    Regrowth(REGROWTH_COEF, rank=3, lvl=24, mana_cost=185, cast_time=2, duration=21, avg_direct_heal=272, hot_heal=259),  # min_direct_heal=255, max_direct_heal=289,
+    Regrowth(REGROWTH_COEF, rank=4, lvl=30, mana_cost=230, cast_time=2, duration=21, avg_direct_heal=357, hot_heal=343),  # min_direct_heal=336, max_direct_heal=378,
+    Regrowth(REGROWTH_COEF, rank=5, lvl=36, mana_cost=275, cast_time=2, duration=21, avg_direct_heal=451, hot_heal=427),  # min_direct_heal=424, max_direct_heal=478,
+    Regrowth(REGROWTH_COEF, rank=6, lvl=42, mana_cost=335, cast_time=2, duration=21, avg_direct_heal=566, hot_heal=546),  # min_direct_heal=535, max_direct_heal=597,
+    Regrowth(REGROWTH_COEF, rank=7, lvl=48, mana_cost=405, cast_time=2, duration=21, avg_direct_heal=711, hot_heal=686),  # min_direct_heal=672, max_direct_heal=750,
+    Regrowth(REGROWTH_COEF, rank=8, lvl=54, mana_cost=485, cast_time=2, duration=21, avg_direct_heal=887, hot_heal=861),  # min_direct_heal=839, max_direct_heal=935,
+    Regrowth(REGROWTH_COEF, rank=9, lvl=60, mana_cost=575, cast_time=2, duration=21, avg_direct_heal=1061, hot_heal=1064),  # min_direct_heal=1003, max_direct_heal=1119,
+    Regrowth(REGROWTH_COEF, rank=10, lvl=65, mana_cost=675, cast_time=2, duration=21, avg_direct_heal=1285, hot_heal=1274)  # min_direct_heal=1215, max_direct_heal=1356,
 ]
 
 TRANQUILITY = [

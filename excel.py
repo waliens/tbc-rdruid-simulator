@@ -250,24 +250,18 @@ class HealingTouchSheetGenerator(SpellSheetGenerator):
         col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
         self.cell_map[(spell.identifier, "mana_cost")] = self.cell_map[(spell.identifier, "base_mana_cost")]
         col = self.write_cell_and_map(row, col + 1, spell.cast_time, spell.identifier, "base_cast_time")
-        col = self.write_cell_and_map(row, col + 1, spell.min_heal, spell.identifier, "base_min_heal")
-        col = self.write_cell_and_map(row, col + 1, spell.max_heal, spell.identifier, "base_max_heal")
+        col = self.write_cell_and_map(row, col + 1, spell.avg_heal, spell.identifier, "base_avg_heal")
         col = self.write_cell_and_map(row, col + 1, parse_formula(
             spell.coef_formula, self.cell_map), spell.identifier, "coef", formula=True)
         cast_time = parse_formula("(#{}.base_cast_time# - #Talents.{}# * 0.1) / (1 + #Stats.{}#)".format(
             spell.identifier, DruidTalents.NATURALIST[0], Stats.SPELL_HASTE), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, cast_time, spell.identifier, "cast_time", formula=True)
-        formula_min, formula_max = spell.formula
-        col = self.write_cell_and_map(row, col + 1, parse_formula(formula_min, self.cell_map),
-                                      spell.identifier, "min_heal", formula=True)
-        col = self.write_cell_and_map(row, col + 1, parse_formula(formula_max, self.cell_map),
-                                      spell.identifier, "max_heal", formula=True)
-        avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * (#{spell}.min_heal# + #{spell}.max_heal#) / 2".format(
-            crit=Stats.SPELL_CRIT, spell=spell.identifier), self.cell_map)
-        col = self.write_cell_and_map(row, col + 1, avg_heal, spell.identifier, "avg_heal", formula=True)
-        hps = parse_formula("(#{spell}.avg_heal# / MAX(#Stats.{gcd}#; #{spell}.cast_time#))".format(gcd=Stats.GCD, spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map), spell.identifier, "avg_heal", formula=True)
+        avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * #{spell}.avg_heal#".format(crit=Stats.SPELL_CRIT, spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, avg_heal, spell.identifier, "avg_heal_crit", formula=True)
+        hps = parse_formula("(#{spell}.avg_heal_crit# / MAX(#Stats.{gcd}#; #{spell}.cast_time#))".format(gcd=Stats.GCD, spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hps, spell.identifier, "hps", formula=True)
-        hpm = parse_formula("(#{spell}.avg_heal# / #{spell}.mana_cost#)".format(spell=spell.identifier), self.cell_map)
+        hpm = parse_formula("(#{spell}.avg_heal_crit# / #{spell}.mana_cost#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hpm, spell.identifier, "hpm", formula=True)
         mps = parse_formula("(#{spell}.mana_cost# / MAX(#Stats.{gcd}#; #{spell}.cast_time#))".format(gcd=Stats.GCD, spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mps, spell.identifier, "mps", formula=True)
@@ -280,15 +274,13 @@ class HealingTouchSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "level")
         col = self.write_cell(subtitle_row, col + 1, "mana")
         col = self.write_cell(subtitle_row, col + 1, "base cast time")
-        col = self.write_cell(subtitle_row, col + 1, "min")
-        col = self.write_cell(subtitle_row, col + 1, "max")
+        col = self.write_cell(subtitle_row, col + 1, "avg heal")
         col = self.write_cell(subtitle_row, col + 1, "coef")
         self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (healing touch)")
         second_col = col + 1
         col = self.write_cell(subtitle_row, second_col, "cast time")
-        col = self.write_cell(subtitle_row, col + 1, "min")
-        col = self.write_cell(subtitle_row, col + 1, "max")
-        col = self.write_cell(subtitle_row, col + 1, "avg (w. crit)")
+        col = self.write_cell(subtitle_row, col + 1, "avg")
+        col = self.write_cell(subtitle_row, col + 1, "avg (w/ crit)")
         col = self.write_cell(subtitle_row, col + 1, "hps")
         col = self.write_cell(subtitle_row, col + 1, "hpm")
         col = self.write_cell(subtitle_row, col + 1, "mps")
@@ -319,7 +311,7 @@ class HealingTouchSheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 14
+        return 12
 
 
 class RejuvenationSheetGenerator(SpellSheetGenerator):
@@ -383,8 +375,7 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
         col = self.write_cell_and_map(row, col + 1, spell.cast_time, spell.identifier, "base_cast_time")
         col = self.write_cell_and_map(row, col + 1, spell.duration, spell.identifier, "base_hot_duration")
-        col = self.write_cell_and_map(row, col + 1, spell.min_direct_heal, spell.identifier, "base_min_direct_heal")
-        col = self.write_cell_and_map(row, col + 1, spell.max_direct_heal, spell.identifier, "base_max_direct_heal")
+        col = self.write_cell_and_map(row, col + 1, spell.avg_direct_heal, spell.identifier, "base_avg_direct_heal")
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.ticks, spell.identifier, "base_hot_tick")
         coef_direct, coef_hot = spell.coef_formula
@@ -392,15 +383,14 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         col = self.write_cell_and_map(row, col + 1, parse_formula(coef_hot, self.cell_map), cm_group=spell.identifier, cm_key="hot_coef", formula=True)
         mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
-        direct_min, direct_max, hot_tick = spell.formula
-        col = self.write_cell_and_map(row, col + 1, parse_formula(direct_min, self.cell_map), spell.identifier, "min_heal", formula=True)
-        col = self.write_cell_and_map(row, col + 1, parse_formula(direct_max, self.cell_map), spell.identifier, "max_heal", formula=True)
-        avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * (#{spell}.min_heal# + #{spell}.max_heal#) / 2".format(crit=Stats.SPELL_CRIT, spell=spell.identifier), self.cell_map)
-        col = self.write_cell_and_map(row, col + 1, avg_heal, spell.identifier, "avg_heal", formula=True)
+        direct_avg, hot_tick = spell.formula
+        col = self.write_cell_and_map(row, col + 1, parse_formula(direct_avg, self.cell_map), spell.identifier, "avg_direct_heal", formula=True)
+        avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * #{spell}.avg_direct_heal#".format(crit=Stats.SPELL_CRIT, spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, avg_heal, spell.identifier, "avg_direct_heal_crit", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(hot_tick, self.cell_map), spell.identifier, "hot_tick", formula=True)
         hot_tick = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hot_tick, spell.identifier, "hot_total", formula=True)
-        avg_total = parse_formula("(#{spell}.avg_heal# + #{spell}.hot_total#)".format(spell=spell.identifier), self.cell_map)
+        avg_total = parse_formula("(#{spell}.avg_direct_heal_crit# + #{spell}.hot_total#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, avg_total, spell.identifier, "total", formula=True)
         hps = parse_formula("(#{spell}.total# / #{spell}.base_hot_duration#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hps, spell.identifier, "hps", formula=True)
@@ -418,8 +408,7 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "mana")
         col = self.write_cell(subtitle_row, col + 1, "cast time")
         col = self.write_cell(subtitle_row, col + 1, "duration")
-        col = self.write_cell(subtitle_row, col + 1, "direct min")
-        col = self.write_cell(subtitle_row, col + 1, "direct max")
+        col = self.write_cell(subtitle_row, col + 1, "direct avg")
         col = self.write_cell(subtitle_row, col + 1, "hot total")
         col = self.write_cell(subtitle_row, col + 1, "hot tick")
         col = self.write_cell(subtitle_row, col + 1, "coef direct")
@@ -427,9 +416,8 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (regrowth)")
         second_col = col + 1
         col = self.write_cell(subtitle_row, col + 1, "mana_cost")
-        col = self.write_cell(subtitle_row, col + 1, "min")
-        col = self.write_cell(subtitle_row, col + 1, "max")
-        col = self.write_cell(subtitle_row, col + 1, "avg (w. crit)")
+        col = self.write_cell(subtitle_row, col + 1, "dct avg")
+        col = self.write_cell(subtitle_row, col + 1, "dct avg (w. crit)")
         col = self.write_cell(subtitle_row, col + 1, "tick")
         col = self.write_cell(subtitle_row, col + 1, "hot total")
         col = self.write_cell(subtitle_row, col + 1, "avg total")
@@ -444,7 +432,7 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 21
+        return 19
 
 
 class LifebloomSheetGenerator(SpellSheetGenerator):
@@ -463,7 +451,7 @@ class LifebloomSheetGenerator(SpellSheetGenerator):
                                       cm_group=spell.identifier, cm_key="hot_coef", formula=True)
         mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
-        direct_heal, _, hot_heal = spell.formula
+        direct_heal, hot_heal = spell.formula
         avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * {direct}".format(crit=Stats.SPELL_CRIT, direct=direct_heal), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, avg_heal, spell.identifier, "avg_direct_heal", formula=True)
         hot_heal = parse_formula(hot_heal, self.cell_map)
