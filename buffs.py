@@ -104,7 +104,7 @@ _formula_buffs = [
 
 _spell_buffs = [
     (Buff.TREE_OF_LIFE_MANA, StatsModifier.TYPE_ADDITIVE,
-        [(spell, HealParts.MANA_COST) for spell in ["Rejuvenation", "Regrowth", "Lifebloom", "Tranquility"]],
+        [(spell, HealParts.MANA_COST) for spell in ["rejuvenation", "regrowth", "lifebloom", "tranquility"]],
         [(lambda spell: -20) for _ in range(4)],
         ["-20" for _ in range(4)])
 ]

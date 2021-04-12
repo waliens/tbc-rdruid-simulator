@@ -23,6 +23,9 @@ class StatsModifier(object):
         self._cond_cm_group = cond_cm_group
         self._context = SpellModifierContext(**context)
 
+    def __repr__(self):
+        return "{}({})".format(self._name, ",".join(map(str, self._stats)))
+
     def _aggr(self):
         return add if self._type == StatsModifier.TYPE_ADDITIVE else mul
 

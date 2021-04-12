@@ -66,7 +66,7 @@ _stats_items = [
 _spell_items = [
     ItemBonus(name='nordrassil_raiment_2p',
               spell_effects=StatsModifierArray([
-                  ConstantStatsModifier(name='nordrassil_raiment_2p', effects=[(("Regrowth", HealParts.DURATION), 6)],
+                  ConstantStatsModifier(name='nordrassil_raiment_2p', effects=[(("regrowth", HealParts.DURATION), 6)],
                                         _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ]))
 ]

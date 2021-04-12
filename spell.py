@@ -292,7 +292,7 @@ class HealingSpell(object):
 
 class HealingTouch(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, avg_heal, cast_time):
-        super().__init__(coef_policy, "Healing touch", HealingSpell.TYPE_DIRECT, rank, mana_cost, lvl, cast_time=cast_time)
+        super().__init__(coef_policy, "healing_touch", HealingSpell.TYPE_DIRECT, rank, mana_cost, lvl, cast_time=cast_time)
         self.avg_heal = avg_heal
 
     def get_healing(self, character):
@@ -346,7 +346,7 @@ class HealingTouch(HealingSpell):
 
 class Rejuvenation(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, hot_heal, duration, tick_period=3):
-        super().__init__(coef_policy, "Rejuvenation", HealingSpell.TYPE_HOT, rank, mana_cost, lvl, tick_period=tick_period, duration=duration)
+        super().__init__(coef_policy, "rejuvenation", HealingSpell.TYPE_HOT, rank, mana_cost, lvl, tick_period=tick_period, duration=duration)
         self.hot_heal = hot_heal
 
     @property
@@ -371,7 +371,7 @@ class Rejuvenation(HealingSpell):
             base="#{}.base_hot_total#".format(self.identifier),
             bh=bh, gift=gift_improved_formula,
             coef="#{}.coef#".format(self.identifier),
-            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS)))
+            ticks=self.base_n_ticks)
         return FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_TICK), formula)
 
     @property
@@ -392,7 +392,7 @@ class Rejuvenation(HealingSpell):
 
 class Regrowth(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, avg_direct_heal, hot_heal, cast_time, tick_period, duration):
-        super().__init__(coef_policy, "Regrowth", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl,
+        super().__init__(coef_policy, "regrowth", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl,
                          cast_time=cast_time, duration=duration, tick_period=tick_period, max_stacks=1)
         self.avg_direct_heal = avg_direct_heal
         self.hot_heal = hot_heal
@@ -429,7 +429,7 @@ class Regrowth(HealingSpell):
             bh=bh_hot,
             gift=gift_formula,
             coef="#{}.hot_coef#".format(self.identifier),
-            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS))
+            ticks=self.base_n_ticks
         )
         return FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_DIRECT), direct_formula), \
             FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_TICK), hot_formula)
@@ -452,7 +452,7 @@ class Regrowth(HealingSpell):
 
 class Lifebloom(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, direct_heal, hot_heal, tick_period, duration):
-        super().__init__(coef_policy, "Lifebloom", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl,
+        super().__init__(coef_policy, "lifebloom", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl,
                          duration=duration, tick_period=tick_period, max_stacks=3, direct_first=False)
         self.direct_heal = direct_heal
         self.hot_heal = hot_heal
@@ -491,7 +491,7 @@ class Lifebloom(HealingSpell):
             base="#{}.base_hot_total#".format(self.identifier),
             bh=bh_hot, gift=gift_formula,
             coef="#{}.hot_coef#".format(self.identifier),
-            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS))
+            ticks=self.base_n_ticks
         )
         return FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_DIRECT), direct_formula), \
             FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_TICK), hot_formula)
@@ -512,7 +512,7 @@ class Lifebloom(HealingSpell):
 
 class Tranquility(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, hot_heal, duration, tick_period):
-        super().__init__(coef_policy, "Tranquility", HealingSpell.TYPE_CHANNELED, rank, mana_cost, lvl,
+        super().__init__(coef_policy, "tranquility", HealingSpell.TYPE_CHANNELED, rank, mana_cost, lvl,
                          duration=duration, tick_period=tick_period)
         self.hot_heal = hot_heal
 
@@ -537,7 +537,7 @@ class Tranquility(HealingSpell):
             base="#{}.base_hot_total#".format(self.identifier),
             bh=bh_hot, gift=gift_improved_formula,
             coef="#{}.coef#".format(self.identifier),
-            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS))
+            ticks=self.base_n_ticks
         )
         return FULL_DRUID.spell_effects.formula((self.name, HealParts.FINAL_TICK), formula)
 
