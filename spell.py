@@ -282,12 +282,17 @@ class HealingSpell(object):
             return "QUOTIENT(#{spell}.{duration}#; #{spell}.{period}#)".format(
                 spell=self.identifier, duration=HealParts.DURATION, period=HealParts.TICK_PERIOD)
         elif info == HealParts.CAST_TIME:
-            return "((#{spell}.base_{time}#) / (1 + #Stats.{haste}#))".format(spell=self.identifier, time=HealParts.CAST_TIME, haste=Stats.SPELL_HASTE)
-        return FULL_DRUID.spell_effects.formula((self.name, info), "#{}.base_{}#".format(self.identifier, info), **context)
+            base_formula = "((#{spell}.base_{time}#) / (1 + #Stats.{haste}#))".format(spell=self.identifier, time=HealParts.CAST_TIME, haste=Stats.SPELL_HASTE)
+        else:
+            base_formula = "#{}.base_{}#".format(self.identifier, info)
+        return FULL_DRUID.spell_effects.formula((self.name, info), base_formula, **context)
 
     @property
     def identifier(self):
         return self.name + "-" + str(self.rank)
+
+    def __repr__(self):
+        return self.identifier
 
 
 class HealingTouch(HealingSpell):
@@ -324,10 +329,6 @@ class HealingTouch(HealingSpell):
     def _get_spell_coefficient(self, character, coef_policy):
         return coef_policy.get_coefficient(self, character, self.cast_time,
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_TOUCH) * 0.1)
-
-    def __repr__(self):
-        return "{}(type={}, rank={}, level={}, cost={}, cast={}s, havg={})".format(
-            self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.avg_heal)
 
     def spell_info_formula(self, info, **context):
         formula = super().spell_info_formula(info, **context)
@@ -384,11 +385,6 @@ class Rejuvenation(HealingSpell):
         return coef_policy.get_coefficient(self, character, hot_duration=self.base_duration,
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
-    def __repr__(self):
-        return "{}(type={}, rank={}, level={}, cost={}, duration={}s, hot_full={}, hot_tick={})".format(
-            self.name, self.type, self.rank, self.level, self.mana_cost, self.duration, self.hot_heal,
-            self.hot_heal / self.n_ticks)
-
 
 class Regrowth(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, avg_direct_heal, hot_heal, cast_time, tick_period, duration):
@@ -444,11 +440,6 @@ class Regrowth(HealingSpell):
         return coef_policy.get_coefficient(self, character, self.cast_time, self.base_duration,
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
-    def __repr__(self):
-        return "{}(type={}, rank={}, level={}, cost={}, cast={}s, duration={}s, avg_heal={}, hot_full={}, hot_tick={})".format(
-            self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.duration,
-            self.avg_direct_heal, self.hot_heal, int(self.hot_heal / self.n_ticks))
-
 
 class Lifebloom(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, direct_heal, hot_heal, tick_period, duration):
@@ -503,11 +494,6 @@ class Lifebloom(HealingSpell):
                                            "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + "."), \
                coef_hot_formula.replace("#Talents.empowered#",
                                         "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + ".")
-
-    def __repr__(self):
-        return "{}(type={}, rank={}, level={}, cost={}, duration={}s, direct_heal={}, hot_full={}, hot_tick={})".format(
-            self.name, self.type, self.rank, self.level, self.mana_cost, self.duration, self.direct_heal, self.hot_heal,
-            int(self.hot_heal / self.n_ticks))
 
 
 class Tranquility(HealingSpell):

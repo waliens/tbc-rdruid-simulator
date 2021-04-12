@@ -1,3 +1,4 @@
+from buffs import Buff
 from heal_parts import HealParts
 from statistics import Stats
 from statsmodifiers import StatsModifier, ConstantStatsModifier, StatsModifierArray
@@ -42,38 +43,134 @@ class Gear(object):
 
 
 _stats_items = [
-    ItemBonus(name='idol_of_the_emerald_queen',
+    ItemBonus(name="idol_of_the_emerald_queen",
               stats_effects=StatsModifierArray([
-                  ConstantStatsModifier(name='idol_of_the_emerald_queen', _type=StatsModifier.TYPE_ADDITIVE,
+                  ConstantStatsModifier(name="idol_of_the_emerald_queen", _type=StatsModifier.TYPE_ADDITIVE,
                                         effects=[(Stats.BONUS_HEALING, 88)], cond_cm_group="Gear",
                                         spell_name="lifebloom", spell_part=HealParts.TICK)
               ])),
-    ItemBonus(name='nordrassil_raiment_4p',
+    ItemBonus(name="idol_of_rejuvenation",
               stats_effects=StatsModifierArray([
-                  ConstantStatsModifier(name='nordrassil_raiment_4p', _type=StatsModifier.TYPE_ADDITIVE,
+                  ConstantStatsModifier(name="idol_of_rejuvenation", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 50)], cond_cm_group="Gear",
+                                        spell_name="rejuvenation", spell_part=HealParts.TICK)
+              ])),
+    ItemBonus(name="harolds_rejuvenating_broach",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="harolds_rejuvenating_broach", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 86)], cond_cm_group="Gear",
+                                        spell_name="rejuvenation", spell_part=HealParts.TICK)
+              ])),
+    ItemBonus(name="gladiators_idol_of_tenacity",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="gladiators_idol_of_tenacity", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 87)], cond_cm_group="Gear",
+                                        spell_name="lifebloom", spell_part=HealParts.DIRECT)
+              ])),
+    ItemBonus(name="merciless_gladiators_idol_of_tenacity",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="merciless_gladiators_idol_of_tenacity", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 105)], cond_cm_group="Gear",
+                                        spell_name="lifebloom", spell_part=HealParts.DIRECT)
+              ])),
+    ItemBonus(name="vengeful_gladiators_idol_of_tenacity",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="vengeful_gladiators_idol_of_tenacity", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 116)], cond_cm_group="Gear",
+                                        spell_name="lifebloom", spell_part=HealParts.DIRECT)
+              ])),
+    ItemBonus(name="brutal_gladiators_idol_of_tenacity",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="brutal_gladiators_idol_of_tenacity", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 131)], cond_cm_group="Gear",
+                                        spell_name="lifebloom", spell_part=HealParts.DIRECT)
+              ])),
+    ItemBonus(name="brutal_gladiators_idol_of_tenacity",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="brutal_gladiators_idol_of_tenacity", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 131)], cond_cm_group="Gear",
+                                        spell_name="lifebloom", spell_part=HealParts.DIRECT)
+              ])),
+    ItemBonus(name="idol_of_the_raven_goddess",
+              stats_effects=StatsModifierArray([
+                  StatsModifier(name="idol_of_the_raven_goddess", _type=StatsModifier.TYPE_ADDITIVE,
+                                stats=[Stats.BONUS_HEALING],
+                                functions=[lambda char: (44 if char.stats_buff.has_modifier(Buff.TREE_OF_LIFE_HEALING) else 0)],
+                                formula=["IF(#Target.{}#; 44; 0)".format(Buff.TREE_OF_LIFE_HEALING)], cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="idol_of_the_avian_heart",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="idol_of_the_avian_heart", _type=StatsModifier.TYPE_ADDITIVE,
+                                        effects=[(Stats.BONUS_HEALING, 136)], cond_cm_group="Gear",
+                                        spell_name="healing_touch", spell_part=HealParts.DIRECT)
+              ])),
+    ItemBonus(name="t5_nordrassil_raiment_4p",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t5_nordrassil_raiment_4p", _type=StatsModifier.TYPE_ADDITIVE,
                                         effects=[(Stats.BONUS_HEALING, 150)], cond_cm_group="Gear",
                                         spell_name="lifebloom", spell_part=HealParts.DIRECT)
               ])),
-    ItemBonus(name='primal_mooncloth_3p',
+    ItemBonus(name="primal_mooncloth_3p",
               stats_effects=StatsModifierArray([
-                  StatsModifier(name='primal_mooncloth_3p', stats=[Stats.MP5],
+                  StatsModifier(name="primal_mooncloth_3p", stats=[Stats.MP5],
                                 functions=[lambda char: 0.05 * char.get_stat(Stats.REGEN_5SR)],
                                 formula=["(0.05 * #Stats.{}#)".format(Stats.REGEN_5SR)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
+    ItemBonus(name="t2_stormrage_raiment_3p",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t2_stormrage_raiment_3p", effects=[(Stats.MP5, 20)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="t1_cenarion_raiment_5p",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t1_cenarion_raiment_5p", effects=[(Stats.SPELL_CRIT_RATING, 48)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ]))
 ]
 
 _spell_items = [
-    ItemBonus(name='nordrassil_raiment_2p',
+    ItemBonus(name="t5_nordrassil_raiment_2p",
               spell_effects=StatsModifierArray([
-                  ConstantStatsModifier(name='nordrassil_raiment_2p', effects=[(("regrowth", HealParts.DURATION), 6)],
+                  ConstantStatsModifier(name="t5_nordrassil_raiment_2p", effects=[(("regrowth", HealParts.DURATION), 6)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="t3_dreamwalker_raiment_4p",
+              spell_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t3_dreamwalker_raiment_4p", effects=[((spell, HealParts.MANA_COST), 0.97)],
+                                        _type=StatsModifier.TYPE_MULTIPLICATIVE, cond_cm_group="Gear")
+                  for spell in ["healing_touch", "rejuvenation", "tranquility", "regrowth"]
+              ])),
+    ItemBonus(name="t2_stormrage_raiment_5p",
+              spell_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t2_stormrage_raiment_5p", effects=[(("regrowth", HealParts.CAST_TIME), -0.2)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="t2_stormrage_raiment_8p",
+              spell_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t2_stormrage_raiment_8p", effects=[(("rejuvenation", HealParts.DURATION), 3)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="t6_thunderheart_raiment_4p",
+              spell_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t6_thunderheart_raiment_4p", effects=[(("healing_touch", HealParts.FINAL_DIRECT), 1.1)],
+                                        _type=StatsModifier.TYPE_MULTIPLICATIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="idol_of_budding_life",
+              spell_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="idol_of_budding_life", effects=[(("rejuvenation", HealParts.MANA_COST), -36)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="idol_of_the_crescent_goddess",
+              spell_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="idol_of_the_crescent_goddess", effects=[(("regrowth", HealParts.MANA_COST), -65)],
                                         _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ]))
 ]
 
 ALL_STATS_ITEMS = {item.name: item for item in _stats_items}
 ALL_SPELL_ITEMS = {item.name: item for item in _spell_items}
-ALL_ITEMS_GEAR = Gear(ALL_STATS_ITEMS.values(), ALL_SPELL_ITEMS.values())
+ALL_ITEMS_GEAR = Gear(list(ALL_STATS_ITEMS.values()), list(ALL_SPELL_ITEMS.values()))
 
 
 def get_items(names):
