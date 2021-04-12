@@ -1,9 +1,11 @@
+from heal_parts import HealParts
 from statistics import Stats
 from statsmodifiers import StatsModifier, ConstantStatsModifier
 
 
 class Buff(StatsModifier):
     GIFT_OF_THE_WILD = "gift_of_the_wild"
+    GIFT_OF_THE_WILD_TAL = "gift_of_the_wild_tal"
     ARCANE_INTELLECT = "arcane_intellect"
     BENEDICTION_OF_KING = "benediction_of_king"
     BENEDICTION_OF_WISDOM = "benediction_of_wisdom"
@@ -31,6 +33,7 @@ class Buff(StatsModifier):
     @staticmethod
     def player_buffs():
         return {Buff.GIFT_OF_THE_WILD,
+                Buff.GIFT_OF_THE_WILD_TAL,
                 Buff.ARCANE_INTELLECT,
                 Buff.BENEDICTION_OF_KING,
                 Buff.BENEDICTION_OF_WISDOM,
@@ -68,7 +71,8 @@ class Buff(StatsModifier):
 
 _constant_buffs = [
     # buffs
-    (Buff.GIFT_OF_THE_WILD, StatsModifier.TYPE_ADDITIVE, [(p, 18) for p in Stats.primary()]),
+    (Buff.GIFT_OF_THE_WILD, StatsModifier.TYPE_ADDITIVE, [(p, 12) for p in Stats.primary()]),
+    (Buff.GIFT_OF_THE_WILD_TAL, StatsModifier.TYPE_ADDITIVE, [(p, 18) for p in Stats.primary()]),
     (Buff.ARCANE_INTELLECT, StatsModifier.TYPE_ADDITIVE, [(Stats.INTELLIGENCE, 40)]),
     (Buff.BENEDICTION_OF_KING, StatsModifier.TYPE_MULTIPLICATIVE, [(p, 1.1) for p in Stats.primary()]),
     (Buff.BENEDICTION_OF_WISDOM, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 41)]),
@@ -96,13 +100,22 @@ _constant_buffs = [
 
 _formula_buffs = [
     (Buff.TREE_OF_LIFE_HEALING, StatsModifier.TYPE_ADDITIVE, [Stats.BONUS_HEALING], [lambda c: c.get_stat(Stats.SPIRIT) * 0.25], ["(#Stats.{}# * 0.25)".format(Stats.SPIRIT)]),
-    (Buff.TREE_OF_LIFE_MANA, StatsModifier.TYPE_ADDITIVE, [], [], [])
 ]
 
-ALL_BUFFS = dict()
-ALL_BUFFS.update({n: ConstantStatsModifier(n, t, e, cond_cm_group="Buff" if n not in Buff.target_buffs() else "Target") for n, t, e in _constant_buffs})
-ALL_BUFFS.update({n: StatsModifier(n, s, fu, fo, t, cond_cm_group="Buff" if n not in Buff.target_buffs() else "Target") for n, t, s, fu, fo in _formula_buffs})
+_spell_buffs = [
+    (Buff.TREE_OF_LIFE_MANA, StatsModifier.TYPE_ADDITIVE,
+        [(spell, HealParts.MANA_COST) for spell in ["Rejuvenation", "Regrowth", "Lifebloom", "Tranquility"]],
+        [(lambda spell: -20) for _ in range(4)],
+        ["-20" for _ in range(4)])
+]
 
-PLAYER_BUFFS = {n: b for n, b in ALL_BUFFS.items() if n in Buff.player_buffs()}
-CONSUMABLES = {n: b for n, b in ALL_BUFFS.items() if n in Buff.consumables()}
-TARGET_BUFFS = {n: b for n, b in ALL_BUFFS.items() if n in Buff.target_buffs()}
+ALL_STATS_BUFFS = dict()
+ALL_STATS_BUFFS.update({n: ConstantStatsModifier(n, t, e, cond_cm_group="Buff" if n not in Buff.target_buffs() else "Target") for n, t, e in _constant_buffs})
+ALL_STATS_BUFFS.update({n: StatsModifier(n, s, fu, fo, t, cond_cm_group="Buff" if n not in Buff.target_buffs() else "Target") for n, t, s, fu, fo in _formula_buffs})
+
+PLAYER_BUFFS = {n: b for n, b in ALL_STATS_BUFFS.items() if n in Buff.player_buffs()}
+CONSUMABLES = {n: b for n, b in ALL_STATS_BUFFS.items() if n in Buff.consumables()}
+TARGET_BUFFS = {n: b for n, b in ALL_STATS_BUFFS.items() if n in Buff.target_buffs()}
+
+ALL_SPELL_BUFFS = dict()
+ALL_SPELL_BUFFS.update({n: StatsModifier(n, s, fu, fo, t, cond_cm_group="Buff" if n not in Buff.target_buffs() else "Target") for n, t, s, fu, fo in _spell_buffs})

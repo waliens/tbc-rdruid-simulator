@@ -6,8 +6,10 @@ from collections import defaultdict
 from xlsxwriter import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
-from buffs import ALL_BUFFS, PLAYER_BUFFS, TARGET_BUFFS, Buff, CONSUMABLES
+from buffs import ALL_STATS_BUFFS, PLAYER_BUFFS, TARGET_BUFFS, Buff, CONSUMABLES, ALL_SPELL_BUFFS
 from character import Stats
+from heal_parts import HealParts
+from items import ALL_SPELL_ITEMS, ALL_STATS_ITEMS
 from spell import HealingSpell, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from talents import DruidTalents
 
@@ -162,6 +164,12 @@ class CharacterSheetGenerator(ThematicSheet):
         self.write_cell(row + 1, first_col + 2, "Buffed")
         row += 2
 
+        # pre-encode 5sr for mp5
+        self.cell_map[("Stats", Stats.REGEN_5SR)] = sheet_cell_ref(
+            self.worksheet,
+            row + len(Stats.secondary()) + 2,
+            first_col + 2)
+
         for stat in Stats.secondary():
             row, _ = self._write_stat_row(row, first_col, stat)
 
@@ -182,10 +190,10 @@ class CharacterSheetGenerator(ThematicSheet):
         self.write_cell(first_row + 1, first_col + 3, "Active")
 
         row = first_row + 2
-        buff_names = sorted(PLAYER_BUFFS.keys()) + sorted(CONSUMABLES.keys())
+        buff_names = sorted(PLAYER_BUFFS.keys()) + sorted(ALL_SPELL_BUFFS.keys()) + sorted(CONSUMABLES.keys())
         for name in buff_names:
             col = self.write_cell(row, first_col, self.human_readable(name))
-            self.write_cell_and_map(row, col + 3, int(self._character.buffs.has_modifier(name)), "Buff", name)
+            self.write_cell_and_map(row, col + 3, int(self._character.stats_buffs.has_modifier(name)), "Buff", name)
             row += 1
 
         self.worksheet.merge_range(row, first_col, row, first_col + 3, 'Target buffs')
@@ -195,24 +203,40 @@ class CharacterSheetGenerator(ThematicSheet):
         row += 2
         for name, buff in TARGET_BUFFS.items():
             col = self.write_cell(row, first_col, self.human_readable(name))
-            self.write_cell_and_map(row, col + 3, int(self._character.buffs.has_modifier(name)), "Target", name)
+            self.write_cell_and_map(row, col + 3, int(self._character.stats_buffs.has_modifier(name)), "Target", name)
+            row += 1
+
+    def write_gear(self):
+        first_row, first_col = self.offset
+        first_col += 15
+        self.worksheet.merge_range(first_row, first_col, first_row, first_col + 3, 'Player gear bonuses')
+        self.write_cell(first_row + 1, first_col, "Name")
+        self.write_cell(first_row + 1, first_col + 3, "Active")
+
+        item_names = sorted(list(ALL_SPELL_ITEMS.keys()) + list(ALL_STATS_ITEMS.keys()))
+        row = first_row + 2
+        for name in item_names:
+            col = self.write_cell(row, first_col, self.human_readable(name))
+            self.write_cell_and_map(row, col + 3, int(self._character.stats_buffs.has_modifier(name)), "Gear", name)
             row += 1
 
     def write_sheet(self):
         self.write_buffs()
+        self.write_gear()
         self.write_talents()
         self.write_character()
 
     @property
     def n_cols(self):
-        return 11
+        return 19
 
     @property
     def n_rows(self):
         return max(
             len(self._character.talents) + (1 if len(self._description) > 0 else 0),
             6 + len(Stats.all_stats()),
-            4 + len(ALL_BUFFS)) + 1
+            4 + len(ALL_STATS_BUFFS) + len(ALL_SPELL_BUFFS),
+            2 + len(ALL_SPELL_ITEMS) + len(ALL_SPELL_ITEMS)) + 1
 
 
 class SpellSheetGenerator(ThematicSheet):
@@ -247,14 +271,13 @@ class HealingTouchSheetGenerator(SpellSheetGenerator):
     def write_spell(self, row, spell):
         col = self.write_cell_and_map(row, self.offset_col, spell.rank, spell.identifier, "rank")
         col = self.write_cell_and_map(row, col + 1, spell.level, spell.identifier, "level")
-        col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
+        col = self.write_cell_and_map(row, col + 1, spell.base_mana_cost, spell.identifier, "base_mana_cost")
         self.cell_map[(spell.identifier, "mana_cost")] = self.cell_map[(spell.identifier, "base_mana_cost")]
-        col = self.write_cell_and_map(row, col + 1, spell.cast_time, spell.identifier, "base_cast_time")
+        col = self.write_cell_and_map(row, col + 1, spell.base_cast_time, spell.identifier, "base_cast_time")
         col = self.write_cell_and_map(row, col + 1, spell.avg_heal, spell.identifier, "base_avg_heal")
         col = self.write_cell_and_map(row, col + 1, parse_formula(
             spell.coef_formula, self.cell_map), spell.identifier, "coef", formula=True)
-        cast_time = parse_formula("(#{}.base_cast_time# - #Talents.{}# * 0.1) / (1 + #Stats.{}#)".format(
-            spell.identifier, DruidTalents.NATURALIST[0], Stats.SPELL_HASTE), self.cell_map)
+        cast_time = parse_formula(spell.spell_info_formula(HealParts.CAST_TIME, spell_name=spell.name), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, cast_time, spell.identifier, "cast_time", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map), spell.identifier, "avg_heal", formula=True)
         avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * #{spell}.avg_heal#".format(crit=Stats.SPELL_CRIT, spell=spell.identifier), self.cell_map)
@@ -318,24 +341,24 @@ class RejuvenationSheetGenerator(SpellSheetGenerator):
     def write_spell(self, row, spell):
         col = self.write_cell_and_map(row, self.offset_col, spell.rank, spell.identifier, "rank")
         col = self.write_cell_and_map(row, col + 1, spell.level, spell.identifier, "level")
-        col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
-        col = self.write_cell_and_map(row, col + 1, spell.duration, spell.identifier, "base_hot_duration")
-        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.ticks, spell.identifier, "base_hot_tick")
+        col = self.write_cell_and_map(row, col + 1, spell.base_mana_cost, spell.identifier, "base_mana_cost")
+        col = self.write_cell_and_map(row, col + 1, spell.base_duration, spell.identifier, "base_hot_duration")
+        col = self.write_cell_and_map(row, col + 1, spell.base_tick_period, spell.identifier, "tick_period")
+        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.base_n_ticks, spell.identifier, "base_hot_tick")
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
-        col = self.write_cell_and_map(row, col + 1, parse_formula(spell.coef_formula, self.cell_map),
-                                      spell.identifier, "coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(
-                                  spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(spell.coef_formula, self.cell_map), spell.identifier, "coef", formula=True)
+        duration = parse_formula(spell.spell_info_formula(HealParts.DURATION, spell_name=spell.name), self.cell_map)
+        mana_cost = parse_formula(spell.spell_info_formula(HealParts.MANA_COST, spell_name=spell.name), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, duration, spell.identifier, "hot_duration", formula=True)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
-        col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map),
-                                      spell.identifier, "hot_tick", formula=True)
-        hot_tick = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
-        col = self.write_cell_and_map(row, col + 1, hot_tick, spell.identifier, "hot_total", formula=True)
-        hps = parse_formula("(#{spell}.hot_total# / #{spell}.base_hot_duration#)".format(spell=spell.identifier), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map), spell.identifier, "hot_tick", formula=True)
+        hot_total = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.spell_info_formula(HealParts.N_TICKS, spell_name=spell.name)), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, hot_total, spell.identifier, "hot_total", formula=True)
+        hps = parse_formula("(#{spell}.hot_total# / #{spell}.hot_duration#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hps, spell.identifier, "hps", formula=True)
         hpm = parse_formula("(#{spell}.hot_total# / #{spell}.mana_cost#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hpm, spell.identifier, "hpm", formula=True)
-        mps = parse_formula("(#{spell}.mana_cost# / #{spell}.base_hot_duration#)".format(spell=spell.identifier), self.cell_map)
+        mps = parse_formula("(#{spell}.mana_cost# / #{spell}.hot_duration#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mps, spell.identifier, "mps", formula=True)
         return col
 
@@ -346,11 +369,13 @@ class RejuvenationSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "level")
         col = self.write_cell(subtitle_row, col + 1, "mana")
         col = self.write_cell(subtitle_row, col + 1, "duration")
+        col = self.write_cell(subtitle_row, col + 1, "period")
         col = self.write_cell(subtitle_row, col + 1, "tick")
         col = self.write_cell(subtitle_row, col + 1, "total")
         col = self.write_cell(subtitle_row, col + 1, "coef")
         self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (rejuvenation)")
         second_col = col + 1
+        col = self.write_cell(subtitle_row, col + 1, "duration")
         col = self.write_cell(subtitle_row, col + 1, "mana_cost")
         col = self.write_cell(subtitle_row, col + 1, "tick")
         col = self.write_cell(subtitle_row, col + 1, "total")
@@ -365,30 +390,33 @@ class RejuvenationSheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 13
+        return 15
 
 
 class RegrowthSheetGenerator(SpellSheetGenerator):
     def write_spell(self, row, spell):
         col = self.write_cell_and_map(row, self.offset_col, spell.rank, spell.identifier, "rank")
         col = self.write_cell_and_map(row, col + 1, spell.level, spell.identifier, "level")
-        col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
-        col = self.write_cell_and_map(row, col + 1, spell.cast_time, spell.identifier, "base_cast_time")
-        col = self.write_cell_and_map(row, col + 1, spell.duration, spell.identifier, "base_hot_duration")
+        col = self.write_cell_and_map(row, col + 1, spell.base_mana_cost, spell.identifier, "base_mana_cost")
+        col = self.write_cell_and_map(row, col + 1, spell.base_cast_time, spell.identifier, "base_cast_time")
+        col = self.write_cell_and_map(row, col + 1, spell.base_duration, spell.identifier, "base_hot_duration")
+        col = self.write_cell_and_map(row, col + 1, spell.base_tick_period, spell.identifier, "tick_period")
         col = self.write_cell_and_map(row, col + 1, spell.avg_direct_heal, spell.identifier, "base_avg_direct_heal")
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
-        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.ticks, spell.identifier, "base_hot_tick")
+        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.base_n_ticks, spell.identifier, "base_hot_tick")
         coef_direct, coef_hot = spell.coef_formula
         col = self.write_cell_and_map(row, col + 1, parse_formula(coef_direct, self.cell_map), cm_group=spell.identifier, cm_key="direct_coef", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(coef_hot, self.cell_map), cm_group=spell.identifier, cm_key="hot_coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
+        duration = parse_formula(spell.spell_info_formula(HealParts.DURATION, spell_name=spell.name), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(duration, self.cell_map), cm_group=spell.identifier, cm_key="hot_duration", formula=True)
+        mana_cost = parse_formula(spell.spell_info_formula(HealParts.MANA_COST, spell_name=spell.name), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         direct_avg, hot_tick = spell.formula
         col = self.write_cell_and_map(row, col + 1, parse_formula(direct_avg, self.cell_map), spell.identifier, "avg_direct_heal", formula=True)
         avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * #{spell}.avg_direct_heal#".format(crit=Stats.SPELL_CRIT, spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, avg_heal, spell.identifier, "avg_direct_heal_crit", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(hot_tick, self.cell_map), spell.identifier, "hot_tick", formula=True)
-        hot_tick = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
+        hot_tick = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.base_n_ticks), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hot_tick, spell.identifier, "hot_total", formula=True)
         avg_total = parse_formula("(#{spell}.avg_direct_heal_crit# + #{spell}.hot_total#)".format(spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, avg_total, spell.identifier, "total", formula=True)
@@ -408,6 +436,7 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "mana")
         col = self.write_cell(subtitle_row, col + 1, "cast time")
         col = self.write_cell(subtitle_row, col + 1, "duration")
+        col = self.write_cell(subtitle_row, col + 1, "period")
         col = self.write_cell(subtitle_row, col + 1, "direct avg")
         col = self.write_cell(subtitle_row, col + 1, "hot total")
         col = self.write_cell(subtitle_row, col + 1, "hot tick")
@@ -415,6 +444,7 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "coef hot")
         self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (regrowth)")
         second_col = col + 1
+        col = self.write_cell(subtitle_row, col + 1, "duration")
         col = self.write_cell(subtitle_row, col + 1, "mana_cost")
         col = self.write_cell(subtitle_row, col + 1, "dct avg")
         col = self.write_cell(subtitle_row, col + 1, "dct avg (w. crit)")
@@ -432,24 +462,25 @@ class RegrowthSheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 19
+        return 21
 
 
 class LifebloomSheetGenerator(SpellSheetGenerator):
     def write_spell(self, row, spell):
         col = self.write_cell_and_map(row, self.offset_col, spell.rank, spell.identifier, "rank")
         col = self.write_cell_and_map(row, col + 1, spell.level, spell.identifier, "level")
-        col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
-        col = self.write_cell_and_map(row, col + 1, spell.duration, spell.identifier, "base_hot_duration")
+        col = self.write_cell_and_map(row, col + 1, spell.base_mana_cost, spell.identifier, "base_mana_cost")
+        col = self.write_cell_and_map(row, col + 1, spell.base_duration, spell.identifier, "base_hot_duration")
+        col = self.write_cell_and_map(row, col + 1, spell.base_tick_period, spell.identifier, "tick_period")
         col = self.write_cell_and_map(row, col + 1, spell.direct_heal, spell.identifier, "base_direct_heal")
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
-        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.ticks, spell.identifier, "base_hot_tick")
+        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.base_n_ticks, spell.identifier, "base_hot_tick")
         coef_direct, coef_hot = spell.coef_formula
-        col = self.write_cell_and_map(row, col + 1, parse_formula(coef_direct, self.cell_map),
-                                      cm_group=spell.identifier, cm_key="direct_coef", formula=True)
-        col = self.write_cell_and_map(row, col + 1, parse_formula(coef_hot, self.cell_map),
-                                      cm_group=spell.identifier, cm_key="hot_coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(coef_direct, self.cell_map), cm_group=spell.identifier, cm_key="direct_coef", formula=True)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(coef_hot, self.cell_map), cm_group=spell.identifier, cm_key="hot_coef", formula=True)
+        duration = parse_formula(spell.spell_info_formula(HealParts.DURATION, spell_name=spell.name), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(duration, self.cell_map), cm_group=spell.identifier, cm_key="hot_duration", formula=True)
+        mana_cost = parse_formula(spell.spell_info_formula(HealParts.MANA_COST, spell_name=spell.name), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         direct_heal, hot_heal = spell.formula
         avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * {direct}".format(crit=Stats.SPELL_CRIT, direct=direct_heal), self.cell_map)
@@ -460,7 +491,7 @@ class LifebloomSheetGenerator(SpellSheetGenerator):
         hot_tick3 = parse_formula("(#{spell}.hot_tick1# * 3)".format(spell=spell.identifier), cell_map=self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hot_tick2, spell.identifier, "hot_tick2", formula=True)
         col = self.write_cell_and_map(row, col + 1, hot_tick3, spell.identifier, "hot_tick3", formula=True)
-        hot_total = parse_formula("(#{spell}.hot_tick1# * {ticks})".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
+        hot_total = parse_formula("(#{spell}.hot_tick1# * {ticks})".format(spell=spell.identifier, ticks=spell.base_n_ticks), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hot_total, spell.identifier, "hot_total1", formula=True)
         hot_total2 = parse_formula("(#{spell}.hot_total1# * 2)".format(spell=spell.identifier), cell_map=self.cell_map)
         hot_total3 = parse_formula("(#{spell}.hot_total1# * 3)".format(spell=spell.identifier), cell_map=self.cell_map)
@@ -475,6 +506,7 @@ class LifebloomSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "level")
         col = self.write_cell(subtitle_row, col + 1, "mana")
         col = self.write_cell(subtitle_row, col + 1, "duration")
+        col = self.write_cell(subtitle_row, col + 1, "period")
         col = self.write_cell(subtitle_row, col + 1, "bloom")
         col = self.write_cell(subtitle_row, col + 1, "hot total")
         col = self.write_cell(subtitle_row, col + 1, "hot tick")
@@ -482,6 +514,7 @@ class LifebloomSheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "coef hot")
         self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (lifebloom)")
         second_col = col + 1
+        col = self.write_cell(subtitle_row, col + 1, "duration")
         col = self.write_cell(subtitle_row, col + 1, "mana_cost")
         col = self.write_cell(subtitle_row, col + 1, "direct (w. crit)")
         col = self.write_cell(subtitle_row, col + 1, "tick 1")
@@ -498,26 +531,29 @@ class LifebloomSheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 17
+        return 19
 
 
 class TranquilitySheetGenerator(SpellSheetGenerator):
     def write_spell(self, row, spell):
         col = self.write_cell_and_map(row, self.offset_col, spell.rank, spell.identifier, "rank")
         col = self.write_cell_and_map(row, col + 1, spell.level, spell.identifier, "level")
-        col = self.write_cell_and_map(row, col + 1, spell.mana_cost, spell.identifier, "base_mana_cost")
-        col = self.write_cell_and_map(row, col + 1, spell.duration, spell.identifier, "base_hot_duration")
-        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.ticks, spell.identifier, "base_hot_tick")
+        col = self.write_cell_and_map(row, col + 1, spell.base_mana_cost, spell.identifier, "base_mana_cost")
+        col = self.write_cell_and_map(row, col + 1, spell.base_duration, spell.identifier, "base_hot_duration")
+        col = self.write_cell_and_map(row, col + 1, spell.base_tick_period, spell.identifier, "tick_period")
+        col = self.write_cell_and_map(row, col + 1, spell.hot_heal / spell.base_n_ticks, spell.identifier, "base_hot_tick")
         col = self.write_cell_and_map(row, col + 1, spell.hot_heal, spell.identifier, "base_hot_total")
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.coef_formula, self.cell_map),
                                       spell.identifier, "coef", formula=True)
-        mana_cost = parse_formula("MAX(0; #{spell}.base_mana_cost# - 20 * #Buff.{tree}#)".format(
-                                  spell=spell.identifier, tree=Buff.TREE_OF_LIFE_MANA), self.cell_map)
+        duration = parse_formula(spell.spell_info_formula(HealParts.DURATION, spell_name=spell.name), self.cell_map)
+        col = self.write_cell_and_map(row, col + 1, parse_formula(duration, self.cell_map), cm_group=spell.identifier,
+                                      cm_key="hot_duration", formula=True)
+        mana_cost = parse_formula(spell.spell_info_formula(HealParts.MANA_COST, spell_name=spell.name), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map),
                                       spell.identifier, "hot_tick", formula=True)
-        hot_total = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
-        hot_total5 = parse_formula("(#{spell}.hot_tick# * {ticks} * 5)".format(spell=spell.identifier, ticks=spell.ticks), self.cell_map)
+        hot_total = parse_formula("(#{spell}.hot_tick# * {ticks})".format(spell=spell.identifier, ticks=spell.base_n_ticks), self.cell_map)
+        hot_total5 = parse_formula("(#{spell}.hot_tick# * {ticks} * 5)".format(spell=spell.identifier, ticks=spell.base_n_ticks), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, hot_total, spell.identifier, "hot_total", formula=True)
         col = self.write_cell_and_map(row, col + 1, hot_total5, spell.identifier, "hot_total5", formula=True)
         hps = parse_formula("(#{spell}.hot_total# / #{spell}.base_hot_duration#)".format(spell=spell.identifier), self.cell_map)
@@ -535,11 +571,13 @@ class TranquilitySheetGenerator(SpellSheetGenerator):
         col = self.write_cell(subtitle_row, col + 1, "level")
         col = self.write_cell(subtitle_row, col + 1, "mana")
         col = self.write_cell(subtitle_row, col + 1, "duration")
+        col = self.write_cell(subtitle_row, col + 1, "period")
         col = self.write_cell(subtitle_row, col + 1, "tick")
         col = self.write_cell(subtitle_row, col + 1, "total")
         col = self.write_cell(subtitle_row, col + 1, "coef")
         self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (tranquility)")
         second_col = col + 1
+        col = self.write_cell(subtitle_row, col + 1, "duration")
         col = self.write_cell(subtitle_row, col + 1, "mana_cost")
         col = self.write_cell(subtitle_row, col + 1, "tick")
         col = self.write_cell(subtitle_row, col + 1, "total")
@@ -555,7 +593,7 @@ class TranquilitySheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 14
+        return 16
 
 
 class AssigmentsSheet(ThematicSheet):
@@ -586,7 +624,7 @@ class AssigmentsSheet(ThematicSheet):
             ]
             if assigment.spell.type in {HealingSpell.TYPE_HYBRID, HealingSpell.TYPE_HOT}:
                 descriptor.append("allow_fade={}".format(assigment.allow_fade))
-                if assigment.spell.max_stacks > 1 and assigment.allow_fade:
+                if assigment.spell.base_max_stacks > 1 and assigment.allow_fade:
                     descriptor.append("max_stacks={}".format(assigment.fade_at_stacks))
             self.write_cell(row + i + 3, col, i + 1)
             self.write_cell(row + i + 3, col + 1, ", ".join(descriptor))
@@ -595,9 +633,9 @@ class AssigmentsSheet(ThematicSheet):
 class ComparisonSummarySheet(ThematicSheet):
     def __init__(self, workbook, sheet, cell_map, combinations, cell_maps, duration, stats_columns=None, offset=(0, 0)):
         super().__init__(workbook, sheet, cell_map, offset)
-        self._combinations = {(c[1], c[3].talents.name, c[3].buffs.name, c[4].name): c for c in combinations}
+        self._combinations = {(c[1], c[3].talents.name, c[3].stats_buffs.name, c[4].name): c for c in combinations}
         self._a_names = sorted(list({c[4].name for c in combinations}))
-        self._o_names = sorted(list({(c[1], c[3].talents.name, c[3].buffs.name) for c in combinations}))
+        self._o_names = sorted(list({(c[1], c[3].talents.name, c[3].stats_buffs.name) for c in combinations}))
         self._all_cell_maps = cell_maps
         self._stats_columns = ["hps", "time2oom", "mps"] if stats_columns is None else stats_columns
         self._fight_duration = duration

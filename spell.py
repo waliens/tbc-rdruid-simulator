@@ -1,5 +1,8 @@
 from abc import abstractmethod
 
+from character import FULL_DRUID
+from heal_parts import HealParts
+from items import ALL_ITEMS_GEAR
 from statistics import Stats
 from talents import DruidTalents
 
@@ -167,24 +170,21 @@ class HealingSpell(object):
     TYPE_HYBRID = "HYBRID"
     TYPE_CHANNELED = "CHANNELED"
 
-    HEAL_TICK = "tick"
-    HEAL_DIRECT = "direct"
-    HEAL_CAST_TIME = "cast_time"
-    HEAL_MANA_COST = "mana_cost"
-    HEAL_DURATION = "duration"
-
-    def __init__(self, coef_policy, name, type, rank, mana_cost, lvl, cast_time=0.0, duration=0.0, ticks=0, max_stacks=0, direct_first=True):
+    def __init__(self, coef_policy, name, type, rank, mana_cost, lvl, cast_time=0.0, duration=0, tick_period=0, max_stacks=0, direct_first=True):
         self._coef_policy = coef_policy
-        self._mana_cost = mana_cost
         self._name = name
         self._rank = rank
         self._level = lvl
-        self._cast_time = cast_time
-        self._duration = duration
         self._type = type
-        self._ticks = ticks
-        self._max_stacks = max_stacks  # 0 direct, 1 hot, n stackable hot
         self._direct_first = direct_first
+        self._base_spell_data = {
+            HealParts.TICK_PERIOD: tick_period,
+            HealParts.N_TICKS: duration // tick_period if tick_period > 0 else 0,
+            HealParts.DURATION: duration,
+            HealParts.CAST_TIME: cast_time,
+            HealParts.MAX_STACKS: max_stacks,  # 0 direct, 1 hot, n stackable hot
+            HealParts.MANA_COST: mana_cost
+        }
 
     @abstractmethod
     def get_healing(self, character):
@@ -200,9 +200,9 @@ class HealingSpell(object):
     def coef_formula(self):
         pass
 
-    @abstractmethod
-    def get_effective_cast_time(self, character):
-        pass
+    @property
+    def base_data(self):
+        return self._base_spell_data
 
     @property
     def direct_first(self):
@@ -211,10 +211,6 @@ class HealingSpell(object):
     @property
     def coef_policy(self):
         return self._coef_policy
-
-    @property
-    def mana_cost(self):
-        return self._mana_cost
 
     @property
     def name(self):
@@ -229,60 +225,95 @@ class HealingSpell(object):
         return self._rank
 
     @property
-    def level(self):
-        return self._level
-
-    @property
-    def cast_time(self):
-        return self._cast_time
-
-    @property
-    def duration(self):
-        return self._duration
-
-    @property
     def type(self):
         return self._type
 
     @property
-    def ticks(self):
-        return self._ticks
+    def level(self):
+        return self._level
 
     @property
-    def tick_period(self):
-        return self.duration / self.ticks if self.ticks > 0 else 0
+    def base_mana_cost(self):
+        return self.base_data[HealParts.MANA_COST]
+
+    @property
+    def base_cast_time(self):
+        return self.base_data[HealParts.CAST_TIME]
+
+    @property
+    def base_duration(self):
+        return self.base_data[HealParts.DURATION]
+
+    @property
+    def base_n_ticks(self):
+        return self.base_data[HealParts.N_TICKS]
+
+    @property
+    def base_tick_period(self):
+        return self.base_data[HealParts.TICK_PERIOD]
+
+    @property
+    def base_max_stacks(self):
+        return self.base_data[HealParts.MAX_STACKS]
+
+    def mana_cost(self, character):
+        return self.spell_info(HealParts.MANA_COST, character)
+
+    def cast_time(self, character):
+        return self.spell_info(HealParts.CAST_TIME, character) / (1 + character.get_stat(Stats.SPELL_HASTE))
+
+    def duration(self, character):
+        return self.spell_info(HealParts.DURATION, character)
+
+    def n_ticks(self, character):
+        return self.duration(character) // self.tick_period(character)
+
+    def tick_period(self, character):
+        return self.spell_info(HealParts.TICK_PERIOD, character)
+
+    def max_stacks(self, character):
+        return self.spell_info(HealParts.MAX_STACKS, character)
+
+    def spell_info(self, info, character, **context):
+        return character.gear.apply_spell_effect(self.name, info, self.base_data[info], character, **context)
+
+    def spell_info_formula(self, info, **context):
+        if info == HealParts.N_TICKS:
+            return "QUOTIENT(#{spell}.{duration}#; #{spell}.{period}#)".format(
+                spell=self.identifier, duration=HealParts.DURATION, period=HealParts.TICK_PERIOD)
+        elif info == HealParts.CAST_TIME:
+            return "((#{spell}.base_{time}#) / (1 + #Stats.{haste}#))".format(spell=self.identifier, time=HealParts.CAST_TIME, haste=Stats.SPELL_HASTE)
+        return FULL_DRUID.spell_effects.formula((self.name, info), "#{}.base_{}#".format(self.identifier, info), **context)
 
     @property
     def identifier(self):
         return self.name + "-" + str(self.rank)
 
-    @property
-    def max_stacks(self):
-        return self._max_stacks
-
 
 class HealingTouch(HealingSpell):
     def __init__(self, coef_policy, rank, mana_cost, lvl, avg_heal, cast_time):
         super().__init__(coef_policy, "Healing touch", HealingSpell.TYPE_DIRECT, rank, mana_cost, lvl, cast_time=cast_time)
-
         self.avg_heal = avg_heal
 
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_DIRECT)
+        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealParts.DIRECT)
         coef = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
-        return (self.avg_heal + coef * bh) * gift
+        direct_heal = (self.avg_heal + coef * bh) * gift
+        return character.gear.apply_spell_effect(self.name, HealParts.FINAL_DIRECT, direct_heal, character)
 
     @property
     def formula(self):
+        from character import FULL_DRUID
         gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
+        stat_formula = "#Stats.{}#".format(Stats.BONUS_HEALING)
+        bh = FULL_DRUID.stats_effects.formula(Stats.BONUS_HEALING, stat_formula, spell_name=self.name, spell_part=HealParts.DIRECT)
         formula = HEAL_GENERIC_FORMULA.format(
             base="#{}.base_avg_heal#".format(self.identifier),
             coef="#{}.coef#".format(self.identifier),
-            bh="#Stats.{}#".format(Stats.BONUS_HEALING),
-            gift=gift_formula
+            bh=bh, gift=gift_formula
         )
-        return formula
+        return FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_DIRECT), formula)
 
     @property
     def coef_formula(self):
@@ -298,33 +329,50 @@ class HealingTouch(HealingSpell):
         return "{}(type={}, rank={}, level={}, cost={}, cast={}s, havg={})".format(
             self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.avg_heal)
 
-    def get_effective_cast_time(self, character):
+    def spell_info_formula(self, info, **context):
+        formula = super().spell_info_formula(info, **context)
+        if info == HealParts.CAST_TIME:
+            base = "#{spell}.base_{time}#".format(spell=self.identifier, time=HealParts.CAST_TIME)
+            formula = formula.replace(
+                "({base})".format(base=base),
+                "({base} - 0.1 * #Talents.{nat}#)".format(base=base, nat=DruidTalents.NATURALIST[0]))
+        return formula
+
+    def cast_time(self, character):
         haste = character.get_stat(Stats.SPELL_HASTE)
         naturalist = character.talents.get(DruidTalents.NATURALIST)
-        return (self.cast_time - 0.1 * naturalist) / (1 + haste)
+        return (self.base_cast_time - 0.1 * naturalist) / (1 + haste)
 
 
 class Rejuvenation(HealingSpell):
-    def __init__(self, coef_policy, rank, mana_cost, lvl, hot_heal, duration):
-        super().__init__(coef_policy, "Rejuvenation", HealingSpell.TYPE_HOT, rank, mana_cost, lvl, duration=duration, ticks=4)
+    def __init__(self, coef_policy, rank, mana_cost, lvl, hot_heal, duration, tick_period=3):
+        super().__init__(coef_policy, "Rejuvenation", HealingSpell.TYPE_HOT, rank, mana_cost, lvl, tick_period=tick_period, duration=duration)
         self.hot_heal = hot_heal
 
+    @property
+    def hot_heal_tick(self):
+        return self.hot_heal / self.base_n_ticks
+
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_TICK)
+        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealParts.TICK)
         coef = self._get_spell_coefficient(character, self.coef_policy)
         improved = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02 + character.talents.get(DruidTalents.IMPROVED_REJUVENATION) * 0.05
-        return (self.hot_heal + bh * coef) * improved / self.ticks
+        hot_heal = (self.hot_heal_tick + bh * coef / self.base_n_ticks) * improved
+        return character.gear.apply_spell_effect(self.name, HealParts.FINAL_TICK, hot_heal, character)
 
     @property
     def formula(self):
+        from character import FULL_DRUID
         gift_improved_formula = "(1 + #Talents.{}# * 0.02 + #Talents.{}# * 0.05)".format(
             DruidTalents.GIFT_OF_NATURE[0], DruidTalents.IMPROVED_REJUVENATION[0])
-        return HOT_GENERIC_FORMULA.format(
+        stat_formula = "#Stats.{}#".format(Stats.BONUS_HEALING)
+        bh = FULL_DRUID.stats_effects.formula(Stats.BONUS_HEALING, stat_formula, spell_name=self.name, spell_part=HealParts.TICK)
+        formula = HOT_GENERIC_FORMULA.format(
             base="#{}.base_hot_total#".format(self.identifier),
-            bh="#Stats.{}#".format(Stats.BONUS_HEALING),
-            gift=gift_improved_formula,
+            bh=bh, gift=gift_improved_formula,
             coef="#{}.coef#".format(self.identifier),
-            ticks=self.ticks)
+            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS)))
+        return FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_TICK), formula)
 
     @property
     def coef_formula(self):
@@ -333,49 +381,58 @@ class Rejuvenation(HealingSpell):
             .replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
-        return coef_policy.get_coefficient(self, character, hot_duration=self.duration,
+        return coef_policy.get_coefficient(self, character, hot_duration=self.base_duration,
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     def __repr__(self):
         return "{}(type={}, rank={}, level={}, cost={}, duration={}s, hot_full={}, hot_tick={})".format(
             self.name, self.type, self.rank, self.level, self.mana_cost, self.duration, self.hot_heal,
-            self.hot_heal / self.ticks)
-
-    def get_effective_cast_time(self, character):
-        return self.cast_time
+            self.hot_heal / self.n_ticks)
 
 
 class Regrowth(HealingSpell):
-    def __init__(self, coef_policy, rank, mana_cost, lvl, avg_direct_heal, hot_heal, cast_time, duration):
-        super().__init__(coef_policy, "Regrowth", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl, cast_time=cast_time, duration=duration, ticks=7, max_stacks=1)
+    def __init__(self, coef_policy, rank, mana_cost, lvl, avg_direct_heal, hot_heal, cast_time, tick_period, duration):
+        super().__init__(coef_policy, "Regrowth", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl,
+                         cast_time=cast_time, duration=duration, tick_period=tick_period, max_stacks=1)
         self.avg_direct_heal = avg_direct_heal
         self.hot_heal = hot_heal
+
+    @property
+    def hot_heal_tick(self):
+        return self.hot_heal / self.base_n_ticks
 
     def get_healing(self, character):
         bh_direct = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.TYPE_DIRECT)
         bh_hot = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.TYPE_HOT)
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
-        return (self.avg_direct_heal + coef_direct * bh_direct) * gift, \
-               (self.hot_heal + bh_hot * coef_hot) * gift / self.ticks
+        direct_heal = (self.avg_direct_heal + coef_direct * bh_direct) * gift
+        hot_heal = (self.hot_heal_tick + bh_hot * coef_hot / self.base_n_ticks) * gift
+        return character.gear.apply_spell_effect(self.name, HealParts.FINAL_DIRECT, direct_heal, character), \
+            character.gear.apply_spell_effect(self.name, HealParts.FINAL_TICK, hot_heal, character)
 
     @property
     def formula(self):
+        from character import FULL_DRUID
         gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
+        stat_formula = "#Stats.{}#".format(Stats.BONUS_HEALING)
+        bh_hot = FULL_DRUID.stats_effects.formula(Stats.BONUS_HEALING, stat_formula, spell_name=self.name, spell_part=HealParts.TICK)
+        bh_direct = FULL_DRUID.stats_effects.formula(Stats.BONUS_HEALING, stat_formula, spell_name=self.name, spell_part=HealParts.DIRECT)
         direct_formula = HEAL_GENERIC_FORMULA.format(
             base="#{}.base_avg_direct_heal#".format(self.identifier),
-            bh="#Stats.{}#".format(Stats.BONUS_HEALING),
+            bh=bh_direct,
             gift=gift_formula,
             coef="#{}.direct_coef#".format(self.identifier)
         )
         hot_formula = HOT_GENERIC_FORMULA.format(
             base="#{}.base_hot_total#".format(self.identifier),
-            bh="#Stats.{}#".format(Stats.BONUS_HEALING),
+            bh=bh_hot,
             gift=gift_formula,
             coef="#{}.hot_coef#".format(self.identifier),
-            ticks=self.ticks
+            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS))
         )
-        return direct_formula, hot_formula
+        return FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_DIRECT), direct_formula), \
+            FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_TICK), hot_formula)
 
     @property
     def coef_formula(self):
@@ -384,97 +441,105 @@ class Regrowth(HealingSpell):
                coef_hot_formula.replace("#Talents.empowered#", "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
-        return coef_policy.get_coefficient(self, character, self.cast_time, self.duration,
+        return coef_policy.get_coefficient(self, character, self.cast_time, self.base_duration,
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     def __repr__(self):
         return "{}(type={}, rank={}, level={}, cost={}, cast={}s, duration={}s, avg_heal={}, hot_full={}, hot_tick={})".format(
             self.name, self.type, self.rank, self.level, self.mana_cost, self.cast_time, self.duration,
-            self.avg_direct_heal, self.hot_heal, int(self.hot_heal / self.ticks))
-
-    def get_effective_cast_time(self, character):
-        haste = character.get_stat(Stats.SPELL_HASTE)
-        return self.cast_time / (1 + haste)
+            self.avg_direct_heal, self.hot_heal, int(self.hot_heal / self.n_ticks))
 
 
 class Lifebloom(HealingSpell):
-    def __init__(self, coef_policy, rank, mana_cost, lvl, direct_heal, hot_heal, duration):
+    def __init__(self, coef_policy, rank, mana_cost, lvl, direct_heal, hot_heal, tick_period, duration):
         super().__init__(coef_policy, "Lifebloom", HealingSpell.TYPE_HYBRID, rank, mana_cost, lvl,
-                         duration=duration, ticks=7, max_stacks=3, direct_first=False)
+                         duration=duration, tick_period=tick_period, max_stacks=3, direct_first=False)
         self.direct_heal = direct_heal
         self.hot_heal = hot_heal
 
+    @property
+    def hot_heal_tick(self):
+        return self.hot_heal / self.base_n_ticks
+
     def get_healing(self, character):
-        bh_direct = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_DIRECT)
-        bh_hot = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_TICK)
+        bh_direct = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealParts.DIRECT)
+        bh_hot = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealParts.TICK)
         coef_direct, coef_hot = self._get_spell_coefficient(character, self.coef_policy)
         gift = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
         direct_heal = (self.direct_heal + coef_direct * bh_direct) * gift
-        return direct_heal, (self.hot_heal + bh_hot * coef_hot) * gift / self.ticks
+        hot_heal = (self.hot_heal_tick + bh_hot * coef_hot / self.base_n_ticks) * gift
+        return character.gear.apply_spell_effect(self.name, HealParts.FINAL_DIRECT, direct_heal, character), \
+            character.gear.apply_spell_effect(self.name, HealParts.FINAL_TICK, hot_heal, character)
 
     def _get_spell_coefficient(self, character, coef_policy):
-        return coef_policy.get_coefficient(self, character, self.cast_time, self.duration,
+        return coef_policy.get_coefficient(self, character, self.cast_time, self.base_duration,
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
 
     @property
     def formula(self):
+        from character import FULL_DRUID
         gift_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
+        stat_formula = "#Stats.{}#".format(Stats.BONUS_HEALING)
+        bh_hot = FULL_DRUID.stats_effects.formula(Stats.BONUS_HEALING, stat_formula, spell_name=self.name, spell_part=HealParts.TICK)
+        bh_direct = FULL_DRUID.stats_effects.formula(Stats.BONUS_HEALING, stat_formula, spell_name=self.name, spell_part=HealParts.DIRECT)
         direct_formula = HEAL_GENERIC_FORMULA.format(
             base="#{}.base_direct_heal#".format(self.identifier),
-            bh="#Stats.{}#".format(Stats.BONUS_HEALING),
-            gift=gift_formula,
+            bh=bh_direct, gift=gift_formula,
             coef="#{}.direct_coef#".format(self.identifier)
         )
         hot_formula = HOT_GENERIC_FORMULA.format(
             base="#{}.base_hot_total#".format(self.identifier),
-            bh="#Stats.{}#".format(Stats.BONUS_HEALING),
-            gift=gift_formula,
+            bh=bh_hot, gift=gift_formula,
             coef="#{}.hot_coef#".format(self.identifier),
-            ticks=self.ticks
+            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS))
         )
-        return direct_formula, hot_formula
+        return FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_DIRECT), direct_formula), \
+            FULL_DRUID.gear.spell_effects.formula((self.name, HealParts.FINAL_TICK), hot_formula)
 
     @property
     def coef_formula(self):
         coef_direct_formula, coef_hot_formula = self.coef_policy.formula
         return coef_direct_formula.replace("#Talents.empowered#",
-                                           "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace(
-            "Spell.", self.identifier + "."), \
+                                           "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + "."), \
                coef_hot_formula.replace("#Talents.empowered#",
-                                        "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace(
-                   "Spell.", self.identifier + ".")
+                                        "0.04 * #Talents.{}#".format(DruidTalents.EMPOWERED_REJUVENATION[0])).replace("Spell.", self.identifier + ".")
 
     def __repr__(self):
         return "{}(type={}, rank={}, level={}, cost={}, duration={}s, direct_heal={}, hot_full={}, hot_tick={})".format(
             self.name, self.type, self.rank, self.level, self.mana_cost, self.duration, self.direct_heal, self.hot_heal,
-            int(self.hot_heal / self.ticks))
-
-    def get_effective_cast_time(self, character):
-        return self.cast_time
+            int(self.hot_heal / self.n_ticks))
 
 
 class Tranquility(HealingSpell):
-    def __init__(self, coef_policy, rank, mana_cost, lvl, hot_heal, duration):
+    def __init__(self, coef_policy, rank, mana_cost, lvl, hot_heal, duration, tick_period):
         super().__init__(coef_policy, "Tranquility", HealingSpell.TYPE_CHANNELED, rank, mana_cost, lvl,
-                         duration=duration, ticks=4)
+                         duration=duration, tick_period=tick_period)
         self.hot_heal = hot_heal
 
+    @property
+    def hot_heal_tick(self):
+        return self.hot_heal / self.base_n_ticks
+
     def get_healing(self, character):
-        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealingSpell.HEAL_TICK)
+        bh = character.get_stat(Stats.BONUS_HEALING, spell_name=self.cname, spell_part=HealParts.TICK)
         coef = self._get_spell_coefficient(character, self.coef_policy)
         improved = 1 + character.talents.get(DruidTalents.GIFT_OF_NATURE) * 0.02
-        return (self.hot_heal + bh * coef) * improved / self.ticks
+        hot_heal = (self.hot_heal_tick + bh * coef / self.base_n_ticks) * improved
+        return character.gear.apply_spell_effect(self.name, HealParts.FINAL_TICK, hot_heal, character)
 
     @property
     def formula(self):
+        from character import FULL_DRUID
         gift_improved_formula = "(1 + #Talents.{}# * 0.02)".format(DruidTalents.GIFT_OF_NATURE[0])
-        return HOT_GENERIC_FORMULA.format(
+        stat_formula = "#Stats.{}#".format(Stats.BONUS_HEALING)
+        bh_hot = FULL_DRUID.stats_effects.formula(Stats.BONUS_HEALING, stat_formula, spell_name=self.name, spell_part=HealParts.TICK)
+        formula = HOT_GENERIC_FORMULA.format(
             base="#{}.base_hot_total#".format(self.identifier),
-            bh="#Stats.{}#".format(Stats.BONUS_HEALING),
-            gift=gift_improved_formula,
+            bh=bh_hot, gift=gift_improved_formula,
             coef="#{}.coef#".format(self.identifier),
-            ticks=self.ticks
+            ticks="({})".format(self.spell_info_formula(HealParts.N_TICKS))
         )
+        return FULL_DRUID.spell_effects.formula((self.name, HealParts.FINAL_TICK), formula)
 
     @property
     def coef_formula(self):
@@ -483,11 +548,8 @@ class Tranquility(HealingSpell):
             .replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
-        return coef_policy.get_coefficient(self, character, hot_duration=self.duration,
+        return coef_policy.get_coefficient(self, character, hot_duration=self.base_duration,
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_REJUVENATION) * 0.04)
-
-    def get_effective_cast_time(self, character):
-        return 0
 
 
 DIRECT_HEAL_COEF = DirectCoefficient()
@@ -497,7 +559,7 @@ LIFEBLOOM_COEF = LifebloomCoefficient()
 TRANQUILITY_COEF = TranquilityCoefficient()
 
 LIFEBLOOM = [
-    Lifebloom(LIFEBLOOM_COEF, rank=1, mana_cost=220, lvl=64, direct_heal=600, hot_heal=39 * 7, duration=7)
+    Lifebloom(LIFEBLOOM_COEF, rank=1, mana_cost=220, lvl=64, direct_heal=600, hot_heal=39 * 7, tick_period=1, duration=7)
 ]
 
 HEALING_TOUCH = [
@@ -517,38 +579,39 @@ HEALING_TOUCH = [
 ]
 
 REJUVENATION = [
-    Rejuvenation(HOT_HEAL_COEF, rank=1, mana_cost=25, duration=12, lvl=4, hot_heal=32),
-    Rejuvenation(HOT_HEAL_COEF, rank=2, mana_cost=40, duration=12, lvl=10, hot_heal=56),
-    Rejuvenation(HOT_HEAL_COEF, rank=3, mana_cost=75, duration=12, lvl=16, hot_heal=116),
-    Rejuvenation(HOT_HEAL_COEF, rank=4, mana_cost=105, duration=12, lvl=22, hot_heal=180),
-    Rejuvenation(HOT_HEAL_COEF, rank=5, mana_cost=135, duration=12, lvl=28, hot_heal=244),
-    Rejuvenation(HOT_HEAL_COEF, rank=6, mana_cost=160, duration=12, lvl=34, hot_heal=304),
-    Rejuvenation(HOT_HEAL_COEF, rank=7, mana_cost=195, duration=12, lvl=40, hot_heal=388),
-    Rejuvenation(HOT_HEAL_COEF, rank=8, mana_cost=235, duration=12, lvl=46, hot_heal=488),
-    Rejuvenation(HOT_HEAL_COEF, rank=9, mana_cost=280, duration=12, lvl=52, hot_heal=608),
-    Rejuvenation(HOT_HEAL_COEF, rank=10, mana_cost=335, duration=12, lvl=58, hot_heal=756),
-    Rejuvenation(HOT_HEAL_COEF, rank=11, mana_cost=360, duration=12, lvl=60, hot_heal=888),
-    Rejuvenation(HOT_HEAL_COEF, rank=12, mana_cost=370, duration=12, lvl=63, hot_heal=932),
-    Rejuvenation(HOT_HEAL_COEF, rank=13, mana_cost=415, duration=12, lvl=69, hot_heal=1060)
+    Rejuvenation(HOT_HEAL_COEF, rank=1, mana_cost=25, tick_period=3, duration=12, lvl=4, hot_heal=32),
+    Rejuvenation(HOT_HEAL_COEF, rank=2, mana_cost=40, tick_period=3, duration=12, lvl=10, hot_heal=56),
+    Rejuvenation(HOT_HEAL_COEF, rank=3, mana_cost=75, tick_period=3, duration=12, lvl=16, hot_heal=116),
+    Rejuvenation(HOT_HEAL_COEF, rank=4, mana_cost=105, tick_period=3, duration=12, lvl=22, hot_heal=180),
+    Rejuvenation(HOT_HEAL_COEF, rank=5, mana_cost=135, tick_period=3, duration=12, lvl=28, hot_heal=244),
+    Rejuvenation(HOT_HEAL_COEF, rank=6, mana_cost=160, tick_period=3, duration=12, lvl=34, hot_heal=304),
+    Rejuvenation(HOT_HEAL_COEF, rank=7, mana_cost=195, tick_period=3, duration=12, lvl=40, hot_heal=388),
+    Rejuvenation(HOT_HEAL_COEF, rank=8, mana_cost=235, tick_period=3, duration=12, lvl=46, hot_heal=488),
+    Rejuvenation(HOT_HEAL_COEF, rank=9, mana_cost=280, tick_period=3, duration=12, lvl=52, hot_heal=608),
+    Rejuvenation(HOT_HEAL_COEF, rank=10, mana_cost=335, tick_period=3, duration=12, lvl=58, hot_heal=756),
+    Rejuvenation(HOT_HEAL_COEF, rank=11, mana_cost=360, tick_period=3, duration=12, lvl=60, hot_heal=888),
+    Rejuvenation(HOT_HEAL_COEF, rank=12, mana_cost=370, tick_period=3, duration=12, lvl=63, hot_heal=932),
+    Rejuvenation(HOT_HEAL_COEF, rank=13, mana_cost=415, tick_period=3, duration=12, lvl=69, hot_heal=1060)
 ]
 
 REGROWTH = [
-    Regrowth(REGROWTH_COEF, rank=1, lvl=12, mana_cost=80, cast_time=2, duration=21, avg_direct_heal=100, hot_heal=98),  # min_direct_heal=93, max_direct_heal=107,
-    Regrowth(REGROWTH_COEF, rank=2, lvl=18, mana_cost=135, cast_time=2, duration=21, avg_direct_heal=188, hot_heal=175),  # min_direct_heal=175, max_direct_heal=201,
-    Regrowth(REGROWTH_COEF, rank=3, lvl=24, mana_cost=185, cast_time=2, duration=21, avg_direct_heal=272, hot_heal=259),  # min_direct_heal=255, max_direct_heal=289,
-    Regrowth(REGROWTH_COEF, rank=4, lvl=30, mana_cost=230, cast_time=2, duration=21, avg_direct_heal=357, hot_heal=343),  # min_direct_heal=336, max_direct_heal=378,
-    Regrowth(REGROWTH_COEF, rank=5, lvl=36, mana_cost=275, cast_time=2, duration=21, avg_direct_heal=451, hot_heal=427),  # min_direct_heal=424, max_direct_heal=478,
-    Regrowth(REGROWTH_COEF, rank=6, lvl=42, mana_cost=335, cast_time=2, duration=21, avg_direct_heal=566, hot_heal=546),  # min_direct_heal=535, max_direct_heal=597,
-    Regrowth(REGROWTH_COEF, rank=7, lvl=48, mana_cost=405, cast_time=2, duration=21, avg_direct_heal=711, hot_heal=686),  # min_direct_heal=672, max_direct_heal=750,
-    Regrowth(REGROWTH_COEF, rank=8, lvl=54, mana_cost=485, cast_time=2, duration=21, avg_direct_heal=887, hot_heal=861),  # min_direct_heal=839, max_direct_heal=935,
-    Regrowth(REGROWTH_COEF, rank=9, lvl=60, mana_cost=575, cast_time=2, duration=21, avg_direct_heal=1061, hot_heal=1064),  # min_direct_heal=1003, max_direct_heal=1119,
-    Regrowth(REGROWTH_COEF, rank=10, lvl=65, mana_cost=675, cast_time=2, duration=21, avg_direct_heal=1285, hot_heal=1274)  # min_direct_heal=1215, max_direct_heal=1356,
+    Regrowth(REGROWTH_COEF, rank=1, lvl=12, mana_cost=80, cast_time=2, tick_period=3, duration=21, avg_direct_heal=100, hot_heal=98),  # min_direct_heal=93, max_direct_heal=107,
+    Regrowth(REGROWTH_COEF, rank=2, lvl=18, mana_cost=135, cast_time=2, tick_period=3, duration=21, avg_direct_heal=188, hot_heal=175),  # min_direct_heal=175, max_direct_heal=201,
+    Regrowth(REGROWTH_COEF, rank=3, lvl=24, mana_cost=185, cast_time=2, tick_period=3, duration=21, avg_direct_heal=272, hot_heal=259),  # min_direct_heal=255, max_direct_heal=289,
+    Regrowth(REGROWTH_COEF, rank=4, lvl=30, mana_cost=230, cast_time=2, tick_period=3, duration=21, avg_direct_heal=357, hot_heal=343),  # min_direct_heal=336, max_direct_heal=378,
+    Regrowth(REGROWTH_COEF, rank=5, lvl=36, mana_cost=275, cast_time=2, tick_period=3, duration=21, avg_direct_heal=451, hot_heal=427),  # min_direct_heal=424, max_direct_heal=478,
+    Regrowth(REGROWTH_COEF, rank=6, lvl=42, mana_cost=335, cast_time=2, tick_period=3, duration=21, avg_direct_heal=566, hot_heal=546),  # min_direct_heal=535, max_direct_heal=597,
+    Regrowth(REGROWTH_COEF, rank=7, lvl=48, mana_cost=405, cast_time=2, tick_period=3, duration=21, avg_direct_heal=711, hot_heal=686),  # min_direct_heal=672, max_direct_heal=750,
+    Regrowth(REGROWTH_COEF, rank=8, lvl=54, mana_cost=485, cast_time=2, tick_period=3, duration=21, avg_direct_heal=887, hot_heal=861),  # min_direct_heal=839, max_direct_heal=935,
+    Regrowth(REGROWTH_COEF, rank=9, lvl=60, mana_cost=575, cast_time=2, tick_period=3, duration=21, avg_direct_heal=1061, hot_heal=1064),  # min_direct_heal=1003, max_direct_heal=1119,
+    Regrowth(REGROWTH_COEF, rank=10, lvl=65, mana_cost=675, cast_time=2, tick_period=3, duration=21, avg_direct_heal=1285, hot_heal=1274)  # min_direct_heal=1215, max_direct_heal=1356,
 ]
 
 TRANQUILITY = [
-    Tranquility(TRANQUILITY_COEF, rank=1, mana_cost=525, lvl=30, hot_heal=4 * 350, duration=8),
-    Tranquility(TRANQUILITY_COEF, rank=2, mana_cost=705, lvl=40, hot_heal=4 * 514, duration=8),
-    Tranquility(TRANQUILITY_COEF, rank=3, mana_cost=975, lvl=50, hot_heal=4 * 764, duration=8),
-    Tranquility(TRANQUILITY_COEF, rank=4, mana_cost=1295, lvl=60, hot_heal=4 * 1096, duration=8),
-    Tranquility(TRANQUILITY_COEF, rank=5, mana_cost=1650, lvl=70, hot_heal=4 * 1517, duration=8)
+    Tranquility(TRANQUILITY_COEF, rank=1, mana_cost=525, lvl=30, hot_heal=4 * 350, tick_period=2, duration=8),
+    Tranquility(TRANQUILITY_COEF, rank=2, mana_cost=705, lvl=40, hot_heal=4 * 514, tick_period=2, duration=8),
+    Tranquility(TRANQUILITY_COEF, rank=3, mana_cost=975, lvl=50, hot_heal=4 * 764, tick_period=2, duration=8),
+    Tranquility(TRANQUILITY_COEF, rank=4, mana_cost=1295, lvl=60, hot_heal=4 * 1096, tick_period=2, duration=8),
+    Tranquility(TRANQUILITY_COEF, rank=5, mana_cost=1650, lvl=70, hot_heal=4 * 1517, tick_period=2, duration=8)
 ]
+

@@ -4,10 +4,10 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from buffs import ALL_BUFFS
-from items import ITEMS, Gear
+from buffs import ALL_STATS_BUFFS, ALL_SPELL_BUFFS
+from items import Gear, get_items
 from statsmodifiers import StatsModifierArray
-from character import DruidCharacter
+from character import DruidCharacter, FULL_DRUID
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
 from rotation import Rotation, Assignments
@@ -28,21 +28,27 @@ def main(argv):
     with open(args.config_filepath, "r", encoding="utf-8") as file:
         _in = json.load(file)
 
-    all_buffs = [StatsModifierArray([ALL_BUFFS[b] for b in buff["active"]], name=buff["name"]) for buff in _in["buffs"]]
+    all_buffs = []
+    for buff in _in["buffs"]:
+        all_buffs.append((
+            StatsModifierArray([ALL_STATS_BUFFS[b] for b in buff["active"] if b in ALL_STATS_BUFFS], name=buff["name"]),
+            StatsModifierArray([ALL_SPELL_BUFFS[b] for b in buff["active"] if b in ALL_SPELL_BUFFS], name=buff["name"])
+        ))
     all_talents = [DruidTalents(talent["points"], name=talent["name"]) for talent in _in["talents"]]
     all_assignments = [Assignments.from_dict(rotation) for rotation in _in["rotations"]]
 
     combinations = list()
-    for charac_info, buffs, talents, assignments in itertools.product(_in["characters"], all_buffs, all_talents, all_assignments):
+    for charac_info, (stats_buffs, spell_buffs), talents, assignments in itertools.product(_in["characters"], all_buffs, all_talents, all_assignments):
         character = DruidCharacter(
             stats=charac_info["stats"],
             talents=talents,
-            buffs=buffs,
-            gear=Gear([ITEMS[name] for name in charac_info.get("bonuses")]),
+            stats_buffs=stats_buffs,
+            spell_buffs=spell_buffs,
+            gear=Gear(*get_items(charac_info.get("bonuses"))),
             level=charac_info["level"]
         )
 
-        comb_name = "_".join([charac_info["name"], talents.name, buffs.name, assignments.name])
+        comb_name = "_".join([charac_info["name"], talents.name, stats_buffs.name, assignments.name])
         rotation = Rotation(assignments)
         rotation.optimal_rotation(character, _in["fight_duration"])
         stats = rotation.stats(character, start=0, end=_in["fight_duration"])
@@ -56,9 +62,7 @@ def main(argv):
             )
 
     if args.spreadsheets:
-        base_char = combinations[0][2]
-        character = DruidCharacter(_in["characters"][0]["stats"], base_char.talents, StatsModifierArray(ALL_BUFFS.values()))
-        write_spells_wb(character, "spells", outfolder=args.out_folder)
+        write_spells_wb(FULL_DRUID, "spells", outfolder=args.out_folder)
         write_compare_setups_wb(combinations, _in["fight_duration"], outfolder=args.out_folder)
 
 

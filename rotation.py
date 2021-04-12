@@ -1,4 +1,4 @@
-from buffs import Buff, ALL_BUFFS
+from buffs import Buff, ALL_STATS_BUFFS
 from character import Stats, BuffedCharacter
 from spell import HealingSpell, Lifebloom, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from statsmodifiers import StatsModifierArray
@@ -104,7 +104,7 @@ class Assignments(object):
         return self._name
 
     def buffs(self, target):
-        return StatsModifierArray([ALL_BUFFS[n] for n in self._target_buffs[target]])
+        return StatsModifierArray([ALL_STATS_BUFFS[n] for n in self._target_buffs[target]])
 
     @staticmethod
     def from_dict(data):
@@ -150,7 +150,7 @@ class Event(object):
 
 class SpellEvent(Event):
     def __init__(self, start, spell, stacks=1):
-        super().__init__(start=start, duration=spell.duration, stacks=stacks)
+        super().__init__(start=start, duration=spell.base_duration, stacks=stacks)
         self._spell = spell
 
     @property
@@ -165,10 +165,10 @@ class SpellEvent(Event):
         timestamps, heals, string_heals = list(), list(), list()
         if self.spell.type == HealingSpell.TYPE_HOT:
             tick = self.spell.get_healing(character)
-            period = self.spell.tick_period
+            period = self.spell.base_tick_period
             tick_str = "#{spell}.hot_tick#".format(spell=self.spell.identifier)
             t, h, s = zip(*[(self.start + (i + 1) * period, tick, tick_str)
-                            for i in range(self.spell.ticks)
+                            for i in range(self.spell.base_n_ticks)
                             if (i + 1) * period < (self.end - self.start)])
 
             timestamps.extend(t)
@@ -181,15 +181,15 @@ class SpellEvent(Event):
             string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
         elif self.spell.type == HealingSpell.TYPE_HYBRID:
             direct_avg, tick = self.spell.get_healing(character)
-            if self.spell.direct_first or (self.duration >= self.spell.duration):
+            if self.spell.direct_first or (self.duration >= self.spell.base_duration):
                 timestamps.append(self.start if self.spell.direct_first else self.end)
                 with_crit = apply_crit(direct_avg, character.get_stat(Stats.SPELL_CRIT))
                 heals.append(direct_avg if isinstance(self.spell, Lifebloom) else with_crit)
                 string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
-            period = self.spell.tick_period
-            tick_str = "#{spell}.hot_tick{tick}#".format(spell=self.spell.identifier, tick="" if self.spell.max_stacks == 1 else self.stacks)
+            period = self.spell.base_tick_period
+            tick_str = "#{spell}.hot_tick{tick}#".format(spell=self.spell.identifier, tick="" if self.spell.base_max_stacks == 1 else self.stacks)
             t, h, s = zip(*[(self.start + (i + 1) * period, tick * self.stacks, tick_str)
-                            for i in range(self.spell.ticks)
+                            for i in range(self.spell.base_n_ticks)
                             if (i + 1) * period < (self.end - self.start)])
             timestamps.extend(t)
             heals.extend(h)
@@ -234,7 +234,7 @@ class Timeline():
                 raise ValueError("cannot store different spells in a timeline")
             if prev_event.end > start:
                 prev_event.duration -= (prev_event.end - start)
-                event.stacks = min(prev_event.stacks + 1, spell.max_stacks)
+                event.stacks = min(prev_event.stacks + 1, spell.base_max_stacks)
         self._events.append(event)
 
     def add_busy_event(self, start, duration):
@@ -320,7 +320,7 @@ class Timeline():
 
         timestamps, heals, string_heals = sort_by(timestamps, heals, string_heals, f=(lambda t, h, s: start <= t <= end))
         mana_ticks = [e.start for e in filtered]
-        mana_costs = [e.spell.mana_cost - (20 if character.buffs.has_modifier(Buff.TREE_OF_LIFE_MANA) else 0) for e in filtered]
+        mana_costs = [e.spell.mana_cost(character) for e in filtered]
         string_mana = ["#{spell}.mana_cost#".format(spell=e.spell.identifier) for e in filtered]
 
         return {
@@ -375,14 +375,14 @@ class Rotation(object):
             wait, assignment = self._action_at(current_time + eps, gcd, character, reaction=reaction)
             if wait < 0:
                 start_time = current_time + eps
-                cast_time = assignment.spell.get_effective_cast_time(character)
+                cast_time = assignment.spell.cast_time(character)
                 self._gcd_timeline.add_busy_event(start_time, gcd)
                 self._cast_timeline.add_busy_event(start_time, cast_time)
                 self._uptime_timeline.add_busy_event(start_time, max(gcd, cast_time))
                 self._timelines[assignment.identifier].add_spell_event(start_time + cast_time, assignment.spell)
                 self._rotation_assigments.append(assignment)
                 current_time += max(gcd, cast_time) + eps
-                mana -= assignment.spell.mana_cost - (20 if character.buffs.has_modifier(Buff.TREE_OF_LIFE_MANA) else 0)
+                mana -= assignment.spell.mana_cost(character)  # - (20 if character.buffs.has_modifier(Buff.TREE_OF_LIFE_MANA) else 0)
             else:
                 current_time += wait
 
@@ -437,7 +437,7 @@ class Rotation(object):
         wait = 9999
         for assignment in self._assignments:
             # current cast time/gcd prevent from later applying/casting a higher priority spell
-            cast_time = assignment.spell.get_effective_cast_time(character)
+            cast_time = assignment.spell.cast_time(character)
             if max(gcd, cast_time) >= lookahead:
                 continue
 
@@ -450,7 +450,7 @@ class Rotation(object):
             # cast in the future
             spell_event = timeline.event_at(current_time)
             remaining_time = timeline.remaining_uptime(current_time)
-            period = assignment.spell.tick_period
+            period = assignment.spell.base_tick_period
             if assignment.allow_fade and spell_event.stacks == assignment.fade_at_stacks:
                 # cast right after last tick, or wait so that casting time
                 # results in landing the heal right after the last tick
@@ -473,7 +473,7 @@ class Rotation(object):
             return wait, None
 
         filler = self._assignments.filler
-        cast_time = filler.spell.get_effective_cast_time(character)
+        cast_time = filler.spell.cast_time(character)
         downtime = max(character.get_stat(Stats.GCD), cast_time)
         if downtime > wait:
             return wait, None
@@ -504,7 +504,7 @@ class Rotation(object):
             if identifier not in id2assign:
                 comp_character = character
             else:
-                comp_character = BuffedCharacter(character, self._assignments.buffs(id2assign[identifier].target))
+                comp_character = BuffedCharacter(character, stats_buffs=self._assignments.buffs(id2assign[identifier].target))
             stats["timelines"][timeline.name] = timeline.stats(comp_character, start=start, end=end)
             self._per_unit_stats(stats["timelines"][timeline.name], character)
 

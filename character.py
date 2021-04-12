@@ -1,10 +1,11 @@
 import math
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
-from items import Gear
+from buffs import ALL_STATS_BUFFS, ALL_SPELL_BUFFS
+from items import Gear, ALL_ITEMS_GEAR
 from statsmodifiers import StatsModifierArray, StatsModifier
 from statistics import Stats, linear, BASE_MANA_LOOKUP, linear_params, RATING_FORMULA
-from talents import Talents
+from talents import Talents, DruidTalents
 
 
 class Character(object):
@@ -22,14 +23,26 @@ class Character(object):
 
     @property
     @abstractmethod
-    def buffs(self):
+    def stats_buffs(self):
         """returns a buff array"""
         pass
 
     @property
     @abstractmethod
-    def effects(self):
+    def spell_buffs(self):
+        """returns a spell buff array"""
+        pass
+
+    @property
+    @abstractmethod
+    def stats_effects(self):
         """return a buff array taking into account actual buffs and talents buffing the character"""
+        pass
+
+    @property
+    @abstractmethod
+    def spell_effects(self):
+        """return a buff array taking into account actual buffs and talents buffing the character spells"""
         pass
 
     @property
@@ -48,7 +61,7 @@ class Character(object):
     def get_stat(self, stat, **context):
         """get buffed and talented stat value"""
         base = self.get_base_stat(stat)
-        return self.effects.apply(stat, base, self, **context)
+        return self.stats_effects.apply(stat, base, self, **context)
 
     def get_base_stat(self, stat):
         """get base stat value"""
@@ -57,7 +70,7 @@ class Character(object):
     def get_formula(self, stat, **context):
         """get full formula for a stat"""
         base = "#Stats.{stat}#".format(stat=Stats.base(stat))
-        return self.effects.formula(stat, base, **context)
+        return self.stats_effects.formula(stat, base, **context)
 
     def get_base_formula(self, stat):
         return str(self.get_base_stat(stat))
@@ -127,16 +140,19 @@ def druid_base():
 
 
 class DruidCharacter(Character):
-    def __init__(self, stats, talents: Talents, buffs: StatsModifierArray, gear: Gear=None, level=70):
+    def __init__(self, stats, talents: Talents, stats_buffs: StatsModifierArray, spell_buffs: StatsModifierArray, gear: Gear=None, level=70):
         self._level = level
         self._talents = talents
-        self._buffs = buffs
+        self._stats_buffs = stats_buffs
+        self._spell_buffs = spell_buffs
         self._gear = gear if gear is not None else Gear([])
         self._base_stats = dict()
         base = druid_base()
         for stat in Stats.all_stats():
             self._base_stats[stat] = stats.get(stat, 0) + base.get(stat, 0)
-        self._effects = StatsModifierArray.merge(self._talents.buff_array, self._buffs, druid_stats(), self._gear.effects)
+        self._effects = StatsModifierArray.merge(
+            self._talents.buff_array, self._stats_buffs, druid_stats(), self._gear.stats_effects)
+        self._spell_effects = StatsModifierArray.merge(self._gear.spell_effects, self._spell_buffs)
 
     @property
     def level(self):
@@ -147,11 +163,19 @@ class DruidCharacter(Character):
         return self._talents
 
     @property
-    def buffs(self):
-        return self._buffs
+    def stats_buffs(self):
+        return self._stats_buffs
 
     @property
-    def effects(self):
+    def spell_buffs(self):
+        return self._spell_buffs
+
+    @property
+    def stats_effects(self):
+        return self._effects
+
+    @property
+    def spell_effects(self):
         return self._effects
 
     @property
@@ -163,11 +187,21 @@ class DruidCharacter(Character):
         return self._base_stats
 
 
-class BuffedCharacter(Character):
-    def __init__(self, character, buffs):
+class BuffedCharacter(Character, ABC):
+    def __init__(self, character, stats_buffs=None, spell_buffs=None):
         self._character = character
-        self._other_buffs = buffs
-        self._merged_effects = StatsModifierArray.merge(buffs, self._character.effects)
+        self._other_stats_buffs = stats_buffs
+        self._other_spell_buffs = spell_buffs
+
+        if stats_buffs is not None:
+            self._merged_stats_effects = StatsModifierArray.merge(stats_buffs, self._character.stats_effects)
+        else:
+            self._merged_stats_effects = self._character.stats_effects
+
+        if spell_buffs is not None:
+            self._merged_spell_effects = StatsModifierArray.merge(spell_buffs, self._character.spell_effects)
+        else:
+            self._merged_spell_effects = self._character.spell_effects
 
     @property
     def level(self):
@@ -178,12 +212,20 @@ class BuffedCharacter(Character):
         return self._character.talents
 
     @property
-    def buffs(self):
-        return StatsModifierArray.merge(self._character.buffs, self._other_buffs)
+    def stats_buffs(self):
+        return StatsModifierArray.merge(self._character.stats_buffs, self._other_stats_buffs)
 
     @property
-    def effects(self):
-        return self._merged_effects
+    def spell_buffs(self):
+        return StatsModifierArray.merge(self._character.spell_effects, self._other_spell_buffs)
+
+    @property
+    def stats_effects(self):
+        return self._merged_stats_effects
+
+    @property
+    def spell_effects(self):
+        return self._merged_spell_effects
 
     @property
     def gear(self):
@@ -192,3 +234,16 @@ class BuffedCharacter(Character):
     @property
     def base_stats(self):
         return self._character.base_stats
+
+
+# character with all bonuses
+def create_full_druid_character():
+    return DruidCharacter(
+        dict(),
+        talents=DruidTalents({k: v for k, v, _ in DruidTalents.all()}),
+        stats_buffs=StatsModifierArray(ALL_STATS_BUFFS.values()),
+        spell_buffs=StatsModifierArray(ALL_SPELL_BUFFS.values()),
+        gear=ALL_ITEMS_GEAR, level=70)
+
+
+FULL_DRUID = create_full_druid_character()

@@ -31,8 +31,8 @@ def plot_timeline(timeline, y, maxx, color, height=2., eps=0.03):
 
             spell = event.spell
             if spell.type == HealingSpell.TYPE_HOT or spell.type == HealingSpell.TYPE_HYBRID:
-                period = spell.tick_period
-                n_tick = round(event.duration / spell.tick_period)
+                period = spell.base_tick_period
+                n_tick = round(event.duration / spell.base_tick_period)
                 x = np.linspace(event.start + period, event.start + n_tick * period, n_tick)
                 plt.vlines(x, y - dec_height / 2, y + dec_height / 2, color="w", linewidth=2, alpha=0.5)
 
@@ -48,7 +48,7 @@ def plot_timeline(timeline, y, maxx, color, height=2., eps=0.03):
             img_extent = (event.start + eps, event.start + dec_height, y - dec_height / 2, y + dec_height / 2)
             plt.imshow(spell_img, extent=img_extent, aspect="equal", zorder=2)
 
-            if event.spell.max_stacks > 1:
+            if event.spell.base_max_stacks > 1:
                 plt.text(event.start + eps, y - dec_height / 2 + eps, str(event.stacks),
                          fontfamily="serif", color="w", fontsize="large", fontweight="bold")
 
