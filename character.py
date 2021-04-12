@@ -176,7 +176,7 @@ class DruidCharacter(Character):
 
     @property
     def spell_effects(self):
-        return self._effects
+        return self._spell_effects
 
     @property
     def gear(self):
