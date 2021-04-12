@@ -157,11 +157,11 @@ class TranquilityCoefficient(SpellCoefficientPolicy):
 
 class LifebloomCoefficient(SpellCoefficientPolicy):
     def get_coefficient(self, spell, character, cast_time=0, hot_duration=0, empowered=0):
-        return 0.3422 * (1 + empowered), 0.518 * (1 + empowered)
+        return 0.3422 * (1 + empowered), 0.5194 * (1 + empowered)
 
     @property
     def formula(self):
-        return "(0.3422 * (1 + #Talents.empowered#))", "(0.518 * (1 + #Talents.empowered#))"
+        return "(0.3422 * (1 + #Talents.empowered#))", "(0.5194 * (1 + #Talents.empowered#))"
 
 
 class HealingSpell(object):
