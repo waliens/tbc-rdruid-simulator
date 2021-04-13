@@ -65,6 +65,9 @@ def main(argv):
         write_spells_wb(FULL_DRUID, "spells", outfolder=args.out_folder)
         write_compare_setups_wb(combinations, _in["fight_duration"], outfolder=args.out_folder)
 
+        with open(os.path.join(args.out_folder, "output.json"), mode="w+", encoding="utf8") as file:
+            json.dump({n: d for n, _, _, _, _, d in combinations}, file)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

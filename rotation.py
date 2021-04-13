@@ -104,7 +104,10 @@ class Assignments(object):
         return self._name
 
     def buffs(self, target):
-        return StatsModifierArray([ALL_STATS_BUFFS[n] for n in self._target_buffs[target]])
+        modifiers = list()
+        if target in self._target_buffs:
+            modifiers = [ALL_STATS_BUFFS[n] for n in self._target_buffs[target]]
+        return StatsModifierArray(modifiers)
 
     @staticmethod
     def from_dict(data):
