@@ -278,7 +278,9 @@ class HealingTouchSheetGenerator(SpellSheetGenerator):
         col = self.write_cell_and_map(row, col + 1, parse_formula(
             spell.coef_formula, self.cell_map), spell.identifier, "coef", formula=True)
         cast_time = parse_formula(spell.spell_info_formula(HealParts.CAST_TIME, spell_name=spell.name), self.cell_map)
+        mana_cost = parse_formula(spell.spell_info_formula(HealParts.MANA_COST, spell_name=spell.name), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, cast_time, spell.identifier, "cast_time", formula=True)
+        col = self.write_cell_and_map(row, col + 1, mana_cost, spell.identifier, "mana_cost", formula=True)
         col = self.write_cell_and_map(row, col + 1, parse_formula(spell.formula, self.cell_map), spell.identifier, "avg_heal", formula=True)
         avg_heal = parse_formula("(1 + #Stats.{crit}# / 2) * #{spell}.avg_heal#".format(crit=Stats.SPELL_CRIT, spell=spell.identifier), self.cell_map)
         col = self.write_cell_and_map(row, col + 1, avg_heal, spell.identifier, "avg_heal_crit", formula=True)
@@ -302,6 +304,7 @@ class HealingTouchSheetGenerator(SpellSheetGenerator):
         self.worksheet.merge_range(first_row, first_col, first_row, col, "Base data (healing touch)")
         second_col = col + 1
         col = self.write_cell(subtitle_row, second_col, "cast time")
+        col = self.write_cell(subtitle_row, col + 1, "mana")
         col = self.write_cell(subtitle_row, col + 1, "avg")
         col = self.write_cell(subtitle_row, col + 1, "avg (w/ crit)")
         col = self.write_cell(subtitle_row, col + 1, "hps")
@@ -334,7 +337,7 @@ class HealingTouchSheetGenerator(SpellSheetGenerator):
 
     @property
     def n_cols(self):
-        return 12
+        return 13
 
 
 class RejuvenationSheetGenerator(SpellSheetGenerator):

@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+from heal_parts import HealParts
 from statsmodifiers import StatsModifier, StatsModifierArray
 from statistics import Stats
 
@@ -32,6 +33,11 @@ class Talents(object):
         pass
 
     @property
+    @abstractmethod
+    def spell_buff_array(self):
+        pass
+
+    @property
     def name(self):
         return self._name
 
@@ -45,7 +51,7 @@ class Talents(object):
 class DruidTalents(Talents):
     NATURALIST = ("naturalist", 5, "restoration")
     GIFT_OF_NATURE = ("gift_of_nature", 5, "restoration")
-    TRANQUILITY_SPIRIT = ("tranquil_spirit", 5, "restoration")
+    TRANQUIL_SPIRIT = ("tranquil_spirit", 5, "restoration")
     IMPROVED_REJUVENATION = ("improved_rejuvenation", 3, "restoration")
     EMPOWERED_REJUVENATION = ("empowered_rejuvenation", 5, "restoration")
     LIVING_SPIRIT = ("living_spirit", 3, "restoration")
@@ -63,7 +69,7 @@ class DruidTalents(Talents):
 
     @staticmethod
     def all():
-        return [DruidTalents.NATURALIST, DruidTalents.GIFT_OF_NATURE, DruidTalents.TRANQUILITY_SPIRIT,
+        return [DruidTalents.NATURALIST, DruidTalents.GIFT_OF_NATURE, DruidTalents.TRANQUIL_SPIRIT,
                 DruidTalents.IMPROVED_REJUVENATION, DruidTalents.EMPOWERED_REJUVENATION, DruidTalents.LIVING_SPIRIT,
                 DruidTalents.EMPOWERED_TOUCH, DruidTalents.IMPROVED_REGROWTH, DruidTalents.INTENSITY, DruidTalents.TREE_OF_LIFE,
                 DruidTalents.DREAMSTATE, DruidTalents.LUNAR_GUIDANCE, DruidTalents.NURTURING_INSTINCT]
@@ -94,4 +100,15 @@ class DruidTalents(Talents):
         ni_talent = "#Talents.{}#".format(DruidTalents.NURTURING_INSTINCT[0])
         ni_fo = "({talent} * 0.5 * #Stats.{agi}#)".format(talent=ni_talent, agi=Stats.AGILITY)
         buffs.append(StatsModifier(name=DruidTalents.NURTURING_INSTINCT[0], stats=[Stats.BONUS_HEALING], _type=StatsModifier.TYPE_ADDITIVE, functions=[ni_fn], formula=[ni_fo]))
+        return StatsModifierArray(buffs)
+
+    @property
+    def spell_buff_array(self):
+        buffs = list()
+        ts_fn = lambda char: (1 - 0.02 * char.talents.get(DruidTalents.TRANQUIL_SPIRIT))
+        ts_fo = "(1 - 0.02 * #Talents.{}#)".format(DruidTalents.TRANQUIL_SPIRIT[0])
+        buffs.append(StatsModifier(name=DruidTalents.TRANQUIL_SPIRIT,
+                                   stats=[("tranquility", HealParts.MANA_COST), ("healing_touch", HealParts.MANA_COST)],
+                                   functions=[ts_fn, ts_fn], formula=[ts_fo, ts_fo],
+                                   _type=StatsModifier.TYPE_MULTIPLICATIVE))
         return StatsModifierArray(buffs)

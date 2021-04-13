@@ -152,7 +152,8 @@ class DruidCharacter(Character):
             self._base_stats[stat] = stats.get(stat, 0) + base.get(stat, 0)
         self._effects = StatsModifierArray.merge(
             self._talents.buff_array, self._stats_buffs, druid_stats(), self._gear.stats_effects)
-        self._spell_effects = StatsModifierArray.merge(self._gear.spell_effects, self._spell_buffs)
+        self._spell_effects = StatsModifierArray.merge(
+            self._gear.spell_effects, self._spell_buffs, self._talents.spell_buff_array)
 
     @property
     def level(self):

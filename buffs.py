@@ -103,10 +103,10 @@ _formula_buffs = [
 ]
 
 _spell_buffs = [
-    (Buff.TREE_OF_LIFE_MANA, StatsModifier.TYPE_ADDITIVE,
+    (Buff.TREE_OF_LIFE_MANA, StatsModifier.TYPE_MULTIPLICATIVE,
         [(spell, HealParts.MANA_COST) for spell in ["rejuvenation", "regrowth", "lifebloom", "tranquility"]],
-        [(lambda spell: -20) for _ in range(4)],
-        ["-20" for _ in range(4)])
+        [(lambda spell: 0.8) for _ in range(4)],
+        ["0.8" for _ in range(4)])
 ]
 
 ALL_STATS_BUFFS = dict()
