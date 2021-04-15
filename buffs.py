@@ -72,7 +72,7 @@ class Buff(StatsModifier):
 _constant_buffs = [
     # buffs
     (Buff.GIFT_OF_THE_WILD, StatsModifier.TYPE_ADDITIVE, [(p, 12) for p in Stats.primary()]),
-    (Buff.GIFT_OF_THE_WILD_TAL, StatsModifier.TYPE_ADDITIVE, [(p, 18) for p in Stats.primary()]),
+    (Buff.GIFT_OF_THE_WILD_TAL, StatsModifier.TYPE_ADDITIVE, [(p, 16) for p in Stats.primary()]),
     (Buff.ARCANE_INTELLECT, StatsModifier.TYPE_ADDITIVE, [(Stats.INTELLIGENCE, 40)]),
     (Buff.BENEDICTION_OF_KING, StatsModifier.TYPE_MULTIPLICATIVE, [(p, 1.1) for p in Stats.primary()]),
     (Buff.BENEDICTION_OF_WISDOM, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 41)]),

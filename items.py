@@ -117,6 +117,13 @@ _stats_items = [
                                 formula=["(0.05 * #Stats.{}#)".format(Stats.REGEN_5SR)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
+    ItemBonus(name="whitemend_2p",
+              stats_effects=StatsModifierArray([
+                  StatsModifier(name="whitemend_2p", stats=[Stats.BONUS_HEALING],
+                                functions=[lambda char: 0.1 * char.get_stat(Stats.INTELLIGENCE)],
+                                formula=["(0.1 * #Stats.{}#)".format(Stats.INTELLIGENCE)],
+                                _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
     ItemBonus(name="t2_stormrage_raiment_3p",
               stats_effects=StatsModifierArray([
                   ConstantStatsModifier(name="t2_stormrage_raiment_3p", effects=[(Stats.MP5, 20)],
