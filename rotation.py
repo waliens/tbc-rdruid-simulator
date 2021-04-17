@@ -385,7 +385,7 @@ class Rotation(object):
                 self._timelines[assignment.identifier].add_spell_event(start_time + cast_time, assignment.spell)
                 self._rotation_assigments.append(assignment)
                 current_time += max(gcd, cast_time) + eps
-                mana -= assignment.spell.mana_cost(character)  # - (20 if character.buffs.has_modifier(Buff.TREE_OF_LIFE_MANA) else 0)
+                mana -= assignment.spell.mana_cost(character)
             else:
                 current_time += wait
 

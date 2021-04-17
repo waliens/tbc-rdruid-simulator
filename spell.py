@@ -275,7 +275,7 @@ class HealingSpell(object):
         return self.spell_info(HealParts.MAX_STACKS, character)
 
     def spell_info(self, info, character, **context):
-        return character.gear.apply_spell_effect(self.name, info, self.base_data[info], character, **context)
+        return character.spell_effects.apply((self.name, info), self.base_data[info], character, **context)
 
     def spell_info_formula(self, info, **context):
         if info == HealParts.N_TICKS:

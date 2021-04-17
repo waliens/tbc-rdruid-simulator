@@ -643,7 +643,7 @@ class ComparisonSummarySheet(ThematicSheet):
         self._a_names = sorted(list({c[4].name for c in combinations}))
         self._o_names = sorted(list({(c[1], c[3].talents.name, c[3].stats_buffs.name) for c in combinations}))
         self._all_cell_maps = cell_maps
-        self._stats_columns = ["hps", "time2oom", "mps"] if stats_columns is None else stats_columns
+        self._stats_columns = ["hps", "ttoom", "mps", "total"] if stats_columns is None else stats_columns
         self._fight_duration = duration
 
     @property
@@ -694,12 +694,10 @@ class ComparisonSummarySheet(ThematicSheet):
                 for jj, stats_name in enumerate(self._stats_columns):
                     start_col = first_col + 3 + j * self.n_stats_columns
                     formula = False
-                    if stats_name == "hps":
-                        content = ComparisonSummarySheet.to_formula(stats["string_heals"], over_time="#Fight.duration#")
-                        formula = True
-                    elif stats_name == "mps":
-                        content = ComparisonSummarySheet.to_formula(stats["string_mana"], over_time="#Fight.duration#")
-                        formula = True
+                    if stats_name == "total":
+                        content = stats["total_heal"]
+                    elif stats_name == "ttoom":
+                        content = stats["time2oom"]
                     else:
                         content = stats[stats_name]
                     if formula:
@@ -759,10 +757,9 @@ def write_spells_wb(character, name, outfolder):
 def write_compare_setups_wb(configs, fight_duration, outfolder):
     wb = Workbook(os.path.join(outfolder, "compare.xlsx"))
     cell_maps = defaultdict(lambda: dict())
-    for i, (c_name, c_descr, character, assigments, rotation, stats) in enumerate(configs):
-        sheet, cm = write_spell_charac_sheet(wb, "{}".format(i + 1), character, offset=(1, 0))
-        cell_maps[str(i + 1)].update(cm)
-
+    # for i, (c_name, c_descr, character, assigments, rotation, stats) in enumerate(configs):
+    #     sheet, cm = write_spell_charac_sheet(wb, "{}".format(i + 1), character, offset=(1, 0))
+    #     cell_maps[str(i + 1)].update(cm)
     configs = [(str(i + 1), ) + c for i, c in enumerate(configs)]
     comp = ComparisonSummarySheet.create_new_sheet(wb, "summary", dict(), configs, cell_maps, fight_duration)
     comp.write_sheet()

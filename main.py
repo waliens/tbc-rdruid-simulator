@@ -1,5 +1,6 @@
 import itertools
 import json
+import math
 import os
 import sys
 from argparse import ArgumentParser
@@ -38,7 +39,9 @@ def main(argv):
     all_assignments = [Assignments.from_dict(rotation) for rotation in _in["rotations"]]
 
     combinations = list()
-    for charac_info, (stats_buffs, spell_buffs), talents, assignments in itertools.product(_in["characters"], all_buffs, all_talents, all_assignments):
+    n_comb = len(_in["characters"]) * len(all_buffs) * len(all_talents) * len(all_assignments)
+    for i, (charac_info, (stats_buffs, spell_buffs), talents, assignments) in enumerate(itertools.product(_in["characters"], all_buffs, all_talents, all_assignments)):
+        print("#{: <3} ({:3.2f}%) char:{} buffs:{} tal:{} assign:{}".format(i + 1, 100 * i / n_comb, charac_info["name"], stats_buffs.name, talents.name, assignments.name))
         character = DruidCharacter(
             stats=charac_info["stats"],
             talents=talents,
@@ -65,8 +68,9 @@ def main(argv):
         write_spells_wb(FULL_DRUID, "spells", outfolder=args.out_folder)
         write_compare_setups_wb(combinations, _in["fight_duration"], outfolder=args.out_folder)
 
-        with open(os.path.join(args.out_folder, "output.json"), mode="w+", encoding="utf8") as file:
-            json.dump({n: d for n, _, _, _, _, d in combinations}, file)
+    with open(os.path.join(args.out_folder, "output.json"), mode="w+", encoding="utf8") as file:
+        json.dump({n: d for n, _, _, _, _, d in combinations}, file)
+
 
 
 if __name__ == "__main__":

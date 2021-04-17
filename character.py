@@ -145,7 +145,7 @@ class DruidCharacter(Character):
         self._talents = talents
         self._stats_buffs = stats_buffs
         self._spell_buffs = spell_buffs
-        self._gear = gear if gear is not None else Gear([])
+        self._gear = gear if gear is not None else Gear([], [])
         self._base_stats = dict()
         base = druid_base()
         for stat in Stats.all_stats():
