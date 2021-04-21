@@ -101,8 +101,8 @@ def druid_stats():
     crit_coef, crit_interc = linear_params(*crit_data)
     buffs.append(StatsModifier(
         name=Stats.SPELL_CRIT + "_intel", stats=[Stats.SPELL_CRIT], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: char.get_stat(Stats.INTELLIGENCE) / (80 * 100)],
-        formula=["(#Stats.{}# / (80 * 100))".format(Stats.INTELLIGENCE)])
+        functions=[lambda char: char.get_stat(Stats.INTELLIGENCE) / ((60 + (0 if char.level <= 0 else (2 * (70 - char.level)))) * 100)],
+        formula=["(#Stats.{}# / ((60 + IF(#Character.level#<=60;0;(#Character.level# - 60) * 2)) * 100))".format(Stats.INTELLIGENCE)])
     )
     buffs.append(StatsModifier(
         name=Stats.SPELL_CRIT + "_rating", stats=[Stats.SPELL_CRIT], _type=StatsModifier.TYPE_ADDITIVE,
