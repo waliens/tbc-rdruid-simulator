@@ -80,10 +80,14 @@ class DruidTalents(Talents):
     @property
     def buff_array(self):
         buffs = list()
+        # intensity
+        is_fn = lambda char: 0.1 * char.talents.get(DruidTalents.INTENSITY) * char.get_stat(Stats.REGEN_5SR)
+        is_fo = "(0.1 * #Talents.{}# * #Stats.{}#)".format(DruidTalents.INTENSITY[0], Stats.REGEN_5SR)
+        buffs.append(StatsModifier(name=DruidTalents.INTENSITY[0], stats=[Stats.MP5], _type=StatsModifier.TYPE_ADDITIVE, functions=[is_fn], formula=[is_fo]))
         # living spirit
         ls_fn = lambda char: (1 + 0.05 * char.talents.get(DruidTalents.LIVING_SPIRIT))
         ls_fo = "(1 + 0.05 * #Talents.{}#)".format(DruidTalents.LIVING_SPIRIT[0])
-        buffs.append(StatsModifier(name=DruidTalents.LIVING_SPIRIT, stats=[Stats.SPIRIT], _type=StatsModifier.TYPE_MULTIPLICATIVE, functions=[ls_fn], formula=[ls_fo]))
+        buffs.append(StatsModifier(name=DruidTalents.LIVING_SPIRIT[0], stats=[Stats.SPIRIT], _type=StatsModifier.TYPE_MULTIPLICATIVE, functions=[ls_fn], formula=[ls_fo]))
         # lunar guidance
         lg_fn = lambda char: [0, 0.08, 0.16, 0.25][char.talents.get(DruidTalents.LUNAR_GUIDANCE)] * char.get_stat(Stats.INTELLIGENCE)
         lg_talent = "#Talents.{}#".format(DruidTalents.LUNAR_GUIDANCE[0])

@@ -42,6 +42,16 @@ class Gear(object):
         return self._spell_modifiers.apply((spell_name, spell_part), base_value, character)
 
 
+def darkmoon_blue_dragon(char):
+    from talents import DruidTalents
+    base_regen_percent = 0.1 * char.talents.get(DruidTalents.INTENSITY)
+    if char.effects.has_modifier("primal_mooncloth_3p"):
+        base_regen_percent += 0.05
+    # probability of it to be active at a given tick given 8 casts in the last 15 sec: 0.1389000853
+    p = 0.1389000853
+    return char.get_stat(Stats.REGEN_5SR) * p * (1 - base_regen_percent)
+
+
 _stats_items = [
     ItemBonus(name="idol_of_the_emerald_queen",
               stats_effects=StatsModifierArray([
@@ -133,6 +143,15 @@ _stats_items = [
               stats_effects=StatsModifierArray([
                   ConstantStatsModifier(name="t1_cenarion_raiment_5p", effects=[(Stats.SPELL_CRIT_RATING, 48)],
                                         _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="darkmoon_card_blue_dragon",
+              stats_effects=StatsModifierArray([
+                  StatsModifier(name="darkmoon_card_blue_dragon", stats=[Stats.MP5],
+                                functions=[darkmoon_blue_dragon],
+                                formula=["(#Stats.{regen}# * 0.1389000853 * (1 - (IF(#Gear.{pmc}#; 0.05; 0) "
+                                         "+ #Talents.{intens}# * 0.1)))".format(
+                                    regen=Stats.REGEN_5SR, pmc="primal_mooncloth_3p", intens="intensity")],
+                                _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ]))
 ]
 

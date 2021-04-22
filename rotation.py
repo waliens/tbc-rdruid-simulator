@@ -364,7 +364,7 @@ class Rotation(object):
     def _get_regen_per_tick(self, character):
         mp5 = character.get_stat(Stats.MP5)
         regen = character.get_stat(Stats.REGEN_5SR)
-        in_5sr = 2 * (mp5 + 0.1 * character.talents.get(DruidTalents.INTENSITY) * regen) / 5
+        in_5sr = 2 * mp5 / 5
         out_5sr = 2 * (mp5 + regen) / 5
         return in_5sr, out_5sr
 
