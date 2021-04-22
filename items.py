@@ -152,6 +152,13 @@ _stats_items = [
                                          "+ #Talents.{intens}# * 0.1)))".format(
                                     regen=Stats.REGEN_5SR, pmc="primal_mooncloth_3p", intens="intensity")],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="lower_city_prayer_book",
+              stats_effects=StatsModifierArray([
+                  StatsModifier(name="lower_city_prayer_book", stats=[Stats.MP5],
+                                functions=[lambda char: (8 * 22) / 12],  # activated on timer, 8 cast during activity
+                                formula=["(8 * 22 / 12)"],
+                                _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ]))
 ]
 
