@@ -18,7 +18,7 @@ def linear(x1, y1, x2, y2):
 
 
 class Stats(object):
-    INTELLIGENCE = "intelligence"
+    INTELLECT = "intellect"
     STRENGTH = "strength"
     SPIRIT = "spirit"
     STAMINA = "stamina"
@@ -42,7 +42,7 @@ class Stats(object):
 
     @staticmethod
     def primary():
-        return [Stats.INTELLIGENCE, Stats.STRENGTH, Stats.SPIRIT, Stats.STAMINA, Stats.AGILITY]
+        return [Stats.INTELLECT, Stats.STRENGTH, Stats.SPIRIT, Stats.STAMINA, Stats.AGILITY]
 
     @staticmethod
     def others():

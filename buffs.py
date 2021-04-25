@@ -73,7 +73,7 @@ _constant_buffs = [
     # buffs
     (Buff.GIFT_OF_THE_WILD, StatsModifier.TYPE_ADDITIVE, [(p, 12) for p in Stats.primary()]),
     (Buff.GIFT_OF_THE_WILD_TAL, StatsModifier.TYPE_ADDITIVE, [(p, 16) for p in Stats.primary()]),
-    (Buff.ARCANE_INTELLECT, StatsModifier.TYPE_ADDITIVE, [(Stats.INTELLIGENCE, 40)]),
+    (Buff.ARCANE_INTELLECT, StatsModifier.TYPE_ADDITIVE, [(Stats.INTELLECT, 40)]),
     (Buff.BENEDICTION_OF_KING, StatsModifier.TYPE_MULTIPLICATIVE, [(p, 1.1) for p in Stats.primary()]),
     (Buff.BENEDICTION_OF_WISDOM, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 41)]),
     (Buff.BENEDICTION_OF_WISDOM_TAL, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 49)]),
@@ -85,7 +85,7 @@ _constant_buffs = [
     (Buff.MARK_OF_BITE, StatsModifier.TYPE_MULTIPLICATIVE, [(p, 1.05) for p in Stats.primary()]),
     # TODO ("vampiric_touchStats.)])
     # consumables
-    (Buff.ELIXIR_OF_DRAENIC_WISDOM, StatsModifier.TYPE_ADDITIVE, [(Stats.SPIRIT, 30), (Stats.INTELLIGENCE, 30)]),
+    (Buff.ELIXIR_OF_DRAENIC_WISDOM, StatsModifier.TYPE_ADDITIVE, [(Stats.SPIRIT, 30), (Stats.INTELLECT, 30)]),
     (Buff.ELIXIR_OF_MAJOR_MAGEBLOOD, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 16)]),
     (Buff.ELIXIR_OF_HEALING_POWER, StatsModifier.TYPE_ADDITIVE, [(Stats.BONUS_HEALING, 50)]),
     (Buff.ELIXIR_OF_MASTERY, StatsModifier.TYPE_ADDITIVE, [(p, 15) for p in Stats.primary()]),

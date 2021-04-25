@@ -179,8 +179,8 @@ class SpellEvent(Event):
             string_heals.extend(s)
         elif self.spell.type == HealingSpell.TYPE_DIRECT:
             timestamps.append(self.start)
-            _min, _max = self.spell.get_healing(character)
-            heals.append(apply_crit((_max+_min)/2, character.get_stat(Stats.SPELL_CRIT)))
+            _avg = self.spell.get_healing(character)
+            heals.append(apply_crit(_avg, character.get_stat(Stats.SPELL_CRIT)))
             string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
         elif self.spell.type == HealingSpell.TYPE_HYBRID:
             direct_avg, tick = self.spell.get_healing(character)

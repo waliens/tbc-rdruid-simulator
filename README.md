@@ -124,7 +124,7 @@ For generating stats about a rotation, the simulator needs to know stats of one 
   "description": "Level 70 with naxxramas gear and standard talents",
   "level": 70,
   "stats": {
-    "intelligence": 395,
+    "intellect": 395,
     "strength": 77,
     "spirit": 312,
     "stamina": 324,

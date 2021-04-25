@@ -89,15 +89,15 @@ class DruidTalents(Talents):
         ls_fo = "(1 + 0.05 * #Talents.{}#)".format(DruidTalents.LIVING_SPIRIT[0])
         buffs.append(StatsModifier(name=DruidTalents.LIVING_SPIRIT[0], stats=[Stats.SPIRIT], _type=StatsModifier.TYPE_MULTIPLICATIVE, functions=[ls_fn], formula=[ls_fo]))
         # lunar guidance
-        lg_fn = lambda char: [0, 0.08, 0.16, 0.25][char.talents.get(DruidTalents.LUNAR_GUIDANCE)] * char.get_stat(Stats.INTELLIGENCE)
+        lg_fn = lambda char: [0, 0.08, 0.16, 0.25][char.talents.get(DruidTalents.LUNAR_GUIDANCE)] * char.get_stat(Stats.INTELLECT)
         lg_talent = "#Talents.{}#".format(DruidTalents.LUNAR_GUIDANCE[0])
-        lg_fo = "(CHOOSE({talent}+1; 0; 8; 16; 25) * #Stats.{intel}# / 100)".format(talent=lg_talent, intel=Stats.INTELLIGENCE)
+        lg_fo = "(CHOOSE({talent}+1; 0; 8; 16; 25) * #Stats.{intel}# / 100)".format(talent=lg_talent, intel=Stats.INTELLECT)
         buffs.append(StatsModifier(name=DruidTalents.LUNAR_GUIDANCE[0] + "_spell", stats=[Stats.SPELL_DAMAGE], _type=StatsModifier.TYPE_ADDITIVE, functions=[lg_fn], formula=[lg_fo]))
         buffs.append(StatsModifier(name=DruidTalents.LUNAR_GUIDANCE[0] + "_healing", stats=[Stats.BONUS_HEALING], _type=StatsModifier.TYPE_ADDITIVE, functions=[lg_fn], formula=[lg_fo]))
         # dreamstate
-        ds_fn = lambda char: [0, 0.04, 0.07, 0.1][char.talents.get(DruidTalents.DREAMSTATE)] * char.get_stat(Stats.INTELLIGENCE)
+        ds_fn = lambda char: [0, 0.04, 0.07, 0.1][char.talents.get(DruidTalents.DREAMSTATE)] * char.get_stat(Stats.INTELLECT)
         ds_talent = "#Talents.{}#".format(DruidTalents.DREAMSTATE[0])
-        ds_fo = "(CHOOSE({talent}+1; 0; 4; 7; 10) * #Stats.{intel}# / 100)".format(talent=ds_talent, intel=Stats.INTELLIGENCE)
+        ds_fo = "(CHOOSE({talent}+1; 0; 4; 7; 10) * #Stats.{intel}# / 100)".format(talent=ds_talent, intel=Stats.INTELLECT)
         buffs.append(StatsModifier(name=DruidTalents.DREAMSTATE[0], stats=[Stats.MP5], _type=StatsModifier.TYPE_ADDITIVE, functions=[ds_fn], formula=[ds_fo]))
         # nurturing instinct
         ni_fn = lambda char: 0.5 * char.talents.get(DruidTalents.NURTURING_INSTINCT) * char.get_stat(Stats.AGILITY)

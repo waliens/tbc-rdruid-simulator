@@ -636,12 +636,16 @@ class AssigmentsSheet(ThematicSheet):
             self.write_cell(row + i + 3, col + 1, ", ".join(descriptor))
 
 
+def gem_policy_str(gp):
+    return "_".join(map(lambda k: str(gp[k]), sorted(gp.keys())))
+
+
 class ComparisonSummarySheet(ThematicSheet):
     def __init__(self, workbook, sheet, cell_map, combinations, cell_maps, duration, stats_columns=None, offset=(0, 0)):
         super().__init__(workbook, sheet, cell_map, offset)
-        self._combinations = {(c[1], c[3].talents.name, c[3].stats_buffs.name, c[4].name): c for c in combinations}
+        self._combinations = {(c[1], c[3].talents.name, c[3].stats_buffs.name, c[4].name, gem_policy_str(c[7])): c for c in combinations}
         self._a_names = sorted(list({c[4].name for c in combinations}))
-        self._o_names = sorted(list({(c[1], c[3].talents.name, c[3].stats_buffs.name) for c in combinations}))
+        self._o_names = sorted(list({(c[1], c[3].talents.name, c[3].stats_buffs.name, gem_policy_str(c[7])) for c in combinations}))
         self._all_cell_maps = cell_maps
         self._stats_columns = ["hps", "ttoom", "mps", "total"] if stats_columns is None else stats_columns
         self._fight_duration = duration
@@ -674,42 +678,69 @@ class ComparisonSummarySheet(ThematicSheet):
         # headers
         self.write_cell(first_row, first_col, "Duration")
         self.write_cell_and_map(first_row, first_col + 1, self._fight_duration, "Fight", "duration")
-        self.write_cell(first_row + 1, first_col, "Gear")
-        self.write_cell(first_row + 1, first_col + 1, "Talents")
-        self.write_cell(first_row + 1, first_col + 2, "Buffs")
+        col = self.write_cell(first_row + 1, first_col, "Gear")
+        col = self.write_cell(first_row + 1, col + 1, "Talents")
+        col = self.write_cell(first_row + 1, col + 1, "Buffs")
+        self._worksheet.merge_range(first_row, col + 1, first_row, col + 3, "Gems")
+        col = self.write_cell(first_row + 1, col + 1, "Policy")
+        col = self.write_cell(first_row + 1, col + 1, "Heroic")
+        col = self.write_cell(first_row + 1, col + 1, "Jewelcrafting")
+
         for j, a_name in enumerate(self._a_names):
-            start_col = first_col + 3 + j * self.n_stats_columns
-            self._worksheet.merge_range(first_row, start_col, first_row, start_col + self.n_stats_columns - 1, a_name)
+            self._worksheet.merge_range(first_row, col + 1, first_row, col + 1 + self.n_stats_columns - 1, a_name)
             for jj, col_name in enumerate(self._stats_columns):
-                self.write_cell(first_row + 1, start_col + jj, col_name)
+                col = self.write_cell(first_row + 1, col + 1, col_name)
+
+        self._worksheet.merge_range(first_row, col + 1, first_row + 1, col + 1, "Gear (70upgrades)")
+        col += 1
+        for stat in Stats.all_stats():
+            col = self.write_cell(first_row + 1, col + 1, self.human_readable(stat))
 
         # data
-        for i, (c_name, t_name, b_name) in enumerate(self._o_names):
-            self.write_cell(first_row + 2 + i, first_col, c_name)
-            self.write_cell(first_row + 2 + i, first_col + 1, t_name)
-            self.write_cell(first_row + 2 + i, first_col + 2, b_name)
+        for i, (c_name, t_name, b_name, g_name) in enumerate(self._o_names):
+            col = self.write_cell(first_row + 2 + i, first_col, c_name)
+            col = self.write_cell(first_row + 2 + i, col + 1, t_name)
+            col = self.write_cell(first_row + 2 + i, col + 1, b_name)
+            gems_policy = self._combinations[(c_name, t_name, b_name, self._a_names[0], g_name)][7]
+            col = self.write_cell(first_row + 2 + i, col + 1, gems_policy["policy"])
+            col = self.write_cell(first_row + 2 + i, col + 1, gems_policy["heroic"])
+            col = self.write_cell(first_row + 2 + i, col + 1, gems_policy["jewelcrafting"])
 
             for j, a_name in enumerate(self._a_names):
-                (ref, _, _, character, assignments, rotation, stats) = self._combinations[(c_name, t_name, b_name, a_name)]
+                group = "{}-Comp-{}".format(i, a_name)
+                (ref, _, _, character, assignments, rotation, stats, gems_policy) = self._combinations[(c_name, t_name, b_name, a_name, g_name)]
                 for jj, stats_name in enumerate(self._stats_columns):
-                    start_col = first_col + 3 + j * self.n_stats_columns
                     formula = False
                     if stats_name == "total":
-                        content = stats["total_heal"]
+                        content = "(MIN(#{grp}.ttoom#, ???) * #{grp}.hps#)".format(grp=group)
+                        formula = True
                     elif stats_name == "ttoom":
                         content = stats["time2oom"]
+                        if content < 0:
+                            content = "inf"
                     else:
                         content = stats[stats_name]
                     if formula:
                         content = parse_formula(content, self.cell_map, ignore_missing=True)
                         content = parse_formula(content, cell_map=self._all_cell_maps[ref])
-                    self.write_cell_and_map(
+                        content = content.replace("$", "")
+                        content = content.replace("???", "#Fight.duration#")
+                        content = parse_formula(content, self.cell_map, ignore_missing=False)
+
+                    col = self.write_cell_and_map(
                         first_row + 2 + i,
-                        start_col + jj,
+                        col + 1,
                         content,
-                        "Comp-{}".format(a_name), stats_name,
+                        group, stats_name,
                         formula=formula
                     )
+
+            desc = self._combinations[(c_name, t_name, b_name, self._a_names[0], g_name)][2]
+            col = self.write_cell(first_row + i + 2, col + 1, "HYPERLINK(\"{}\")".format(desc), formula=True)
+
+            character = self._combinations[(c_name, t_name, b_name, self._a_names[0], g_name)][3]
+            for stat in Stats.all_stats():
+                col = self.write_cell(first_row + i + 2, col + 1, character.get_stat(stat))
 
 
         # for j, c_name in enumerate(self._c_names):

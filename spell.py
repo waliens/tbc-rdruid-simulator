@@ -327,7 +327,7 @@ class HealingTouch(HealingSpell):
             .replace("Spell.", self.identifier + ".")
 
     def _get_spell_coefficient(self, character, coef_policy):
-        return coef_policy.get_coefficient(self, character, self.cast_time,
+        return coef_policy.get_coefficient(self, character, self.cast_time(character),
                                            empowered=character.talents.get(DruidTalents.EMPOWERED_TOUCH) * 0.1)
 
     def spell_info_formula(self, info, **context):

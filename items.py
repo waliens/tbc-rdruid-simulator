@@ -1,4 +1,5 @@
 from buffs import Buff
+from gems import GemSlotsCollection
 from heal_parts import HealParts
 from statistics import Stats
 from statsmodifiers import StatsModifier, ConstantStatsModifier, StatsModifierArray
@@ -24,10 +25,11 @@ class ItemBonus(object):
 
 
 class Gear(object):
-    def __init__(self, stats_items, spell_items):
+    def __init__(self, stats_items, spell_items, all_gem_slots=None):
         self._stats_items = stats_items
         self._spell_items = spell_items
-        self._stats_modifiers = StatsModifierArray.merge(*[item.stats_effects for item in self._stats_items])
+        self._all_slots = all_gem_slots if all_gem_slots is not None else GemSlotsCollection([])
+        self._stats_modifiers = StatsModifierArray.merge(*[item.stats_effects for item in self._stats_items], self._all_slots.modifiers)
         self._spell_modifiers = StatsModifierArray.merge(*[item.spell_effects for item in self._spell_items])
 
     @property
@@ -130,8 +132,8 @@ _stats_items = [
     ItemBonus(name="whitemend_2p",
               stats_effects=StatsModifierArray([
                   StatsModifier(name="whitemend_2p", stats=[Stats.BONUS_HEALING],
-                                functions=[lambda char: 0.1 * char.get_stat(Stats.INTELLIGENCE)],
-                                formula=["(0.1 * #Stats.{}#)".format(Stats.INTELLIGENCE)],
+                                functions=[lambda char: 0.1 * char.get_stat(Stats.INTELLECT)],
+                                formula=["(0.1 * #Stats.{}#)".format(Stats.INTELLECT)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
     ItemBonus(name="t2_stormrage_raiment_3p",

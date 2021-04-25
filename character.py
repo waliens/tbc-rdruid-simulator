@@ -82,9 +82,9 @@ def druid_stats():
     # regen 5-sec rule
     buffs.append(StatsModifier(
         name=Stats.REGEN_5SR, stats=[Stats.REGEN_5SR], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: 5 * 0.00932715221261 * math.sqrt(char.get_stat(Stats.INTELLIGENCE)) * char.get_stat(
+        functions=[lambda char: 5 * 0.00932715221261 * math.sqrt(char.get_stat(Stats.INTELLECT)) * char.get_stat(
             Stats.SPIRIT)],
-        formula=["5 * 0.00932715221261 * SQRT(#Stats.{}#) * #Stats.{}#".format(Stats.INTELLIGENCE, Stats.SPIRIT)])
+        formula=["5 * 0.00932715221261 * SQRT(#Stats.{}#) * #Stats.{}#".format(Stats.INTELLECT, Stats.SPIRIT)])
     )
 
     # haste from rating
@@ -101,8 +101,8 @@ def druid_stats():
     crit_coef, crit_interc = linear_params(*crit_data)
     buffs.append(StatsModifier(
         name=Stats.SPELL_CRIT + "_intel", stats=[Stats.SPELL_CRIT], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: char.get_stat(Stats.INTELLIGENCE) / ((60 + (0 if char.level <= 0 else (2 * (70 - char.level)))) * 100)],
-        formula=["(#Stats.{}# / ((60 + IF(#Character.level#<=60;0;(#Character.level# - 60) * 2)) * 100))".format(Stats.INTELLIGENCE)])
+        functions=[lambda char: char.get_stat(Stats.INTELLECT) / ((60 + (0 if char.level <= 0 else (2 * (70 - char.level)))) * 100)],
+        formula=["(#Stats.{}# / ((60 + IF(#Character.level#<=60;0;(#Character.level# - 60) * 2)) * 100))".format(Stats.INTELLECT)])
     )
     buffs.append(StatsModifier(
         name=Stats.SPELL_CRIT + "_rating", stats=[Stats.SPELL_CRIT], _type=StatsModifier.TYPE_ADDITIVE,
@@ -125,9 +125,9 @@ def druid_stats():
     ))
     buffs.append(StatsModifier(
         name=Stats.MANA + "_intel", stats=[Stats.MANA], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: 15 * max(0, char.get_stat(Stats.INTELLIGENCE) - 20) + min(20, char.get_stat(
-            Stats.INTELLIGENCE))],
-        formula=["(15 * MAX(0; #Stats.{intel}# - 20) + MIN(20; #Stats.{intel}#))".format(intel=Stats.INTELLIGENCE)]
+        functions=[lambda char: 15 * max(0, char.get_stat(Stats.INTELLECT) - 20) + min(20, char.get_stat(
+            Stats.INTELLECT))],
+        formula=["(15 * MAX(0; #Stats.{intel}# - 20) + MIN(20; #Stats.{intel}#))".format(intel=Stats.INTELLECT)]
     ))
 
     return StatsModifierArray(buffs)
