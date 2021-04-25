@@ -63,10 +63,18 @@ class StatsModifier(object):
 class ConstantStatsModifier(StatsModifier):
     def __init__(self, name, _type, effects, cond_cm_group=None, **context):
         stats, values = tuple(zip(*effects))
+
+        class ConstantFn(object):
+            def __init__(self, const):
+                self._const = const
+
+            def __call__(self, *args, **kwargs):
+                return self._const
+
         super().__init__(
             name=name,
             stats=stats,
-            functions=[(lambda *args, **kwargs: v) for v in values],
+            functions=[ConstantFn(v) for v in values],
             formula=[str(v) for v in values],
             _type=_type,
             cond_cm_group=cond_cm_group,
