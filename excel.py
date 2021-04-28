@@ -691,8 +691,7 @@ class ComparisonSummarySheet(ThematicSheet):
             for jj, col_name in enumerate(self._stats_columns):
                 col = self.write_cell(first_row + 1, col + 1, col_name)
 
-        self._worksheet.merge_range(first_row, col + 1, first_row + 1, col + 1, "Gear (70upgrades)")
-        col += 1
+        col = self.write_cell(first_row + 1, col + 1, "Gear")
         for stat in Stats.all_stats():
             col = self.write_cell(first_row + 1, col + 1, self.human_readable(stat))
 
