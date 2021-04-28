@@ -6,6 +6,8 @@ from statsmodifiers import StatsModifier, ConstantStatsModifier
 class Buff(StatsModifier):
     GIFT_OF_THE_WILD = "gift_of_the_wild"
     GIFT_OF_THE_WILD_TAL = "gift_of_the_wild_tal"
+    DIVINE_SPIRIT = "divine_spirit"
+    DIVINE_SPIRIT_TAL = "divine_spirit_tal"
     ARCANE_INTELLECT = "arcane_intellect"
     BENEDICTION_OF_KING = "benediction_of_king"
     BENEDICTION_OF_WISDOM = "benediction_of_wisdom"
@@ -34,6 +36,8 @@ class Buff(StatsModifier):
     def player_buffs():
         return {Buff.GIFT_OF_THE_WILD,
                 Buff.GIFT_OF_THE_WILD_TAL,
+                Buff.DIVINE_SPIRIT,
+                Buff.DIVINE_SPIRIT_TAL,
                 Buff.ARCANE_INTELLECT,
                 Buff.BENEDICTION_OF_KING,
                 Buff.BENEDICTION_OF_WISDOM,
@@ -73,6 +77,7 @@ _constant_buffs = [
     # buffs
     (Buff.GIFT_OF_THE_WILD, StatsModifier.TYPE_ADDITIVE, [(p, 12) for p in Stats.primary()]),
     (Buff.GIFT_OF_THE_WILD_TAL, StatsModifier.TYPE_ADDITIVE, [(p, 16) for p in Stats.primary()]),
+    (Buff.DIVINE_SPIRIT, StatsModifier.TYPE_ADDITIVE, [(Stats.SPIRIT, 50)]),
     (Buff.ARCANE_INTELLECT, StatsModifier.TYPE_ADDITIVE, [(Stats.INTELLECT, 40)]),
     (Buff.BENEDICTION_OF_KING, StatsModifier.TYPE_MULTIPLICATIVE, [(p, 1.1) for p in Stats.primary()]),
     (Buff.BENEDICTION_OF_WISDOM, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 41)]),
@@ -102,6 +107,12 @@ _formula_buffs = [
     (Buff.TREE_OF_LIFE_HEALING, StatsModifier.TYPE_ADDITIVE, [Stats.BONUS_HEALING],
      [lambda c: c.get_stat(Stats.SPIRIT) * 0.25],
      ["(#Stats.{}# * 0.25)".format(Stats.SPIRIT)]),
+    (Buff.DIVINE_SPIRIT_TAL, StatsModifier.TYPE_ADDITIVE,
+     [Stats.SPIRIT, Stats.BONUS_HEALING, Stats.SPELL_DAMAGE],
+     [(lambda c: 50),
+      (lambda c: c.get_stat(Stats.SPIRIT) * 0.10),
+      (lambda c: c.get_stat(Stats.SPIRIT) * 0.10)],
+     ["(50)", *(["(#Stats.{}# * 0.1)".format(Stats.SPIRIT)] * 2)])
 ]
 
 _spell_buffs = [
