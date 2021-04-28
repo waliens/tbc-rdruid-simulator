@@ -261,6 +261,18 @@ and `c`, the portion of regen while not casting currently converted into regen w
 regen gained from the card on average:
 
 ```
-r = R * a * (1 - c) 
+r = [Regen with card] - [Regen without card]
+  = [R . (a + (1 - a) . c)] - [R . c] 
+  = R . (a + c - a . c - c)
+  = R . (a - a . c)
+  = R . a . (1 - c)
 ```
 
+For example, with 3 points in intensity and pmc set, the regen gain from the blue dragon card is:
+
+```
+r = R x 0.1389 x (1 - 0.35)
+  = R x 0.0903 
+``` 
+
+so a gain 9% of regen while not casting converted into regen while casting.
