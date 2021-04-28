@@ -13,7 +13,7 @@ class Buff(StatsModifier):
     BENEDICTION_OF_WISDOM = "benediction_of_wisdom"
     BENEDICTION_OF_WISDOM_TAL = "benediction_of_wisdom_tal"
     MANA_TIDE_TOTEM = "mana_tide_totem"
-    MANA_TIDE_TOTEM_TAL = "mana_tide_totem_tal"
+    MANA_SPRING_TOTEM = "mana_spring_totem"
     WRATH_OF_AIR_TOTEM = "wrath_of_air_totem"
     TOTEM_OF_WRATH = "totem_of_wrath"
     MOONKIN_AURA = "moonkin_aura"
@@ -44,8 +44,8 @@ class Buff(StatsModifier):
                 Buff.BENEDICTION_OF_KING,
                 Buff.BENEDICTION_OF_WISDOM,
                 Buff.BENEDICTION_OF_WISDOM_TAL,
+                Buff.MANA_SPRING_TOTEM,
                 Buff.MANA_TIDE_TOTEM,
-                Buff.MANA_TIDE_TOTEM_TAL,
                 Buff.WRATH_OF_AIR_TOTEM,
                 Buff.TOTEM_OF_WRATH,
                 Buff.MOONKIN_AURA,
@@ -86,8 +86,8 @@ _constant_buffs = [
     (Buff.BENEDICTION_OF_KING, StatsModifier.TYPE_MULTIPLICATIVE, [(p, 1.1) for p in Stats.primary()]),
     (Buff.BENEDICTION_OF_WISDOM, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 41)]),
     (Buff.BENEDICTION_OF_WISDOM_TAL, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 49)]),
-    (Buff.MANA_TIDE_TOTEM, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 50)]),
-    (Buff.MANA_TIDE_TOTEM_TAL, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 50)]),
+    (Buff.MANA_SPRING_TOTEM, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 50)]),
+    (Buff.MANA_TIDE_TOTEM, StatsModifier.TYPE_MULTIPLICATIVE, [(Stats.MANA, 1.24)]),
     (Buff.WRATH_OF_AIR_TOTEM, StatsModifier.TYPE_ADDITIVE, [(Stats.BONUS_HEALING, 101), (Stats.SPELL_DAMAGE, 101)]),
     (Buff.TOTEM_OF_WRATH, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_CRIT, 0.03)]),
     (Buff.MOONKIN_AURA, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_CRIT, 0.05)]),
