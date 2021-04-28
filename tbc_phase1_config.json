@@ -1,0 +1,335 @@
+{
+  "fight_duration": 300,
+  "characters": [
+    {
+      "name": "phase1_alch_ench",
+      "description": "https://seventyupgrades.com/set/mPnHLS3HsALjwr1ZeSgxmh",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "lower_city_prayer_book"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 353,
+        "intellect": 435,
+        "spirit": 423,
+        "spell_damage": 553,
+        "bonus_healing": 1672,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 79
+      },
+      "gems": [
+        {"name": "crown_of_malorne", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "shoulderguards_of_malorne", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]},
+        {"name": "chestguard_of_malorne", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 9}, {"stat": "spell_damage", "value": 3}]},
+        {"name": "earthsoul_leggings", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "spirit", "value": 4}]},
+        {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase1_alch_lw",
+      "description": "https://seventyupgrades.com/set/vJbNVaHuoFumufZzb7kYEZ",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "lower_city_prayer_book"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 351,
+        "intellect": 431,
+        "spirit": 420,
+        "spell_damage": 596,
+        "bonus_healing": 1623,
+        "spell_crit_rating": 47,
+        "spell_haste_rating": 0,
+        "mp5": 91
+      },
+      "gems": [
+        {"name": "crown_of_malorne", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "shoulderguards_of_malorne", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]},
+        {"name": "windhawk_hauberk", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 5}, {"stat": "spell_damage", "value": 5}]},
+        {"name": "windhawk_bracers", "slots": ["yellow"], "bonus": [{"stat": "intellect", "value": 2}]},
+        {"name": "windhawk_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "bonus_healing", "value": 4}, {"stat": "spell_damage", "value": 4}]},
+        {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase1_alch_tail_pmc",
+      "description": "https://seventyupgrades.com/set/ef7CYKysXRE4qTUfaA9J9Z",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "primal_mooncloth_3p",
+        "lower_city_prayerbook"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 287,
+        "intellect": 409,
+        "spirit": 409,
+        "spell_damage": 578,
+        "bonus_healing": 1711,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 102
+      },
+      "gems": [
+        {"name": "crown_of_malorne", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "primal_mooncloth_robe", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "primal_mooncloth_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase1_alch_tail_wm",
+      "description": "https://seventyupgrades.com/set/4JBauw3SowxcgzsdPx5Tdi",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "whitemend_2p",
+        "lower_city_prayerbook"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 316,
+        "intellect": 414,
+        "spirit": 367,
+        "spell_damage": 527,
+        "bonus_healing": 1595,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 100
+      },
+      "gems": [
+        {"name": "whitemend_hood", "slots": ["blue", "red", "yellow"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "shoulderguards_of_malorne", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]},
+        {"name": "chestguard_of_malorne", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 9}, {"stat": "spell_damage", "value": 3}]},
+        {"name": "whitemend_pants", "slots": ["yellow", "blue", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase1_lw_tailoring",
+      "description": "https://seventyupgrades.com/set/vV1zuctLqKHKGnC8FJynDX",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "lower_city_prayerbook"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 301,
+        "intellect": 393,
+        "spirit": 351,
+        "spell_damage": 577,
+        "bonus_healing": 1667,
+        "spell_crit_rating": 28,
+        "spell_haste_rating": 0,
+        "mp5": 90
+      },
+      "gems": [
+        {"name": "whitemend_hood", "slots": ["blue", "red", "yellow"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "shoulderguards_of_malorne", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]},
+        {"name": "primal_mooncloth_robe", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "windhawk_bracers", "slots": ["yellow"], "bonus": [{"stat": "intellect", "value": 2}]},
+        {"name": "windhawk_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "bonus_healing", "value": 4}, {"stat": "spell_damage", "value": 4}]},
+        {"name": "whitemend_pants", "slots": ["yellow", "blue", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase1_alch_tail_pmc_wm",
+      "description": "https://seventyupgrades.com/set/v19g9BSm4tCRM8GfwfKajs",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "whitemend_2p",
+        "lower_city_prayerbook"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 301,
+        "intellect": 380,
+        "spirit": 351,
+        "spell_damage": 564,
+        "bonus_healing": 1705,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 100
+      },
+      "gems": [
+        {"name": "whitemend_hood", "slots": ["blue", "red", "yellow"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "primal_mooncloth_robe", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "primal_mooncloth_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "whitemend_pants", "slots": ["yellow", "blue", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase1_classic_naxx",
+      "description": "https://seventyupgrades.com/set/tjR46bW8aSNr5DaLvSGX8W",
+      "level": 70,
+      "bonuses": ["idol_of_rejuvenation"],
+      "stats": {
+        "strength": 77,
+        "agility": 79,
+        "stamina": 324,
+        "intellect": 395,
+        "spirit": 312,
+        "spell_damage": 409,
+        "bonus_healing": 1293,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 70
+      },
+      "gems": []
+    }
+  ],
+  "rotations": [
+    {
+      "name": "1t_lb_rj_rg",
+      "description": "Keeping all hots rolling on one target.",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
+        { "spell": "rejuvenation", "target": "tank" },
+        { "spell": "regrowth", "target": "tank" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "2t_lb_rj",
+      "description": "Keeping lifebloom and rejuv on two targets.",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
+        { "spell": "rejuvenation", "target": "tank1" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
+        { "spell": "rejuvenation", "target": "tank2" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "4t_lb",
+      "description": "Keeping lifebloom on four targets.",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank3" },
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank4" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "ht_rank3",
+      "description": "Healing touch rank 3 spam.",
+      "assignments": [
+        { "spell": "healing_touch", "rank": 3, "allow_fade": false, "target": "target" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "ht_rank4",
+      "description": "Healing touch rank 4 spam.",
+      "assignments": [
+        { "spell": "healing_touch", "rank": 4, "allow_fade": false, "target": "target" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "ht_rank6",
+      "description": "Healing touch rank 6 spam.",
+      "assignments": [
+        { "spell": "healing_touch", "rank": 6, "allow_fade": false, "target": "target" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "ht_rank4",
+      "description": "Healing touch rank 3 spam.",
+      "assignments": [
+        { "spell": "healing_touch", "allow_fade": false, "target": "target" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    }
+  ],
+  "buffs": [
+    {
+      "name": "full_buffs",
+      "active": [
+        "gift_of_the_wild_tal",
+        "divine_spirit_tal",
+        "arcane_intellect",
+        "benediction_of_king",
+        "benediction_of_wisdom_tal",
+        "mana_tide_totem_tal",
+        "wrath_of_air_totem",
+        "elixir_of_healing_power",
+        "elixir_of_major_mageblood",
+        "golden_fish_sticks",
+        "tree_of_life_mana",
+        "atiesh_druid",
+        "super_mana_pot_rota",
+        "demonic_rune_rota"
+      ]
+    },
+    {
+      "name": "unbuffed",
+      "active": []
+    }
+  ],
+  "talents": [
+    {
+      "name": "deep_resto",
+      "points": {
+        "naturalist": 0,
+        "gift_of_nature": 5,
+        "tranquility_spirit": 5,
+        "improved_rejuvenation": 3,
+        "empowered_rejuvenation": 5,
+        "living_spirit": 3,
+        "empowered_touch": 0,
+        "improved_regrowth": 5,
+        "intensity": 3,
+        "tree_of_life": 1
+      }
+    },
+    {
+      "name": "dreamstate",
+      "points": {
+        "naturalist": 5,
+        "gift_of_nature": 5,
+        "tranquility_spirit": 5,
+        "improved_rejuvenation": 0,
+        "empowered_rejuvenation": 0,
+        "living_spirit": 0,
+        "empowered_touch": 1,
+        "improved_regrowth": 0,
+        "intensity": 3,
+        "tree_of_life": 0,
+        "dreamstate": 3,
+        "lunar_guidance": 3
+      }
+    }
+  ],
+  "gems_policy": [
+    {"policy":"stack_healing", "heroic": true, "jewelcrafting": false},
+    {"policy":"match_slots", "heroic": true, "jewelcrafting": false}
+  ]
+}
+
+

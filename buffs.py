@@ -31,6 +31,8 @@ class Buff(StatsModifier):
     ATIESH_PRIEST = "atiesh_priest"
     ATIESH_MAGE = "atiesh_mage"
     ATIESH_LOCK = "atiesh_lock"
+    SUPER_MANA_POT_ROTA = "super_mana_pot_rota"
+    DEMONIC_RUNE_ROTA = "demonic_rune_rota"
 
     @staticmethod
     def player_buffs():
@@ -52,7 +54,9 @@ class Buff(StatsModifier):
                 Buff.ATIESH_DRUID,
                 Buff.ATIESH_PRIEST,
                 Buff.ATIESH_MAGE,
-                Buff.ATIESH_LOCK}
+                Buff.ATIESH_LOCK,
+                Buff.SUPER_MANA_POT_ROTA,
+                Buff.DEMONIC_RUNE_ROTA}
 
     @staticmethod
     def target_buffs():
@@ -100,7 +104,9 @@ _constant_buffs = [
     (Buff.ATIESH_DRUID, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 11)]),
     (Buff.ATIESH_PRIEST, StatsModifier.TYPE_ADDITIVE, [(Stats.BONUS_HEALING, 64)]),
     (Buff.ATIESH_MAGE, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_CRIT_RATING, 28)]),
-    (Buff.ATIESH_LOCK, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_DAMAGE, 33)])
+    (Buff.ATIESH_LOCK, StatsModifier.TYPE_ADDITIVE, [(Stats.SPELL_DAMAGE, 33)]),
+    (Buff.SUPER_MANA_POT_ROTA, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 100)]),
+    (Buff.DEMONIC_RUNE_ROTA, StatsModifier.TYPE_ADDITIVE, [(Stats.MP5, 50)])
 ]
 
 _formula_buffs = [
