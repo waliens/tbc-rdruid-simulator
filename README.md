@@ -21,13 +21,13 @@ You are now up and running.
 
 ## How to use
 
-1. Setup a configuration file (see `example_config.json`). You need to define:
+1. Setup a configuration file (see `tbc_phase1_config.json`). You need to define:
  - one or more healing spells rotations 
  - one or more character profiles to evaluate (character stats & talents)
 2. Launch the python `main.py` file passing the config file ```python main.py -f config.json -o ./files```.
 3. Analyze the produced data:
  - inspect generated timeline for rotations
- - inspect generated spreadsheets (by importing them on google)
+ - inspect generated spreadsheets (by importing them on google sheet)
 
 ### Command line interface
 
@@ -53,14 +53,14 @@ A set of prioritized healing assignments such as:
 ```json
 {
   "name": "single_target_rotation",
-  "description": "Keeping all hots rolling on one target, no filler.",
+  "description": "Keeping all hots rolling on one target, with filler.",
   "assignments": [
     { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
     { "spell": "rejuvenation", "target": "tank" },
     { "spell": "regrowth", "target": "tank" }
   ],
   "buffs": {
-    "tank": ["amplify_magic", "dampen_magic", "tree_of_life_healing"]
+    "tank": ["amplify_magic", "tree_of_life_healing"]
   },
   "filler": { "spell": "rejuvenation" }
 }
@@ -85,8 +85,41 @@ rotation above:
 
 A list of active buffs to evaluate as a JSON array of buff name. 
 
-Currently supported buffs are: `"gift_of_the_wild", "arcane_intellect", "benediction_of_king", "benediction_of_wisdom", "benediction_of_wisdom_tal", "mana_tide_totem", "mana_tide_totem_tal", "wrath_of_air_totem", "totem_of_wrath", "moonkin_aura", "mark_of_bite", "elixir_of_draenic_wisdom", "elixir_of_major_mageblood", "elixir_of_healing_power", "elixir_of_mastery", "golden_fish_sticks", "tree_of_life_mana", "atiesh_druid", "atiesh_priest", "atiesh_mage", "atiesh_lock"`
+Currently supported buffs are:
 
+* `"gift_of_the_wild"`: +12 all stats
+* `"gift_of_the_wild_tal"`: +16 all stats
+* `"divine_spirit"`: +50 spirit
+* `"divine_spirit_tal"`: +50 spirit and 10% spirit converted to bonus healing
+* `"arcane_intellect"`: +40 intellect
+* `"benediction_of_king"`: +10% all stats
+* `"benediction_of_wisdom"`: +41 mp5
+* `"benediction_of_wisdom_tal"`: +49 mp5
+* `"mana_spring_totem"`: +50mp5 
+* `"mana_tide_totem"`: +24% mana
+* `"wrath_of_air_totem"`: +101 bh and 101 spell damage
+* `"totem_of_wrath"`: +3% crit
+* `"moonkin_aura"`: +5% crit
+* `"mark_of_bite"`: +5% all stats
+* `"elixir_of_draenic_wisdom"`: +30 spirit and intellect
+* `"elixir_of_major_mageblood"`: +16 mp5
+* `"elixir_of_healing_power"`: +50 bh
+* `"elixir_of_mastery"`: +15 all stats
+* `"golden_fish_sticks"`: +44 bh and +20 spirit
+* `"tree_of_life_mana"`: -20% mana cost for HoTs
+* `"atiesh_druid"`: +11 mp5
+* `"atiesh_priest"`: +64 bh
+* `"atiesh_mage"`: +28 crit rating
+* `"atiesh_lock"`: +33 sp
+* `"super_mana_pot_rota"`: +100 mp5 (on cd)
+* `"demonic_rune_rota"`: +50mp5 (on cd)
+
+Target buffs:
+    
+* `"dampen_magic"`: -120 sp and -240 bh 
+* `"amplify_magic"`: +120 sp and +240bh
+* `"tree_of_life_healing"` +25% of druid's spirit converted to bh 
+    
 ### Talents
 
 Talents points as a JSON dictionary:
@@ -97,7 +130,7 @@ Talents points as a JSON dictionary:
   "points": {
     "naturalist": 0,
     "gift_of_nature": 5,
-    "tranquility_spirit": 5,
+    "tranquil_spirit": 5,
     "improved_rejuvenation": 3,
     "empowered_rejuvenation": 5,
     "living_spirit": 3,
@@ -112,16 +145,30 @@ Talents points as a JSON dictionary:
 The `name` is the spec name and `points` contains the points dictionary mapping talent name with the number of assigned
 points. 
 
-Currently supported druid talents: `"naturalist", "gift_of_nature", "tranquil_spirit", "improved_rejuvenation", "empowered_rejuvenation", "living_spirit", "empowered_touch", "improved_regrowth", "intensity", "tree_of_life", "lunar_guidance", "dreamstate"`
-  
+Currently supported druid talents: 
+ 
+* `"naturalist"`
+* `"gift_of_nature"`
+* `"tranquil_spirit"`
+* `"improved_rejuvenation"`
+* `"empowered_rejuvenation"`
+* `"living_spirit"`
+* `"empowered_touch"`
+* `"improved_regrowth"`
+* `"intensity"`
+* `"tree_of_life"`
+* `"lunar_guidance"`
+* `"dreamstate"`
+* `"nurturing_instinct"`
+
 ### Character profiles
 
 For generating stats about a rotation, the simulator needs to know stats of one or several characters.  
 
 ```json
 {
-  "name": "classic_gear",
-  "description": "Level 70 with naxxramas gear and standard talents",
+  "name": "gear_set_name",
+  "description": "A gear set",
   "level": 70,
   "stats": {
     "intellect": 395,
@@ -134,11 +181,35 @@ For generating stats about a rotation, the simulator needs to know stats of one 
     "mp5": 70,
     "spell_damage": 409,
     "bonus_healing": 1263
-  }
+  },
+  "gems": [
+    {"name": "a_name", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+  ]
 }
 ```
 
 In the future, I hope to be able to generate such information from websites such as seventyupgrades. 
+
+### Gems policy
+
+Gem slots are defined per character profile. How to fill them is specified as a gem policy. This policy will define
+how to fill the gem slots.
+
+```json
+{
+  "gems_policy": [
+    {"policy":"stack_healing", "heroic": true, "jewelcrafting": false},
+    {"policy":"match_slots", "heroic": true, "jewelcrafting": false}
+  ]
+}
+```
+
+Two policies are currently available:
+
+* `stack_healing`: stack largest available gems to maximize bonus healing (ignoring slot colors if necessary)
+* `match_slots`: matching slot colors while picking gems maximizing bonus healing
+
+One can also specify if gems from heroic or jewelcrafting should be considered for filling the slots. 
 
 ## Ideas for future developments
 
