@@ -7,6 +7,12 @@ this tools generates a near-optimal rotation for maximizing player activity and 
 Based on those rotations, the tools generate a bunch of statistics such as HPS, HPM, time to OOM... that can be used
 to compare different setups.
 
+### Ideas for future developments
+
+1. Fix all formula based on feedback from PTR 
+2. Generate more fancy reports
+3. Integration with seventyupgrades/wowtbc.gg to generate rotations and stats from characters
+
 ## Install
 
 The tool is a Python script, so Python needs to be installed from [Python](https://www.python.org/downloads/) or [Anaconda](https://www.anaconda.com/products/individual#Downloads)
@@ -170,6 +176,9 @@ For generating stats about a rotation, the simulator needs to know stats of one 
   "name": "gear_set_name",
   "description": "A gear set",
   "level": 70,
+  "bonuses": [
+    "idol_of_the_emerald_queen"
+  ],
   "stats": {
     "intellect": 395,
     "strength": 77,
@@ -187,6 +196,33 @@ For generating stats about a rotation, the simulator needs to know stats of one 
   ]
 }
 ```
+
+Bonuses corresponds to gear or set bonuses that are not counted directly into stats (spell specific bonus, on use).
+
+Currently supported bonuses are:
+
+* `"idol_of_the_emerald_queen"`: +88 bh on lifebloom ticks
+* `"idol_of_rejuvenation"`: +50 bh for overall rejuv
+* `"harolds_rejuvenating_broach"`: +86 bh for overall rejuv
+* `"gladiators_idol_of_tenacity"`: +87 bh for lifebloom direct heal 
+* `"merciless_gladiators_idol_of_tenacity"`: + 105bh for lifebllom direct heal
+* `"vengeful_gladiators_idol_of_tenacity"`: + 116bh for lifebllom direct heal
+* `"brutal_gladiators_idol_of_tenacity"`: + 131bh for lifebllom direct heal
+* `"idol_of_the_raven_goddess"`: adds 44 bh on tree of life healing bonus
+* `"idol_of_the_avian_heart"`: +136 bh for healing touch
+* `"t5_nordrassil_raiment_4p"`: +150 bh for lifebllom direct heal
+* `"primal_mooncloth_3p"`: +5% regen while not casting active when casting
+* `"whitemend_2p"`: 5% of intellect converted into bh
+* `"t2_stormrage_raiment_3p"`: +20 mp5
+* `"darkmoon_card_blue_dragon"`: see [notes](#blue-dragon-card)
+* `"lower_city_prayer_book"`: +14mp5 (on cd, assumes 8 casts on 15sec)
+* `"t5_nordrassil_raiment_2p"`: +6sec for regrowth (+ 2ticks) 
+* `"t3_dreamwalker_raiment_4p"`: -3% mana cost for healing spells
+* `"t2_stormrage_raiment_5p"`: reduce regrowth cast time by 0.2sec
+* `"t2_stormrage_raiment_8p"`: +3 sec for rejuv (+1 tick)
+* `"t6_thunderheart_raiment_4p"`: +10% healing on healing touch
+* `"idol_of_budding_life"`: -36 mana for casting rejuv
+* `"idol_of_the_crescent_goddess"`: -65 mana for casting regrowth
 
 In the future, I hope to be able to generate such information from websites such as seventyupgrades. 
 
@@ -211,10 +247,20 @@ Two policies are currently available:
 
 One can also specify if gems from heroic or jewelcrafting should be considered for filling the slots. 
 
-## Ideas for future developments
 
-1. Fix all formula based on feedback from PTR 
-2. Integrate gear bonuses, spell-specific bonus effects and buffs
-3. Generate more fancy reports
-4. Integration with seventyupgrades/wowtbc.gg to generate rotations and stats from characters
+## Notes
+
+### Blue dragon card
+
+The effect the blue dragon card is simulated as follows. `a` is the probability that the card is active at a 
+mana regen tick. To be active means that the card has procced at least once in the last 15sec. Maximum number of casts
+in a 15sec period without haste is 9, but we will assume 8 (to account for healer imperfections, latency, etc.). 
+Using a binomial distribution (at least 1 proc among 8 casts, with probability to proc at a given cast being equal to 
+`p=0.02`), we get `a = 0.1389000853`. Now given `R`, the regen while not casting (per tick), 
+and `c`, the portion of regen while not casting currently converted into regen while casting, we have `r` the
+regen gained from the card on average:
+
+```
+r = R * a * (1 - c) 
+```
 
