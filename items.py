@@ -97,12 +97,6 @@ _stats_items = [
                                         effects=[(Stats.BONUS_HEALING, 131)], cond_cm_group="Gear",
                                         spell_name="lifebloom", spell_part=HealParts.DIRECT)
               ])),
-    ItemBonus(name="brutal_gladiators_idol_of_tenacity",
-              stats_effects=StatsModifierArray([
-                  ConstantStatsModifier(name="brutal_gladiators_idol_of_tenacity", _type=StatsModifier.TYPE_ADDITIVE,
-                                        effects=[(Stats.BONUS_HEALING, 131)], cond_cm_group="Gear",
-                                        spell_name="lifebloom", spell_part=HealParts.DIRECT)
-              ])),
     ItemBonus(name="idol_of_the_raven_goddess",
               stats_effects=StatsModifierArray([
                   StatsModifier(name="idol_of_the_raven_goddess", _type=StatsModifier.TYPE_ADDITIVE,
@@ -135,16 +129,6 @@ _stats_items = [
                                 functions=[lambda char: 0.1 * char.get_stat(Stats.INTELLECT)],
                                 formula=["(0.1 * #Stats.{}#)".format(Stats.INTELLECT)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
-              ])),
-    ItemBonus(name="t2_stormrage_raiment_3p",
-              stats_effects=StatsModifierArray([
-                  ConstantStatsModifier(name="t2_stormrage_raiment_3p", effects=[(Stats.MP5, 20)],
-                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
-              ])),
-    ItemBonus(name="t1_cenarion_raiment_5p",
-              stats_effects=StatsModifierArray([
-                  ConstantStatsModifier(name="t1_cenarion_raiment_5p", effects=[(Stats.SPELL_CRIT_RATING, 48)],
-                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
     ItemBonus(name="darkmoon_card_blue_dragon",
               stats_effects=StatsModifierArray([
