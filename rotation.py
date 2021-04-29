@@ -449,7 +449,7 @@ class Rotation(object):
             if not timeline.is_up_at(current_time):
                 return -1, assignment
 
-            # spell is up (can only be a HoT), cast time does not prevent higher priority spell to be µ
+            # spell is up (can only be a HoT), cast time does not prevent higher priority spell to be
             # cast in the future
             spell_event = timeline.event_at(current_time)
             remaining_time = timeline.remaining_uptime(current_time)
