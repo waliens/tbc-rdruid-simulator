@@ -134,7 +134,7 @@ _stats_items = [
               stats_effects=StatsModifierArray([
                   StatsModifier(name="darkmoon_card_blue_dragon", stats=[Stats.MP5],
                                 functions=[darkmoon_blue_dragon],
-                                formula=["(#Stats.{regen}# * 0.1389000853 * (1 - (IF(#Gear.{pmc}#; 0.05; 0) "
+                                formula=["(#Stats.{regen}# * 0.1492369774 * (1 - (IF(#Gear.{pmc}#; 0.05; 0) "
                                          "+ #Talents.{intens}# * 0.1)))".format(
                                     regen=Stats.REGEN_5SR, pmc="primal_mooncloth_3p", intens="intensity")],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
@@ -145,7 +145,17 @@ _stats_items = [
                                 functions=[lambda char: (8 * 22) / 12],  # activated on timer, 8 cast during activity
                                 formula=["(8 * 22 / 12)"],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
-              ]))
+              ])),
+    ItemBonus(name="memento_of_tyrande",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="memento_of_tyrande", effects=[(Stats.MP5, 17)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="glimmering_naaru_sliver",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="glimmering_naaru_sliver", effects=[(Stats.MANA, 2000)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
 ]
 
 _spell_items = [
