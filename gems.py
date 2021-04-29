@@ -120,6 +120,7 @@ class GemSlotsCollection(object):
 
 STRATEGY_MATCHING = "match_slots"
 STRATEGY_STACK_HEALING = "stack_healing"
+STRATEGY_STACK_HASTE = "stack_haste"
 
 
 def _bonus(modifier, stat):
@@ -134,8 +135,16 @@ def optimize_slots(slots: GemSlotsCollection, strategy=STRATEGY_MATCHING, heroic
     if not jewelcrafting:
         gem_set = gem_set.difference(JEWELCRAFTING)
     used = set()
-    gem_list = sorted(gem_set, key=lambda g: -_bonus(ALL_GEMS[g], Stats.BONUS_HEALING))
-    for gem_name in gem_list:
+
+    if strategy is not STRATEGY_STACK_HASTE:
+        sort_key = lambda g: -_bonus(ALL_GEMS[g], Stats.BONUS_HEALING)
+        prio_gems = []
+    else:
+        sort_key = lambda g: -_bonus(ALL_GEMS[g], Stats.SPELL_HASTE_RATING)
+        prio_gems = ["bracing_earthstorm_diamond"]
+
+    gem_list = sorted(gem_set, key=sort_key)
+    for gem_name in (prio_gems + gem_list):
         gem = ALL_GEMS[gem_name]
         while slots.open_slots > 0 and (gem_name not in UNIQUE or gem_name not in used):
             added = slots.add_gem(gem, match=True)
@@ -166,7 +175,7 @@ _gems = [
     Gem("imperial_tanzanite", [(Stats.BONUS_HEALING, 11), (Stats.MP5, 2)], Gem.PURPLE),
     Gem("royal_nightseye", [(Stats.BONUS_HEALING, 9), (Stats.MP5, 2)], Gem.PURPLE),
     # haste gems
-    Gem("reckless_pyrolithe", [(Stats.SPELL_HASTE_RATING, 5), (Stats.SPELL_DAMAGE, 6), (Stats.BONUS_HEALING, 6)], Gem.ORANGE),
+    Gem("reckless_pyrestone", [(Stats.SPELL_HASTE_RATING, 5), (Stats.SPELL_DAMAGE, 6), (Stats.BONUS_HEALING, 6)], Gem.ORANGE),
     Gem("quick_dawnstone", [(Stats.SPELL_HASTE_RATING, 8)], Gem.YELLOW),
     Gem("quick_lionseye", [(Stats.SPELL_HASTE_RATING, 10)], Gem.YELLOW),
     Gem("reckless_noble_topaz", [(Stats.SPELL_HASTE_RATING, 4), (Stats.SPELL_DAMAGE, 5), (Stats.BONUS_HEALING, 5)], Gem.ORANGE),
