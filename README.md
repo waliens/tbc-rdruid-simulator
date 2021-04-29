@@ -234,8 +234,9 @@ how to fill the gem slots.
 ```json
 {
   "gems_policy": [
-    {"policy":"stack_healing", "heroic": true, "jewelcrafting": false},
-    {"policy":"match_slots", "heroic": true, "jewelcrafting": false}
+    {"policy": "stack_healing", "heroic": true, "jewelcrafting": false},
+    {"policy": "match_slots", "heroic": true, "jewelcrafting": false},
+    {"policy": "stack_haste", "heroid": true, "jewelcrafting": false}
   ]
 }
 ```
@@ -250,13 +251,47 @@ One can also specify if gems from heroic or jewelcrafting should be considered f
 
 ## Notes
 
+### Proc items with ICD
+
+I use this function to estimate the average gain of a proc given an internal cooldown. It basically evaluates the 
+expectation of the gain (e.g. mana) over a period of time by building a probability tree. 
+To reduce computation time, everything is discretized and the time unit is a gcd. Even with discretization, it gives a 
+good approximation of the gain. 
+
+```python
+def simulate_proc_with_icd(n, dct, gain=1, procrate=0.1, icd=30, gcd=1):
+    """
+    n: int
+        number of gcd cycles to simulate
+    dct: dict
+        dictionary for caching already computed results of simulate proc
+    gain: float|int 
+        the gain when it procs
+    procrate: float
+        procrate in [0, 1]
+    icd: int
+        number of gcd of the internal cooldown
+    gcd: int
+        number of gcd between casts
+    """
+    if n <= 0: # over the time period, no gain
+        return 0  
+    v1 = n - icd  # proc
+    v2 = n - gcd  # no proc
+    if v1 not in dct:
+        dct[v1] = simulate_proc_with_icd(v1, dct, gain=gain, procrate=procrate, icd=icd, gcd=gcd)
+    if v2 not in dct:
+        dct[v2] = simulate_proc_with_icd(v2, dct, gain=gain, procrate=procrate, icd=icd, gcd=gcd)
+    return procrate * (dct[v1] + gain) + (1 - procrate) * dct[v2]
+``` 
+
 ### Blue dragon card
 
 The effect the blue dragon card is simulated as follows. `a` is the probability that the card is active at a 
 mana regen tick. To be active means that the card has procced at least once in the last 15sec. Maximum number of casts
 in a 15sec period without haste is 9, but we will assume 8 (to account for healer imperfections, latency, etc.). 
 Using a binomial distribution (at least 1 proc among 8 casts, with probability to proc at a given cast being equal to 
-`p=0.02`), we get `a = 0.1389000853`. Now given `R`, the regen while not casting (per tick), 
+`p=0.02`), we get `a = 0.1492369774 (= 1 - P(0 procs))` . Now given `R`, the regen while not casting (per tick), 
 and `c`, the portion of regen while not casting currently converted into regen while casting, we have `r` the
 regen gained from the card on average:
 
@@ -276,3 +311,18 @@ r = R x 0.1389 x (1 - 0.35)
 ``` 
 
 so a gain 9% of regen while not casting converted into regen while casting.
+
+
+### Memento of Tyrande
+
+Used the [simulation function](#proc-items-with-icd) to evaluate average mp5 gain of the proc effect. Considered an 
+internal cooldown (ICD) of 45sec and a proc chance of 10%. Resulting equivalent mp5 is:
+- without haste (but casting on average 1.74s): `16.72 mp5`
+- with haste and 1.35s gcd (but casting every 1.4s) : `17.04 mp5`
+
+For simplicity, I therefore consider that the proc effect is equivalent to **17 mp5**.  
+
+
+### Glimmering Naaru Sliver
+
+Consider one full usage of the on-use effect, equivalent to **2k additional mana**.
