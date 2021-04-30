@@ -7,7 +7,8 @@
       "level": 70,
       "bonuses": [
         "idol_of_the_emerald_queen",
-        "lower_city_prayer_book"
+        "lower_city_prayer_book",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
@@ -35,7 +36,8 @@
       "level": 70,
       "bonuses": [
         "idol_of_the_emerald_queen",
-        "lower_city_prayer_book"
+        "lower_city_prayer_book",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
@@ -65,16 +67,17 @@
       "bonuses": [
         "idol_of_the_emerald_queen",
         "primal_mooncloth_3p",
-        "lower_city_prayerbook"
+        "lower_city_prayerbook",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
         "agility": 75,
-        "stamina": 287,
-        "intellect": 409,
-        "spirit": 409,
-        "spell_damage": 578,
-        "bonus_healing": 1711,
+        "stamina": 282,
+        "intellect": 401,
+        "spirit": 407,
+        "spell_damage": 577,
+        "bonus_healing": 1708,
         "spell_crit_rating": 0,
         "spell_haste_rating": 0,
         "mp5": 102
@@ -83,6 +86,7 @@
         {"name": "crown_of_malorne", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
         {"name": "primal_mooncloth_robe", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
         {"name": "primal_mooncloth_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "earthsoul_leggings", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "spirit", "value": 4}]},
         {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
       ]
     },
@@ -93,24 +97,26 @@
       "bonuses": [
         "idol_of_the_emerald_queen",
         "whitemend_2p",
-        "lower_city_prayerbook"
+        "lower_city_prayerbook",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
         "agility": 75,
-        "stamina": 316,
-        "intellect": 414,
-        "spirit": 367,
-        "spell_damage": 527,
-        "bonus_healing": 1595,
+        "stamina": 319,
+        "intellect": 411,
+        "spirit": 355,
+        "spell_damage": 528,
+        "bonus_healing": 1597,
         "spell_crit_rating": 0,
         "spell_haste_rating": 0,
-        "mp5": 100
+        "mp5": 93
       },
       "gems": [
         {"name": "whitemend_hood", "slots": ["blue", "red", "yellow"], "bonus": [{"stat": "intellect", "value": 4}]},
         {"name": "shoulderguards_of_malorne", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]},
         {"name": "chestguard_of_malorne", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 9}, {"stat": "spell_damage", "value": 3}]},
+        {"name": "mitts_of_the_treemender", "slots": ["blue", "yellow"], "bonus": [{"stat": "spirit", "value": 3}]},
         {"name": "whitemend_pants", "slots": ["yellow", "blue", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
         {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
       ]
@@ -122,7 +128,8 @@
       "bonuses": [
         "idol_of_the_emerald_queen",
         "lower_city_prayerbook",
-        "whitemend_2p"
+        "whitemend_2p",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
@@ -148,7 +155,7 @@
     },
     {
       "name": "phase1_manarius_alch_tailor_pmc_wm",
-      "description": "https://seventyupgrades.com/set/v19g9BSm4tCRM8GfwfKajs",
+      "description": "https://seventyupgrades.com/set/9ijrYdV8DAdqQ1xfMfZ8Hh",
       "level": 70,
       "bonuses": [
         "idol_of_the_emerald_queen",
@@ -159,26 +166,27 @@
       "stats": {
         "strength": 73,
         "agility": 75,
-        "stamina": 301,
-        "intellect": 380,
-        "spirit": 351,
-        "spell_damage": 564,
-        "bonus_healing": 1705,
+        "stamina": 268,
+        "intellect": 377,
+        "spirit": 339,
+        "spell_damage": 576,
+        "bonus_healing": 1738,
         "spell_crit_rating": 0,
         "spell_haste_rating": 0,
-        "mp5": 100
+        "mp5": 98
       },
       "gems": [
         {"name": "whitemend_hood", "slots": ["blue", "red", "yellow"], "bonus": [{"stat": "intellect", "value": 4}]},
-        {"name": "whitemend_pants", "slots": ["yellow", "blue", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
         {"name": "primal_mooncloth_robe", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "mitts_of_the_treemender", "slots": ["blue", "yellow"], "bonus": [{"stat": "spirit", "value": 3}]},
         {"name": "primal_mooncloth_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "whitemend_pants", "slots": ["yellow", "blue", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
         {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
       ]
     },
     {
       "name": "phase1_manarius_classic_naxx",
-      "description": "https://seventyupgrades.com/set/tjR46bW8aSNr5DaLvSGX8W",
+      "description": "https://seventyupgrades.com/set/fzhK4g2D75taA4KSNuDnse",
       "level": 70,
       "bonuses": ["idol_of_rejuvenation"],
       "stats": {
@@ -192,6 +200,25 @@
         "spell_crit_rating": 0,
         "spell_haste_rating": 0,
         "mp5": 70
+      },
+      "gems": []
+    },
+    {
+      "name": "phase1_manarius_classic_t2",
+      "description": "https://seventyupgrades.com/set/bCE5WYPxnLjb7fKdJhvQHy",
+      "level": 70,
+      "bonuses": ["idol_of_rejuvenation", "t2_stormrage_raiment_5p", "t2_stormrage_raiment_8p"],
+      "stats": {
+        "strength": 76,
+        "agility": 78,
+        "stamina": 285,
+        "intellect": 392,
+        "spirit": 310,
+        "spell_damage": 345,
+        "bonus_healing": 1106,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 65
       },
       "gems": []
     },
@@ -228,7 +255,8 @@
       "description": "https://seventyupgrades.com/set/ubPGejqfkakv4TaJajaYa2",
       "level": 70,
       "bonuses": [
-        "idol_of_the_emerald_queen"
+        "idol_of_the_emerald_queen",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
@@ -245,11 +273,11 @@
       "gems": [
         {"name": "crown_of_malorne", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
         {"name": "shoulderguards_of_malorne", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]},
-        {"name": "earthsoul_leggings", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "spirit", "value": 4}]},
         {"name": "windhawk_hauberk", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 5}, {"stat": "spell_damage", "value": 5}]},
         {"name": "windhawk_bracers", "slots": ["yellow"], "bonus": [{"stat": "intellect", "value": 2}]},
         {"name": "windhawk_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "bonus_healing", "value": 4}, {"stat": "spell_damage", "value": 4}]},
         {"name": "mitts_of_the_treemender", "slots": ["blue", "yellow"], "bonus": [{"stat": "spirit", "value": 3}]},
+        {"name": "earthsoul_leggings", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "spirit", "value": 4}]},
         {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
       ]
     },
@@ -258,7 +286,8 @@
       "description": "https://seventyupgrades.com/set/fCAB7ThwoutabqBUKBC38E",
       "level": 70,
       "bonuses": [
-        "idol_of_the_emerald_queen"
+        "idol_of_the_emerald_queen",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
@@ -346,7 +375,8 @@
       "description": "https://seventyupgrades.com/set/s487BqHyjE3ReAaEAyXTiC",
       "level": 70,
       "bonuses": [
-        "idol_of_the_emerald_queen"
+        "idol_of_the_emerald_queen",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
@@ -376,7 +406,8 @@
       "description": "https://seventyupgrades.com/set/ubPGejqfkakv4TaJajaYa2",
       "level": 70,
       "bonuses": [
-        "idol_of_the_emerald_queen"
+        "idol_of_the_emerald_queen",
+        "t4_malorne_raiment_2p"
       ],
       "stats": {
         "strength": 73,
