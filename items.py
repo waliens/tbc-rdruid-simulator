@@ -123,6 +123,11 @@ _stats_items = [
                                 formula=["(0.05 * #Stats.{}#)".format(Stats.REGEN_5SR)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
+    ItemBonus(name="t4_malorne_raiment_2p",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t4_malorne_raiment_2p", effects=[(Stats.MP5, 17.14)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
     ItemBonus(name="whitemend_2p",
               stats_effects=StatsModifierArray([
                   StatsModifier(name="whitemend_2p", stats=[Stats.BONUS_HEALING],

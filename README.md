@@ -313,6 +313,13 @@ r = R x 0.1389 x (1 - 0.35)
 so a gain 9% of regen while not casting converted into regen while casting.
 
 
+### Malorne Raiment 
+
+Based on [wowhead comments](https://tbc.wowhead.com/item-set=638/malorne-raiment#comments), consider a proc rate of 
+5% and no internal cooldown. Considering 6 missed gcd per minute (out of 40), there is approximately one cast every 
+1.75sec. Every cast has an expected gain of `0.05 * 120 = 6 mana`. The equivalent mp5 is therefore: `5 * 6 / 1.75 = 17.14 mp5`.
+
+
 ### Memento of Tyrande
 
 Used the [simulation function](#proc-items-with-icd) to evaluate average mp5 gain of the proc effect. Considered an 
