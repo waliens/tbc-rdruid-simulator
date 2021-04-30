@@ -165,11 +165,11 @@ _spell_items = [
                                         _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
     ItemBonus(name="t4_malorne_raiment_2p",
-              stats_effects=StatsModifierArray([
+              spell_effects=StatsModifierArray([
                   ConstantStatsModifier(name="t4_malorne_raiment_2p",
-                                        effects=[((spell, HealParts.MANA_COST), -6)
-                                                 for spell in ["healing_touch", "rejuvenation", "tranquility", "regrowth", "lifebloom"]],
+                                        effects=[((spell, HealParts.MANA_COST), -6)],
                                         _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+                  for spell in ["healing_touch", "rejuvenation", "tranquility", "regrowth", "lifebloom"]
               ])),
     ItemBonus(name="t3_dreamwalker_raiment_4p",
               spell_effects=StatsModifierArray([
