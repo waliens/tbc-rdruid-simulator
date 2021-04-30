@@ -316,8 +316,10 @@ so a gain 9% of regen while not casting converted into regen while casting.
 ### Malorne Raiment 
 
 Based on [wowhead comments](https://tbc.wowhead.com/item-set=638/malorne-raiment#comments), consider a proc rate of 
-5% and no internal cooldown. Considering 6 missed gcd per minute (out of 40), there is approximately one cast every 
-1.75sec. Every cast has an expected gain of `0.05 * 120 = 6 mana`. The equivalent mp5 is therefore: `5 * 6 / 1.75 = 17.14 mp5`.
+5% and no internal cooldown. Every cast has an expected mana gain of `0.05 * 120 = 6 mana`. Therefore, I consider that 
+enabling this set bonus reduce mana cost of all spells by 6. 
+
+The equivalent mp5 is `5 * 6 / 1.75 = 17.14 mp5` (considering 6 missed gcd per minute (out of 40) so approximately one cast every 1.75sec).
 
 
 ### Memento of Tyrande

@@ -123,11 +123,6 @@ _stats_items = [
                                 formula=["(0.05 * #Stats.{}#)".format(Stats.REGEN_5SR)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
-    ItemBonus(name="t4_malorne_raiment_2p",
-              stats_effects=StatsModifierArray([
-                  ConstantStatsModifier(name="t4_malorne_raiment_2p", effects=[(Stats.MP5, 17.14)],
-                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
-              ])),
     ItemBonus(name="whitemend_2p",
               stats_effects=StatsModifierArray([
                   StatsModifier(name="whitemend_2p", stats=[Stats.BONUS_HEALING],
@@ -167,6 +162,13 @@ _spell_items = [
     ItemBonus(name="t5_nordrassil_raiment_2p",
               spell_effects=StatsModifierArray([
                   ConstantStatsModifier(name="t5_nordrassil_raiment_2p", effects=[(("regrowth", HealParts.DURATION), 6)],
+                                        _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
+              ])),
+    ItemBonus(name="t4_malorne_raiment_2p",
+              stats_effects=StatsModifierArray([
+                  ConstantStatsModifier(name="t4_malorne_raiment_2p",
+                                        effects=[((spell, HealParts.MANA_COST), -6)
+                                                 for spell in ["healing_touch", "rejuvenation", "tranquility", "regrowth", "lifebloom"]],
                                         _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
     ItemBonus(name="t3_dreamwalker_raiment_4p",
