@@ -432,6 +432,94 @@
         {"name": "earthsoul_leggings", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "spirit", "value": 4}]},
         {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
       ]
+    },
+    {
+      "name": "phase2_niche_t5_tailor",
+      "description": "https://seventyupgrades.com/set/4BwWqU8xMUwFjwB2kFB4MY",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "primal_mooncloth_3p",
+        "whitemend_2p"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 326,
+        "intellect": 374,
+        "spirit": 305,
+        "spell_damage": 585,
+        "bonus_healing": 1949,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 100
+      },
+      "gems": [
+        {"name": "whitemend_hood", "slots": ["blue", "red", "yellow"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "primal_mooncloth_robe", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "primal_mooncloth_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "whitemend_pants", "slots": ["yellow", "blue", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+        {"name": "orca_hide_boots", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase2_niche_t5",
+      "description": "https://seventyupgrades.com/set/eN4DP3v6oLJWrJ3yXjcvAN",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "nordrassil_raiment_2p",
+        "nordrassil_raiment_4p"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 442,
+        "intellect": 432,
+        "spirit": 397,
+        "spell_damage": 585,
+        "bonus_healing": 1949,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 100
+      },
+      "gems": [
+        {"name": "nordrassil_headguard", "slots": ["meta", "yellow"], "bonus": [{"stat": "mp5", "value": 2}]},
+        {"name": "nordrassil_life_mantle", "slots": ["blue", "blue"], "bonus":  [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]},
+        {"name": "nordrassil_chestguard", "slots": ["blue", "blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 9}, {"stat": "spell_damage", "value": 3}]},
+        {"name": "belt_of_the_long_road", "slots": ["yellow", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]},
+        {"name": "nordrassil_life_kilt", "slots": ["blue"], "bonus": [{"stat": "bonus_healing", "value": 4}, {"stat": "spell_damage", "value": 2}]},
+        {"name": "orca_hide_boots", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]}
+      ]
+    },
+    {
+      "name": "phase2_niche_t5_pmc",
+      "description": "https://seventyupgrades.com/set/eN4DP3v6oLJWrJ3yXjcvAN",
+      "level": 70,
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "nordrassil_raiment_2p",
+        "primal_mooncloth_3p"
+      ],
+      "stats": {
+        "strength": 73,
+        "agility": 75,
+        "stamina": 442,
+        "intellect": 432,
+        "spirit": 397,
+        "spell_damage": 587,
+        "bonus_healing": 1955,
+        "spell_crit_rating": 0,
+        "spell_haste_rating": 0,
+        "mp5": 86
+      },
+      "gems": [
+        {"name": "nordrassil_headguard", "slots": ["meta", "yellow"], "bonus": [{"stat": "mp5", "value": 2}]},
+        {"name": "primal_mooncloth_robe", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "primal_mooncloth_belt", "slots": ["yellow", "blue"], "bonus": [{"stat": "intellect", "value": 3}]},
+        {"name": "earthsoul_leggings", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "spirit", "value": 4}]},
+        {"name": "orca_hide_boots", "slots": ["blue", "blue"], "bonus": [{"stat": "spirit", "value": 3}]}
+      ]
     }
   ],
   "rotations": [
