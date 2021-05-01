@@ -40,7 +40,7 @@ class StatsModifier(object):
     def apply(self, stat, base_value, character, **context):
         if not self._context.match_context(**context) or stat not in set(self._stats):
             return base_value
-        return self._aggr()(base_value, self._functions[stat](character))
+        return self._aggr()(base_value, self._functions[stat](character, **context))
 
     def formula(self, stat, base_formula, **context):
         if not self._context.match_context(**context) or stat not in set(self._stats):

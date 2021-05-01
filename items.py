@@ -1,3 +1,6 @@
+import math
+from math import prod
+
 from buffs import Buff
 from gems import GemSlotsCollection
 from heal_parts import HealParts
@@ -40,8 +43,34 @@ class Gear(object):
     def spell_effects(self):
         return self._spell_modifiers
 
-    def apply_spell_effect(self, spell_name, spell_part, base_value, character):
-        return self._spell_modifiers.apply((spell_name, spell_part), base_value, character)
+    def apply_spell_effect(self, spell_name, spell_part, base_value, character, **context):
+        return self._spell_modifiers.apply((spell_name, spell_part), base_value, character,
+                                           spell_name=spell_name, spell_part=spell_part, **context)
+
+
+def get_mana_cost_multiplicative_ratio(char, spell):
+    buffs = char.spell_effects._multiplicative.get((spell, HealParts.MANA_COST))
+    return math.prod([buff.apply((spell, HealParts.MANA_COST), 1, char) for buff in buffs])
+
+
+def get_mana_cost_additive_formula(base_form, spell):
+    mg = "(1 - #Talents.moonglow# * 0.03)"
+    ts = "(1 - #Talents.tranquil_spirit# * 0.02)"
+    t3 = "IF(#Gear.t3_dreamwalker_raiment_4p#; 0.97; 1)"
+    tol = "IF(AND(#Talents.tree_of_life#, #Buff.tree_of_life_mana#); 1.0; 0.8)"
+
+    if spell == "healing_touch":
+        ratio = "*".join([mg, ts, t3])
+    elif spell == "rejuvenation" or spell == "regrowth":
+        ratio = "*".join([mg, t3, tol])
+    elif spell == "lifebloom":
+        ratio = "*".join([tol])
+    elif spell == "tranquility":
+        ratio = "*".join([tol, t3, ts])
+    else:
+        raise ValueError("unknown spell")
+
+    return "(({}) / ({}))".format(base_form, ratio)
 
 
 def darkmoon_blue_dragon(char):
@@ -101,7 +130,7 @@ _stats_items = [
               stats_effects=StatsModifierArray([
                   StatsModifier(name="idol_of_the_raven_goddess", _type=StatsModifier.TYPE_ADDITIVE,
                                 stats=[Stats.BONUS_HEALING],
-                                functions=[lambda char: (44 if char.stats_buff.has_modifier(Buff.TREE_OF_LIFE_HEALING) else 0)],
+                                functions=[lambda char, **context: (44 if char.stats_buff.has_modifier(Buff.TREE_OF_LIFE_HEALING) else 0)],
                                 formula=["IF(#Target.{}#; 44; 0)".format(Buff.TREE_OF_LIFE_HEALING)], cond_cm_group="Gear")
               ])),
     ItemBonus(name="idol_of_the_avian_heart",
@@ -119,14 +148,14 @@ _stats_items = [
     ItemBonus(name="primal_mooncloth_3p",
               stats_effects=StatsModifierArray([
                   StatsModifier(name="primal_mooncloth_3p", stats=[Stats.MP5],
-                                functions=[lambda char: 0.05 * char.get_stat(Stats.REGEN_5SR)],
+                                functions=[lambda char, **context: 0.05 * char.get_stat(Stats.REGEN_5SR)],
                                 formula=["(0.05 * #Stats.{}#)".format(Stats.REGEN_5SR)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
     ItemBonus(name="whitemend_2p",
               stats_effects=StatsModifierArray([
                   StatsModifier(name="whitemend_2p", stats=[Stats.BONUS_HEALING],
-                                functions=[lambda char: 0.1 * char.get_stat(Stats.INTELLECT)],
+                                functions=[lambda char, **context: 0.1 * char.get_stat(Stats.INTELLECT)],
                                 formula=["(0.1 * #Stats.{}#)".format(Stats.INTELLECT)],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
@@ -142,7 +171,7 @@ _stats_items = [
     ItemBonus(name="lower_city_prayer_book",
               stats_effects=StatsModifierArray([
                   StatsModifier(name="lower_city_prayer_book", stats=[Stats.MP5],
-                                functions=[lambda char: (8 * 22) / 12],  # activated on timer, 8 cast during activity
+                                functions=[lambda char, **context: (8 * 22) / 12],  # activated on timer, 8 cast during activity
                                 formula=["(8 * 22 / 12)"],
                                 _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
@@ -176,6 +205,13 @@ _spell_items = [
                   ConstantStatsModifier(name="t3_dreamwalker_raiment_4p", effects=[((spell, HealParts.MANA_COST), 0.97)],
                                         _type=StatsModifier.TYPE_MULTIPLICATIVE, cond_cm_group="Gear")
                   for spell in ["healing_touch", "rejuvenation", "tranquility", "regrowth"]
+              ])),
+    ItemBonus(name="t3_dreamwalker_raiment_8p",
+              spell_effects=StatsModifierArray([
+                  StatsModifier(name="t3_dreamwalker_raiment_8p", stats=[("healing_touch", HealParts.MANA_COST)],
+                                functions=[lambda char, spell, **context: -spell.base_mana_cost * 0.3 * char.get_stat(Stats.SPELL_CRIT) / get_mana_cost_multiplicative_ratio(char, "healing_touch")],
+                                formula=[get_mana_cost_additive_formula("-0.3 * #Stats.{}# * #{{spell}}.base_mana_cost#".format(Stats.SPELL_CRIT), "healing_touch")],
+                                _type=StatsModifier.TYPE_ADDITIVE, cond_cm_group="Gear")
               ])),
     ItemBonus(name="t2_stormrage_raiment_5p",
               spell_effects=StatsModifierArray([

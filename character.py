@@ -82,7 +82,7 @@ def druid_stats():
     # regen 5-sec rule
     buffs.append(StatsModifier(
         name=Stats.REGEN_5SR, stats=[Stats.REGEN_5SR], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: 5 * 0.00932715221261 * math.sqrt(char.get_stat(Stats.INTELLECT)) * char.get_stat(
+        functions=[lambda char, **context: 5 * 0.00932715221261 * math.sqrt(char.get_stat(Stats.INTELLECT)) * char.get_stat(
             Stats.SPIRIT)],
         formula=["5 * 0.00932715221261 * SQRT(#Stats.{}#) * #Stats.{}#".format(Stats.INTELLECT, Stats.SPIRIT)])
     )
@@ -92,7 +92,7 @@ def druid_stats():
     haste_coef, haste_interc = linear_params(*haste_data)
     buffs.append(StatsModifier(
         name=Stats.SPELL_HASTE, stats=[Stats.SPELL_HASTE], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: linear(*haste_data)(char.level) * char.get_stat(Stats.SPELL_HASTE_RATING) / 100],
+        functions=[lambda char, **context: linear(*haste_data)(char.level) * char.get_stat(Stats.SPELL_HASTE_RATING) / 100],
         formula=[RATING_FORMULA.format(coef=haste_coef, interc=haste_interc, rating=Stats.SPELL_HASTE_RATING)])
     )
 
@@ -101,31 +101,31 @@ def druid_stats():
     crit_coef, crit_interc = linear_params(*crit_data)
     buffs.append(StatsModifier(
         name=Stats.SPELL_CRIT + "_intel", stats=[Stats.SPELL_CRIT], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: char.get_stat(Stats.INTELLECT) / ((60 + (0 if char.level <= 0 else (2 * (70 - char.level)))) * 100)],
+        functions=[lambda char, **context: char.get_stat(Stats.INTELLECT) / ((60 + (0 if char.level <= 0 else (2 * (70 - char.level)))) * 100)],
         formula=["(#Stats.{}# / ((60 + IF(#Character.level#<=60;0;(#Character.level# - 60) * 2)) * 100))".format(Stats.INTELLECT)])
     )
     buffs.append(StatsModifier(
         name=Stats.SPELL_CRIT + "_rating", stats=[Stats.SPELL_CRIT], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: linear(*crit_data)(char.level) * char.get_stat(Stats.SPELL_CRIT_RATING) / 100],
+        functions=[lambda char, **context: linear(*crit_data)(char.level) * char.get_stat(Stats.SPELL_CRIT_RATING) / 100],
         formula=[RATING_FORMULA.format(coef=crit_coef, interc=crit_interc, rating=Stats.SPELL_CRIT_RATING)])
     )
 
     # gcd
     buffs.append(StatsModifier(
         name=Stats.GCD, stats=[Stats.GCD], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: 1.5 / (1 + char.get_stat(Stats.SPELL_HASTE))],
+        functions=[lambda char, **context: 1.5 / (1 + char.get_stat(Stats.SPELL_HASTE))],
         formula=["(1.5 / (1 + #Stats.{}#))".format(Stats.SPELL_HASTE)])
     )
 
     # mana
     buffs.append(StatsModifier(
         name=Stats.MANA + "_base", stats=[Stats.MANA], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: BASE_MANA_LOOKUP[char.level - 1]],
+        functions=[lambda char, **context: BASE_MANA_LOOKUP[char.level - 1]],
         formula=["CHOOSE(#Character.level# - 57; {})".format(";".join(map(str, BASE_MANA_LOOKUP[57:])))]
     ))
     buffs.append(StatsModifier(
         name=Stats.MANA + "_intel", stats=[Stats.MANA], _type=StatsModifier.TYPE_ADDITIVE,
-        functions=[lambda char: 15 * max(0, char.get_stat(Stats.INTELLECT) - 20) + min(20, char.get_stat(
+        functions=[lambda char, **context: 15 * max(0, char.get_stat(Stats.INTELLECT) - 20) + min(20, char.get_stat(
             Stats.INTELLECT))],
         formula=["(15 * MAX(0; #Stats.{intel}# - 20) + MIN(20; #Stats.{intel}#))".format(intel=Stats.INTELLECT)]
     ))
