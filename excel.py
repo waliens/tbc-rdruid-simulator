@@ -699,6 +699,13 @@ class ComparisonSummarySheet(ThematicSheet):
         for stat in Stats.all_stats():
             col = self.write_cell(first_row + 1, col + 1, self.human_readable(stat))
 
+        for stat in Stats.all_stats():
+            col = self.write_cell(first_row + 1, col + 1, self.human_readable(stat))
+
+        slot_colors = ["meta", "red", "blue", "yellow"]
+        for color in slot_colors:
+            col = self.write_cell(first_row + 1, col + 1, color)
+
         # data
         for i, (c_name, t_name, b_name, g_name) in enumerate(self._o_names):
             col = self.write_cell(first_row + 2 + i, first_col, c_name)
@@ -744,6 +751,14 @@ class ComparisonSummarySheet(ThematicSheet):
             character = self._combinations[(c_name, t_name, b_name, self._a_names[0], g_name)][3]
             for stat in Stats.all_stats():
                 col = self.write_cell(first_row + i + 2, col + 1, character.get_stat(stat))
+
+            for stat in Stats.all_stats():
+                col = self.write_cell(first_row + i + 2, col + 1, character.get_base_stat(stat))
+
+            all_slots = character.gear.gem_slots.slots
+            for color in slot_colors:
+                n_slots = len([c for slots in all_slots for c in slots.colors if c == color])
+                col = self.write_cell(first_row + i + 2, col + 1, n_slots)
 
 
         # for j, c_name in enumerate(self._c_names):
