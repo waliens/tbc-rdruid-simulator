@@ -76,10 +76,11 @@ def normalize_stat_value(v):
         return int(v)
 
 
-def parse(filename="set.html"):
+def parse(filename="set.html", url=""):
     with open(filename, "r") as file:
         soup = BeautifulSoup(file.read(), 'html.parser')
 
+        player_name = soup.find("title").text.split("-")[1].strip()
         stats = dict()
         tag = soup.select("div[class*=\"set-stats_setStats\"]")[0]
         sections = tag.find_all("section")
@@ -152,8 +153,8 @@ def parse(filename="set.html"):
         set_phase = soup.select("span[class*=\"set-card_phase\"]")[0].text
 
         descriptor = {
-            "name": "{}_{}".format(set_phase.lower().replace(" ", "_"), set_name.lower().replace(" ", "_")),
-            "description": "",
+            "name": "{}_{}_{}".format(set_phase.lower().replace(" ", "_"), player_name.lower(), set_name.lower().replace(" ", "_")),
+            "description": url,
             "level": 70,
             "stats": {s: stats[s] for s in ["strength", "agility", "stamina", "intellect", "spirit", "spell_damage", "bonus_healing", "spell_crit_rating", "spell_haste_rating", "mp5"]},
             "bonuses": bonuses,
@@ -164,5 +165,28 @@ def parse(filename="set.html"):
 
 
 dir = "./html"
-for file in os.listdir(dir):
-    print(parse(os.path.join(dir, file)))
+
+l = [
+    # ("https://seventyupgrades.com/set/mPnHLS3HsALjwr1ZeSgxmh", "3p T4 Ench - Manarius - Seventy Upgrades (04_05_2021 01_41_17).html"),
+    # ("https://seventyupgrades.com/set/vJbNVaHuoFumufZzb7kYEZ", "2p T4 3p Windhawk - Manarius - Seventy Upgrades (04_05_2021 01_41_19).html"),
+    # ("https://seventyupgrades.com/set/ef7CYKysXRE4qTUfaA9J9Z", "2p T4 3p PMC - Manarius - Seventy Upgrades (04_05_2021 01_41_20).html"),
+    # ("https://seventyupgrades.com/set/4JBauw3SowxcgzsdPx5Tdi", "2p T4 2p Whitemend - Manarius - Seventy Upgrades (04_05_2021 01_41_22).html"),
+    # ("https://seventyupgrades.com/set/vV1zuctLqKHKGnC8FJynDX", "2p T4 Tailor 1p PMC 2p WM LW 2p WH - Manarius - Seventy Upgrades (04_05_2021 01_41_24).html"),
+    # ("https://seventyupgrades.com/set/9ijrYdV8DAdqQ1xfMfZ8Hh", "3p PMC 2p Whitemend - Manarius - Seventy Upgrades (04_05_2021 01_41_25).html"),
+    # ("https://seventyupgrades.com/set/fzhK4g2D75taA4KSNuDnse", "8p T3 Classic - Manarius - Seventy Upgrades (04_05_2021 01_49_40).html"),
+    # ("https://seventyupgrades.com/set/bCE5WYPxnLjb7fKdJhvQHy", "8p T2 classic - Manarius - Seventy Upgrades (04_05_2021 01_50_10).html"),
+    # ("https://seventyupgrades.com/set/o3z4p853mW1x61QU2FxhPV", "T4 Tailor - Druid - Seventy Upgrades (04_05_2021 01_41_30).html"),
+    # ("https://seventyupgrades.com/set/ubPGejqfkakv4TaJajaYa2", "T4 LW - Druid - Seventy Upgrades (04_05_2021 01_41_32).html"),
+    # ("https://seventyupgrades.com/set/fCAB7ThwoutabqBUKBC38E", "T4 No Craft - Druid - Seventy Upgrades (04_05_2021 01_41_34).html"),
+    # ("https://seventyupgrades.com/set/iQdupV181SV59tA5JWn2MY", "T4 PMC - Druid - Seventy Upgrades (04_05_2021 01_41_36).html"),
+    # ("https://seventyupgrades.com/set/iXkwdz184rwRXPxXH3BaDf", "T4 LW_Tailor - Druid - Seventy Upgrades (04_05_2021 01_41_38).html"),
+    # ("https://seventyupgrades.com/set/s487BqHyjE3ReAaEAyXTiC", "T4 LW - Druid - Seventy Upgrades (04_05_2021 01_41_32).html"),
+    # ("https://seventyupgrades.com/set/ubPGejqfkakv4TaJajaYa2", "T4_LW - Druid - Seventy Upgrades (04_05_2021 01_41_40).html"),
+    # ("https://seventyupgrades.com/set/4BwWqU8xMUwFjwB2kFB4MY", "T5 Tailor - Druid - Seventy Upgrades (04_05_2021 02_05_17).html"),
+    # ("https://seventyupgrades.com/set/eN4DP3v6oLJWrJ3yXjcvAN", "T5 - Druid - Seventy Upgrades (04_05_2021 02_05_20).html"),
+    ("https://seventyupgrades.com/set/a8E5fLPk6pUWaYFn3cmfdB", "T5 PMC - Druid - Seventy Upgrades (04_05_2021 18_12_32).html"),
+    # ("https://seventyupgrades.com/set/dcbPo56tk7MxnU5LRuwpK4", "Ph5 HT Memes - Eliza - Seventy Upgrades (04_05_2021 02_09_25).html")
+]
+
+for url, name in l:
+    print(parse(os.path.join(dir, name), url=url))
