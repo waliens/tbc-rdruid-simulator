@@ -39,6 +39,10 @@ class ItemGemSlots(object):
         self._bonus = bonus
 
     @property
+    def colors(self):
+        return self._slots
+
+    @property
     def bonus_active(self):
         return all([(Gem.match_colors(s, g)) for g, s in zip(self._gems, self._slots)])
 

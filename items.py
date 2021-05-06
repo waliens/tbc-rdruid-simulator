@@ -47,6 +47,10 @@ class Gear(object):
         return self._spell_modifiers.apply((spell_name, spell_part), base_value, character,
                                            spell_name=spell_name, spell_part=spell_part, **context)
 
+    @property
+    def gem_slots(self):
+        return self._all_slots
+
 
 def get_mana_cost_multiplicative_ratio(char, spell):
     buffs = char.spell_effects._multiplicative.get((spell, HealParts.MANA_COST))

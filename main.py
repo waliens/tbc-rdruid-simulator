@@ -33,7 +33,8 @@ def main(argv):
     parser.add_argument("-g", "--graphs", action="store_true", dest="graphs")
     parser.add_argument("-s", "--spreadsheets", action="store_true", dest="spreadsheets")
     parser.add_argument("-o", "--out_folder", dest="out_folder", default="./generated")
-    parser.set_defaults(graphs=False, spreadsheet=False)
+    parser.add_argument("--gems", dest="gems", action="store_true")
+    parser.set_defaults(graphs=False, spreadsheet=False, gems=False)
     args, _ = parser.parse_known_args(argv)
 
     os.makedirs(args.out_folder, exist_ok=True)
@@ -61,6 +62,9 @@ def main(argv):
             heroic=gems_policy["heroic"],
             jewelcrafting=gems_policy["jewelcrafting"]
         )
+        if args.gems:
+            for item_slots in gem_slots.slots:
+                print(", ".join(["{}:{}".format(c, g.name) for c, g in zip(item_slots.colors, item_slots.gems)]))
         character = DruidCharacter(
             stats=charac_info["stats"],
             talents=talents,
