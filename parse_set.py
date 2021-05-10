@@ -184,8 +184,15 @@ l = [
     # ("https://seventyupgrades.com/set/ubPGejqfkakv4TaJajaYa2", "T4_LW - Druid - Seventy Upgrades (04_05_2021 01_41_40).html"),
     # ("https://seventyupgrades.com/set/4BwWqU8xMUwFjwB2kFB4MY", "T5 Tailor - Druid - Seventy Upgrades (04_05_2021 02_05_17).html"),
     # ("https://seventyupgrades.com/set/eN4DP3v6oLJWrJ3yXjcvAN", "T5 - Druid - Seventy Upgrades (04_05_2021 02_05_20).html"),
-    ("https://seventyupgrades.com/set/a8E5fLPk6pUWaYFn3cmfdB", "T5 PMC - Druid - Seventy Upgrades (04_05_2021 18_12_32).html"),
-    # ("https://seventyupgrades.com/set/dcbPo56tk7MxnU5LRuwpK4", "Ph5 HT Memes - Eliza - Seventy Upgrades (04_05_2021 02_09_25).html")
+    # ("https://seventyupgrades.com/set/a8E5fLPk6pUWaYFn3cmfdB", "T5 PMC - Druid - Seventy Upgrades (04_05_2021 18_12_32).html"),
+    # ("https://seventyupgrades.com/set/dcbPo56tk7MxnU5LRuwpK4", "Ph5 HT Memes - Eliza - Seventy Upgrades (04_05_2021 02_09_25).html"),
+    # ("https://seventyupgrades.com/set/diCncVKKJyZuGhpVpnaweZ", "2p T5 w_ Chest Tailor 2p WM Alch - Manarius - Seventy Upgrades (07_05_2021 14_44_47).html"),
+    # ("https://seventyupgrades.com/set/pNSvru2zheLv6CJgpT5GHg", "2p T5 w_ Gloves Tailor 2p WM Alch - Manarius - Seventy Upgrades (07_05_2021 14_44_57).html"),
+    # ("https://seventyupgrades.com/set/5hzS8dY9AvvdVfPiLM3bTD", "Full Tailor Alch - Manarius - Seventy Upgrades (07_05_2021 14_44_54).html"),
+    # ("https://seventyupgrades.com/set/63DfBdGNmokxXkaHLrSUo", "Full Tailor Ench - Manarius - Seventy Upgrades (07_05_2021 14_44_55).html"),
+    # ("https://seventyupgrades.com/set/peqadEif8J7MY1kABQcAAq", "T5 Alch Ench - Manarius - Seventy Upgrades (07_05_2021 14_44_46).html"),
+    # ("https://seventyupgrades.com/set/uyuMBCQZytMWkmMeWe1P92", "T5 Ench LW - Manarius - Seventy Upgrades (07_05_2021 14_44_54).html"),
+    ("https://seventyupgrades.com/set/3nHX95D9xW8EoCshi12LPk", "Tailor WM Alch - Manarius - Seventy Upgrades (09_05_2021 02_09_21).html")
 ]
 
 for url, name in l:

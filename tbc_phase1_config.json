@@ -432,7 +432,131 @@
         {"name": "earthsoul_leggings", "slots": ["yellow", "blue", "blue"], "bonus": [{"stat": "spirit", "value": 4}]},
         {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
       ]
-    }
+    },
+
+    {
+      "bonuses": [
+        "glimmering_naaru_sliver",
+        "memento_of_tyrande",
+        "idol_of_the_avian_heart"
+      ],
+      "description": "https://seventyupgrades.com/set/dcbPo56tk7MxnU5LRuwpK4",
+      "gems": [
+        {
+          "bonus": [
+            {
+              "stat": "spirit",
+              "value": 3
+            }
+          ],
+          "name": "leather_gauntlets_of_the_sun",
+          "slots": [
+            "blue",
+            "red"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "mp5",
+              "value": 2
+            }
+          ],
+          "name": "robe_of_eternal_light",
+          "slots": [
+            "blue",
+            "blue",
+            "blue"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "mp5",
+              "value": 2
+            }
+          ],
+          "name": "cowl_of_light's_purity",
+          "slots": [
+            "meta",
+            "red"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "mp5",
+              "value": 1
+            },
+            {
+              "stat": "mana",
+              "value": 1
+            }
+          ],
+          "name": "hammer_of_sanctification",
+          "slots": [
+            "blue"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "spirit",
+              "value": 4
+            }
+          ],
+          "name": "pantaloons_of_calming_strife",
+          "slots": [
+            "red",
+            "yellow",
+            "blue"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "mp5",
+              "value": 1
+            },
+            {
+              "stat": "mana",
+              "value": 1
+            }
+          ],
+          "name": "shawl_of_wonderment",
+          "slots": [
+            "red",
+            "blue"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "spirit",
+              "value": 2
+            }
+          ],
+          "name": "thunderheart_boots",
+          "slots": [
+            "red"
+          ]
+        }
+      ],
+      "level": 70,
+      "name": "phase_5_eliza_ph5_ht_memes",
+      "stats": {
+        "agility": 81,
+        "bonus_healing": 2409,
+        "intellect": 488,
+        "mp5": 134,
+        "spell_crit_rating": 25,
+        "spell_damage": 874,
+        "spell_haste_rating": 362,
+        "spirit": 273,
+        "stamina": 510,
+        "strength": 79
+      }
+
   ],
   "rotations": [
     {
