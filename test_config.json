@@ -1,0 +1,173 @@
+{
+  "fight_duration": 300,
+  "characters": [
+    {
+      "bonuses": [
+        "idol_of_the_emerald_queen",
+        "lower_city_prayer_book",
+        "t4_malorne_raiment_2p"
+      ],
+      "description": "https://seventyupgrades.com/set/mPnHLS3HsALjwr1ZeSgxmh",
+      "gems": [
+        {
+          "bonus": [
+            {
+              "stat": "spirit",
+              "value": 3
+            }
+          ],
+          "name": "shoulderguards_of_malorne",
+          "slots": [
+            "blue",
+            "blue"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "intellect",
+              "value": 4
+            }
+          ],
+          "name": "crown_of_malorne",
+          "slots": [
+            "red",
+            "meta"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "spirit",
+              "value": 4
+            }
+          ],
+          "name": "earthsoul_leggings",
+          "slots": [
+            "yellow",
+            "blue",
+            "blue"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "bonus_healing",
+              "value": 7
+            },
+            {
+              "stat": "spell_damage",
+              "value": 3
+            }
+          ],
+          "name": "forestlord_striders",
+          "slots": [
+            "blue",
+            "blue"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "spirit",
+              "value": 3
+            }
+          ],
+          "name": "mitts_of_the_treemender",
+          "slots": [
+            "blue",
+            "yellow"
+          ]
+        },
+        {
+          "bonus": [
+            {
+              "stat": "bonus_healing",
+              "value": 9
+            },
+            {
+              "stat": "spell_damage",
+              "value": 3
+            }
+          ],
+          "name": "chestguard_of_malorne",
+          "slots": [
+            "yellow",
+            "blue",
+            "blue"
+          ]
+        }
+      ],
+      "level": 70,
+      "name": "phase_1_manarius_3p_t4_ench",
+      "stats": {
+        "agility": 75,
+        "bonus_healing": 1674,
+        "intellect": 432,
+        "mp5": 72,
+        "spell_crit_rating": 0,
+        "spell_damage": 554,
+        "spell_haste_rating": 0,
+        "spirit": 412,
+        "stamina": 356,
+        "strength": 73
+      }
+    }
+  ],
+  "rotations": [
+    {
+      "name": "1t_lb_rj_rg",
+      "description": "Keeping all hots rolling on one target.",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
+        { "spell": "rejuvenation", "target": "tank" },
+        { "spell": "regrowth", "target": "tank" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    }
+  ],
+  "buffs": [
+    {
+      "name": "full_buffs",
+      "active": [
+        "gift_of_the_wild_tal",
+        "divine_spirit_tal",
+        "arcane_intellect",
+        "benediction_of_king",
+        "benediction_of_wisdom_tal",
+        "mana_tide_totem",
+        "mana_spring_totem",
+        "wrath_of_air_totem",
+        "elixir_of_healing_power",
+        "elixir_of_major_mageblood",
+        "golden_fish_sticks",
+        "tree_of_life_mana",
+        "super_mana_pot_rota",
+        "demonic_rune_rota"
+      ]
+    }
+  ],
+  "talents": [
+    {
+      "name": "deep_resto",
+      "points": {
+        "naturalist": 0,
+        "gift_of_nature": 5,
+        "tranquil_spirit": 5,
+        "improved_rejuvenation": 3,
+        "empowered_rejuvenation": 5,
+        "living_spirit": 3,
+        "empowered_touch": 0,
+        "improved_regrowth": 5,
+        "intensity": 3,
+        "tree_of_life": 1
+      }
+    }
+  ],
+  "gems_policy": [
+    {"policy":"stack_healing", "heroic": true, "jewelcrafting": false}
+  ]
+}
+
+
