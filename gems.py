@@ -105,21 +105,35 @@ class GemSlotsCollection(object):
 
     @property
     def modifiers(self):
+        meta_at = [(i, j) for i, item_slots in enumerate(self._item_gem_slots) for j, g in enumerate(item_slots.gems) if g.color == Gem.META]
         all_modifiers = [item_slots.modifiers for item_slots in self._item_gem_slots]
+        if len(meta_at) == 0:
+            return StatsModifierArray.merge(*all_modifiers)
+
+        # count gems
+        red_count, blue_count, yellow_count = 0, 0, 0
+        for gem in self.gems:
+            if gem.color in {Gem.RED, Gem.ORANGE, Gem.PURPLE, Gem.PRISMATIC}:
+                red_count += 1
+            if gem.color in {Gem.BLUE, Gem.GREEN, Gem.PURPLE, Gem.PRISMATIC}:
+                blue_count += 1
+            if gem.color in {Gem.YELLOW, Gem.ORANGE, Gem.GREEN, Gem.PRISMATIC}:
+                yellow_count += 1
+
+        keep_meta = True
         if "bracing_earthstorm_diamond" in {g.name for g in self.gems}:
-            # count red and blue
-            red_count, blue_count = 0, 0
-            for gem in self.gems:
-                if gem.color in {Gem.RED, Gem.ORANGE, Gem.PURPLE, Gem.PRISMATIC}:
-                    red_count += 1
-                if gem.color in {Gem.BLUE, Gem.GREEN, Gem.PURPLE, Gem.PRISMATIC}:
-                    blue_count += 1
-            if red_count <= blue_count:
-                modifier = ConstantStatsModifier("meta_malus", _type=StatsModifier.TYPE_ADDITIVE,
-                                                 effects=[(Stats.BONUS_HEALING, -26), (Stats.SPELL_DAMAGE, -9)],
-                                                 cond_cm_group="Gem")
-                all_modifiers.append(StatsModifierArray([modifier]))
-        return StatsModifierArray.merge(*all_modifiers)
+            keep_meta = red_count > blue_count
+        elif "insightful_earthstorm_diamond" in {g.name for g in self.gems}:
+            keep_meta = yellow_count >= 2 and red_count >= 2 and blue_count >= 2
+
+        if keep_meta:
+            return StatsModifierArray.merge(*all_modifiers)
+        return StatsModifierArray([
+            gem
+            for i, item_slots in enumerate(self._item_gem_slots)
+            for j, gem in enumerate(item_slots.gems)
+            if gem.color != Gem.META
+        ])
 
 
 STRATEGY_MATCHING = "match_slots"
@@ -148,6 +162,11 @@ def optimize_slots(slots: GemSlotsCollection, strategy=STRATEGY_MATCHING, heroic
         prio_gems = ["bracing_earthstorm_diamond"]
 
     gem_list = sorted(gem_set, key=sort_key)
+
+    # can never match bh meta gem with matching strategy
+    if strategy == STRATEGY_MATCHING and gem_list[0] == "bracing_earthstorm_diamond":
+        gem_list[0] = "insightful_earthstorm_diamond"
+
     for gem_name in (prio_gems + gem_list):
         gem = ALL_GEMS[gem_name]
         while slots.open_slots > 0 and (gem_name not in UNIQUE or gem_name not in used):
@@ -164,6 +183,7 @@ def optimize_slots(slots: GemSlotsCollection, strategy=STRATEGY_MATCHING, heroic
 _gems = [
     # bh - meta
     Gem("bracing_earthstorm_diamond", [(Stats.BONUS_HEALING, 26), (Stats.SPELL_DAMAGE, 9)], Gem.META),
+    Gem("insightful_earthstorm_diamond", [(Stats.INTELLECT, 12), (Stats.MP5, 16)], Gem.META),
     # bh - rouge
     Gem("kailees_rose", [(Stats.BONUS_HEALING, 26), (Stats.SPELL_DAMAGE, 9)], Gem.RED),
     Gem("teardrop_living_ruby", [(Stats.BONUS_HEALING, 18), (Stats.SPELL_DAMAGE, 6)], Gem.RED),
@@ -188,7 +208,7 @@ _gems = [
 
 HEROIC = {"imperial_tanzanite", "royal_tanzanite", "luminous_fire_opal", "iridescent_fire_opal"}
 JEWELCRAFTING = {"kailees_rose", "luminous_pyrestone"}
-UNIQUE = {"bracing_earthstorm_diamond"}.union(HEROIC, JEWELCRAFTING)
+UNIQUE = {"bracing_earthstorm_diamond", "insightful_earthstorm_diamond"}.union(HEROIC, JEWELCRAFTING)
 
 ALL_GEMS = {g.name: g for g in _gems}
 
