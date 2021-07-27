@@ -125,7 +125,7 @@ _spell_buffs = [
     (Buff.TREE_OF_LIFE_MANA, StatsModifier.TYPE_MULTIPLICATIVE,
         [(spell, HealParts.MANA_COST) for spell in ["rejuvenation", "regrowth", "lifebloom", "tranquility"]],
         [(lambda c, **ctxt: (0.8 if c.talents.get(("tree_of_life", 1, "restoration")) > 0 else 1.0)) for _ in range(4)],
-        ["IF(#Talents.tree_of_life#; 1.0; 0.8)" for _ in range(4)])
+        ["IF(#Talents.tree_of_life#; 0.8; 1.0)" for _ in range(4)])
 ]
 
 ALL_STATS_BUFFS = dict()
