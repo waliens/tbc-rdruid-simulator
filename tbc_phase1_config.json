@@ -433,7 +433,6 @@
         {"name": "forestlord_striders", "slots": ["blue", "blue"], "bonus": [{"stat": "bonus_healing", "value": 7}, {"stat": "spell_damage", "value": 3}]}
       ]
     },
-
     {
       "bonuses": [
         "glimmering_naaru_sliver",
@@ -556,7 +555,7 @@
         "stamina": 510,
         "strength": 79
       }
-
+    }
   ],
   "rotations": [
     {
