@@ -150,6 +150,9 @@ class Event(object):
     def duration(self, new_duration):
         self._duration = new_duration
 
+    def __repr__(self):
+        return "{}(start={},end={},duration={})".format(type(self), self.start, self.end, self.duration)
+
 
 class SpellEvent(Event):
     def __init__(self, start, spell, stacks=1):
@@ -326,6 +329,15 @@ class Timeline(object):
             return None
         event = self._events[index - 1]
         return event if event.start <= at else None
+
+    def events_starting_after(self, at, n=-1):
+        index = self._index_event_before(at)
+        while self._events[index].start < at:
+            index += 1
+        if n == -1:
+            return self._events[index:]
+        else:
+            return self._events[index:index + n]
 
     @property
     def name(self):
@@ -662,13 +674,34 @@ class Rotation(object):
         return stats
 
 
-def make_on_use_timelines(duration, items):
+def make_on_use_timelines(duration, items, cast_timeline):
     timelines = list()
     for item in items:
         timeline = Timeline(item.name)
         t = 0
-        while t < duration:
-            timeline.add_on_use_event(OnUseEvent(t, min(t + item.duration, duration) - t, item))
+        while t <= duration:
+            # resolve on use
+            if item.stacks == 0:
+                timeline.add_on_use_event(OnUseEvent(t, min(t + item.duration, duration) - t, item))
+            else:
+                current_stacks = item.stacks
+                remaining_events = cast_timeline.events_starting_after(t)
+                current_event_idx = 0
+                actual_duration = 0
+                while current_stacks > 0 and current_event_idx < len(remaining_events) \
+                        and remaining_events[current_event_idx].end - t < item.duration:
+                    current_stacks -= 1
+                    current_event = remaining_events[current_event_idx]
+                    actual_duration += current_event.end - (t + actual_duration)
+                    # if there is a cast and other events, check if following event benefits also of the stack
+                    if remaining_events[current_event_idx].duration > 0 and current_event_idx + 1 < len(remaining_events):
+                        next_event = remaining_events[current_event_idx + 1]
+                        if next_event.end - current_event.end < 1e-3:
+                            current_event_idx += 1
+                            actual_duration += next_event.end - (t + actual_duration)
+                    actual_duration += 1e-6  # to avoid weird equality issues
+                    current_event_idx += 1
+                timeline.add_on_use_event(OnUseEvent(t, min(t + actual_duration, duration) - t, item))
             t += item.cooldown
         timelines.append(timeline)
     return timelines

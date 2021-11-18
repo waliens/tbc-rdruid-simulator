@@ -76,7 +76,7 @@ def main(argv):
         comb_name = "_".join([charac_info["name"], talents.name, stats_buffs.name, assignments.name, gems_policy_str])
         rotation = Rotation(assignments)
         rotation.optimal_rotation(character, _in["fight_duration"])
-        on_use_timelines = make_on_use_timelines(_in["fight_duration"], [ALL_ON_USE_ITEMS[k] for k in charac_info.get("on_use", [])])
+        on_use_timelines = make_on_use_timelines(_in["fight_duration"], [ALL_ON_USE_ITEMS[k] for k in charac_info.get("on_use", [])], rotation.cast_timeline)
         stats = rotation.stats(character, start=0, end=_in["fight_duration"], on_use=on_use_timelines)
         combinations.append((charac_info["name"], charac_info["description"], character, assignments, rotation, stats, gems_policy))
 
