@@ -257,10 +257,24 @@ def get_items(names):
 
 
 class OnUseItemBonus(ItemBonus):
-    def __init__(self, name, duration, cooldown, spell_effects=None, stats_effects=None):
+    def __init__(self, name, duration, cooldown, stacks=0, spell_effects=None, stats_effects=None):
+        """
+        Params:
+        -------
+        name: str
+        duration: float|int
+            in seconds
+        cooldown: float|int
+            in seconds
+        stacks: int
+            The number of usage of the buff, 0 if usable until fading
+        spell_effects: StatsModifierArray
+        stats_effects: StatsModifierArray
+        """
         super().__init__(name, spell_effects=spell_effects, stats_effects=stats_effects)
         self._duration = duration
         self._cooldown = cooldown
+        self._stacks = stacks
 
     @property
     def duration(self):
@@ -270,17 +284,23 @@ class OnUseItemBonus(ItemBonus):
     def cooldown(self):
         return self._cooldown
 
+    @property
+    def stacks(self):
+        return self._stacks
 
 
 _on_use_items = [
     OnUseItemBonus("direbrew_hops", 20, 120, stats_effects=StatsModifierArray([
-        ConstantStatsModifier("direbrew_hops_bh", effects=[(Stats.BONUS_HEALING, 297), (Stats.BONUS_HEALING, 99)], _type=StatsModifier.TYPE_ADDITIVE)
+        ConstantStatsModifier("direbrew_hops_bh", effects=[(Stats.BONUS_HEALING, 297), (Stats.SPELL_DAMAGE, 99)], _type=StatsModifier.TYPE_ADDITIVE)
     ])),
     OnUseItemBonus("essence_of_the_martyr", 20, 120,  stats_effects=StatsModifierArray([
-        ConstantStatsModifier("essence_of_the_martyr_bh", effects=[(Stats.BONUS_HEALING, 297), (Stats.BONUS_HEALING, 99)], _type=StatsModifier.TYPE_ADDITIVE)
+        ConstantStatsModifier("essence_of_the_martyr_bh", effects=[(Stats.BONUS_HEALING, 297), (Stats.SPELL_DAMAGE, 99)], _type=StatsModifier.TYPE_ADDITIVE)
     ])),
-    OnUseItemBonus("oshugun_relic", 20, 120,  stats_effects=StatsModifierArray([
-        ConstantStatsModifier("oshugun_relic_bh", effects=[(Stats.BONUS_HEALING, 213), (Stats.BONUS_HEALING, 71)], _type=StatsModifier.TYPE_ADDITIVE)
+    OnUseItemBonus("oshugun_relic", 20, 120, stats_effects=StatsModifierArray([
+        ConstantStatsModifier("oshugun_relic_bh", effects=[(Stats.BONUS_HEALING, 213), (Stats.SPELL_DAMAGE, 71)], _type=StatsModifier.TYPE_ADDITIVE)
+    ])),
+    OnUseItemBonus("eye_of_the_dead", 30, 120, stacks=5, stats_effects=StatsModifierArray([
+        ConstantStatsModifier("oshugun_relic_bh", effects=[(Stats.BONUS_HEALING, 450), (Stats.SPELL_DAMAGE, 150)], _type=StatsModifier.TYPE_ADDITIVE)
     ]))
 ]
 

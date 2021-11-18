@@ -55,6 +55,8 @@ def plot_timeline(timeline, y, maxx, color, height=2., eps=0.03):
                 path = 'images/essence_of_the_martyr.jpg'
             elif event.item.name == "oshugun_relic":
                 path = 'images/oshugun_relic.jpg'
+            elif event.item.name == "eye_of_the_dead":
+                path = 'images/eye_of_the_dead.jpg'
 
         if path is not None:
             spell_img = mpimg.imread(path)
