@@ -76,7 +76,7 @@
       }
     ],
     "level": 70,
-    "name": "phase_3_manarius_bis_bh",
+    "name": "phase_3_manarius_bis_bh_hops_memento",
     "stats": {
       "agility": 75,
       "bonus_healing": 2115,
@@ -88,6 +88,270 @@
       "spirit": 384,
       "stamina": 537,
       "strength": 73
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen",
+      "memento_of_tyrande",
+      "lower_city_prayer_book"
+    ],
+    "description": "https://seventyupgrades.com/set/7YWAXTCuFD9Bx9Ckpa5SzN",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_manarius_bis_bh_lcpb_memento",
+    "stats": {
+      "bonus_healing": 2101,
+      "spell_damage": 692,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 37,
+      "mp5": 74,
+      "agility": 75,
+      "strength": 73,
+      "stamina": 537,
+      "intellect": 463,
+      "spirit": 384
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops", "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/fbq6QXMi6npWvtG2Knn1J2",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_manarius_bis_bh_hops_eotm",
+    "stats": {
+      "bonus_healing": 2081,
+      "spell_damage": 687,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 37,
+      "mp5": 74,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 537,
+      "intellect": 463,
+      "spirit": 384
+    }
+  },
+    {
+     "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops", "eye_of_the_dead"
+    ],
+    "description": "https://seventyupgrades.com/set/fbq6QXMi6npWvtG2Knn1J2",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_manarius_bis_bh_hops_eotd",
+    "stats": {
+      "bonus_healing": 2067,
+      "spell_damage": 683,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 37,
+      "mp5": 74,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 537,
+      "intellect": 463,
+      "spirit": 384
     }
   },
     {
@@ -1216,6 +1480,9 @@
         "t3_dreamwalker_raiment_4p",
         "t3_dreamwalker_raiment_8p"
       ],
+      "on_use": [
+        "eye_of_the_dead"
+      ],
       "description": "https://seventyupgrades.com/set/fzhK4g2D75taA4KSNuDnse",
       "gems": [],
       "level": 70,
@@ -1238,6 +1505,9 @@
         "idol_of_rejuvenation",
         "t2_stormrage_raiment_5p",
         "t2_stormrage_raiment_8p"
+      ],
+      "on_use": [
+        "eye_of_the_dead"
       ],
       "description": "https://seventyupgrades.com/set/bCE5WYPxnLjb7fKdJhvQHy",
       "gems": [],
@@ -3343,8 +3613,8 @@
       "description": "Keeping all hots rolling on one target.",
       "assignments": [
         { "spell": "lifebloom", "allow_fade": false, "target": "tank" },
-        { "spell": "rejuvenation", "target": "tank" },
-        { "spell": "regrowth", "target": "tank" }
+        { "spell": "regrowth", "target": "tank" },
+        { "spell": "rejuvenation", "target": "tank" }
       ],
       "buffs": {},
       "filler": { "spell": "rejuvenation" }
@@ -3355,10 +3625,10 @@
       "assignments": [
         { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
         { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
-        { "spell": "rejuvenation", "target": "tank1" },
-        { "spell": "rejuvenation", "target": "tank2" },
         { "spell": "regrowth", "target": "tank1" },
-        { "spell": "regrowth", "target": "tank2" }
+        { "spell": "rejuvenation", "target": "tank1" },
+        { "spell": "regrowth", "target": "tank2" },
+        { "spell": "rejuvenation", "target": "tank2" }
       ],
       "buffs": {},
       "filler": { "spell": "rejuvenation" }
