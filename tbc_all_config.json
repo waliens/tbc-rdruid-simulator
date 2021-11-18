@@ -3,6 +3,95 @@
   "characters": [
     {
     "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/7FubzfyZsLkNUv9WRUsoFA",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_the_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_5gcd_kazzak_lightfathom",
+    "stats": {
+      "bonus_healing": 2062,
+      "spell_damage": 680,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 129,
+      "mp5": 71,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 496,
+      "intellect": 453,
+      "spirit": 327
+    }
+  },
+    {
+    "bonuses": [
       "idol_of_the_emerald_queen",
       "memento_of_tyrande"
     ], "on_use": [
@@ -79,11 +168,11 @@
     "name": "phase_3_manarius_bis_bh_hops_memento",
     "stats": {
       "agility": 75,
-      "bonus_healing": 2115,
+      "bonus_healing": 2117,
       "intellect": 463,
-      "mp5": 74,
+      "mp5": 73,
       "spell_crit_rating": 0,
-      "spell_damage": 696,
+      "spell_damage": 698,
       "spell_haste_rating": 37,
       "spirit": 384,
       "stamina": 537,
@@ -166,8 +255,8 @@
     "level": 70,
     "name": "phase_3_manarius_bis_bh_lcpb_memento",
     "stats": {
-      "bonus_healing": 2101,
-      "spell_damage": 692,
+      "bonus_healing": 2103,
+      "spell_damage": 694,
       "spell_crit_rating": 0,
       "spell_haste_rating": 37,
       "mp5": 74,
@@ -254,7 +343,7 @@
     "level": 70,
     "name": "phase_3_manarius_bis_bh_hops_eotm",
     "stats": {
-      "bonus_healing": 2081,
+      "bonus_healing": 2083,
       "spell_damage": 687,
       "spell_crit_rating": 0,
       "spell_haste_rating": 37,
@@ -342,8 +431,8 @@
     "level": 70,
     "name": "phase_3_manarius_bis_bh_hops_eotd",
     "stats": {
-      "bonus_healing": 2067,
-      "spell_damage": 683,
+      "bonus_healing": 2069,
+      "spell_damage": 682,
       "spell_crit_rating": 0,
       "spell_haste_rating": 37,
       "mp5": 74,
@@ -3671,6 +3760,24 @@
       ],
       "buffs": {},
       "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "rj_rank13",
+      "description": "Rejuv rank 13 spam.",
+      "assignments": [
+        { "spell": "rejuvenation", "rank": 13, "allow_fade": true, "target": "target" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation", "rank": 13 }
+    },
+    {
+      "name": "rj_rank12",
+      "description": "Rejuv rank 12 spam.",
+      "assignments": [
+        { "spell": "rejuvenation", "rank": 12, "allow_fade": true, "target": "target" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation", "rank": 12 }
     },
     {
       "name": "ht_rank11",
