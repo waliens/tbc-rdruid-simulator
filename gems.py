@@ -186,6 +186,7 @@ _gems = [
     Gem("insightful_earthstorm_diamond", [(Stats.INTELLECT, 12), (Stats.MP5, 16)], Gem.META),
     # bh - rouge
     Gem("kailees_rose", [(Stats.BONUS_HEALING, 26), (Stats.SPELL_DAMAGE, 9)], Gem.RED),
+    Gem("teardrop_crimson_spinel", [(Stats.BONUS_HEALING, 22), (Stats.SPELL_DAMAGE, 8)], Gem.RED),
     Gem("teardrop_living_ruby", [(Stats.BONUS_HEALING, 18), (Stats.SPELL_DAMAGE, 6)], Gem.RED),
     # bh - orange
     Gem("luminous_pyrestone", [(Stats.BONUS_HEALING, 11), (Stats.SPELL_DAMAGE, 4), (Stats.INTELLECT, 5)], Gem.ORANGE),
