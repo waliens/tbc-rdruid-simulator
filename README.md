@@ -179,6 +179,9 @@ For generating stats about a rotation, the simulator needs to know stats of one 
   "bonuses": [
     "idol_of_the_emerald_queen"
   ],
+  "on_use": [
+    "direbrew_hops"
+  ],
   "stats": {
     "intellect": 395,
     "strength": 77,
@@ -197,7 +200,8 @@ For generating stats about a rotation, the simulator needs to know stats of one 
 }
 ```
 
-Bonuses corresponds to gear or set bonuses that are not counted directly into stats (spell specific bonus, on use).
+Bonuses corresponds to gear or set bonuses that are not counted directly into stats (spell specific bonus, on use). On-use bonus
+healing bonuses are also simulated (items triggering bh bonus should be listed in character config under the key `"on_use"`).
 
 Currently supported bonuses are:
 
@@ -223,6 +227,7 @@ Currently supported bonuses are:
 * `"t6_thunderheart_raiment_4p"`: +10% healing on healing touch
 * `"idol_of_budding_life"`: -36 mana for casting rejuv
 * `"idol_of_the_crescent_goddess"`: -65 mana for casting regrowth
+* `"memento_of_tyrande"`: 17 mp5 (see below)
 
 In the future, I hope to be able to generate such information from websites such as seventyupgrades. 
 
