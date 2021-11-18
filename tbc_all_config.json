@@ -1,5 +1,5 @@
 {
-  "fight_duration": 300,
+  "fight_duration": 600,
   "characters": [
     {
     "bonuses": [
@@ -88,6 +88,451 @@
       "spirit": 384,
       "stamina": 537,
       "strength": 73
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/5ZtzdgmYjSyPc73Meh4WNm",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_4gcd_nokazzak_apostle_tailoring",
+    "stats": {
+      "agility": 75,
+      "bonus_healing": 2036,
+      "intellect": 478,
+      "mp5": 98,
+      "spell_crit_rating": 0,
+      "spell_damage": 671,
+      "spell_haste_rating": 37,
+      "spirit": 338,
+      "stamina": 518,
+      "strength": 73
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/3dnJRfcrGRgUcPduMFc8Qh",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "gold_leaf_wildboots",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_4gcd_kazzak_lightfathom_tailoring",
+    "stats": {
+      "bonus_healing": 2083,
+      "spell_damage": 687,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 37,
+      "mp5": 86,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 461,
+      "intellect": 451,
+      "spirit": 357
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/cJg8KqtZvQ6RLUcAmGRccN",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_the_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_4gcd_nokazzak_lightfathom_tailoring",
+    "stats": {
+      "bonus_healing": 2070,
+      "spell_damage": 683,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 37,
+      "mp5": 86,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 508,
+      "intellect": 456,
+      "spirit": 363
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/7FubzfyZsLkNUv9WRUsoFA",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_the_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_5gcd_nokazzak_lightfathom",
+    "stats": {
+      "bonus_healing": 2049,
+      "spell_damage": 676,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 129,
+      "mp5": 71,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 543,
+      "intellect": 458,
+      "spirit": 333
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/92SRzotsjLDMhUVeRMTTBW",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_the_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_5gcd_nokazzak_apostle",
+    "stats": {
+      "bonus_healing": 2015,
+      "spell_damage": 664,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 129,
+      "mp5": 83,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 553,
+      "intellect": 480,
+      "spirit": 308
     }
   },
     {
