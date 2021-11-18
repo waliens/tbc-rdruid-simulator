@@ -332,7 +332,7 @@ class Timeline(object):
 
     def events_starting_after(self, at, n=-1):
         index = self._index_event_before(at)
-        while self._events[index].start < at:
+        while index < len(self) and self._events[index].start < at:
             index += 1
         if n == -1:
             return self._events[index:]
