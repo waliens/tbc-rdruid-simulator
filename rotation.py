@@ -164,39 +164,78 @@ class SpellEvent(Event):
     def from_spell(spell, start):
         return SpellEvent(start, spell, stacks=1)
 
-    def get_heals(self, start, end, character):
+    def _on_use_active_at_cast(self, on_use=None):
+        if on_use is None:
+            return []
+        return [on_use_timeline.event_at(self.start)
+                for on_use_timeline in on_use if on_use_timeline.is_up_at(self.start)]
+
+    @classmethod
+    def _on_use_buffed_characters(cls, character, active_at_cast_on_use_events):
+        # hot's capture the buffs when cast, ticks after the end of on use duration also benefit from the effect
+        # -> no filtering
+        return BuffedCharacter(
+            character,
+            spell_buffs=StatsModifierArray([b for event in active_at_cast_on_use_events for b in event.item.spell_effects.buffs]),
+            stats_buffs=StatsModifierArray([b for event in active_at_cast_on_use_events for b in event.item.stats_effects.buffs]))
+
+    def _hot_with_on_use(self, character, start, end, on_use=None):
+        active_at_cast = self._on_use_active_at_cast(on_use=on_use)
+        ticks = list()
+        for tick_nb in range(self.spell.n_ticks(character)):
+            t = self.start + tick_nb * self.spell.tick_period(character)
+            if t < start:
+                continue
+            if t > end:
+                break
+            character_at_tick = self._on_use_buffed_characters(character, active_at_cast)
+            if self.spell.type == HealingSpell.TYPE_HOT:
+                tick = self.spell.get_healing(character_at_tick)
+            elif self.spell.type == HealingSpell.TYPE_HYBRID:
+                _, tick = self.spell.get_healing(character_at_tick)
+            else:
+                raise ValueError("non hot spell cannot be applied on_use with hots")
+
+            ticks.append((t, tick * self.stacks))
+        return ticks
+
+    def _direct_with_on_use(self, character, on_use=None):
+        active_at_cast = self._on_use_active_at_cast(on_use=on_use)
+        character_at_tick = self._on_use_buffed_characters(character, active_at_cast)
+        if self.spell.type == HealingSpell.TYPE_DIRECT:
+            direct = self.spell.get_healing(character_at_tick)
+        elif self.spell.type == HealingSpell.TYPE_HYBRID:
+            direct, _ = self.spell.get_healing(character_at_tick)
+        else:
+            raise ValueError("non hot spell cannot be applied on_use with hots")
+        return direct
+
+    def get_heals(self, start, end, character, on_use=None):
+        # TODO spell duration and max_stacks are not applying any on use effects
         timestamps, heals, string_heals = list(), list(), list()
         if self.spell.type == HealingSpell.TYPE_HOT:
-            tick = self.spell.get_healing(character)
-            period = self.spell.base_tick_period
             tick_str = "#{spell}.hot_tick#".format(spell=self.spell.identifier)
-            t, h, s = zip(*[(self.start + (i + 1) * period, tick, tick_str)
-                            for i in range(self.spell.base_n_ticks)
-                            if (i + 1) * period < (self.end - self.start)])
-
+            t, h = zip(*self._hot_with_on_use(character, start, end, on_use=on_use))
             timestamps.extend(t)
             heals.extend(h)
-            string_heals.extend(s)
+            string_heals.extend([tick_str] * len(t))
         elif self.spell.type == HealingSpell.TYPE_DIRECT:
             timestamps.append(self.start)
-            _avg = self.spell.get_healing(character)
+            _avg = self._direct_with_on_use(character, on_use=on_use)
             heals.append(apply_crit(_avg, character.get_stat(Stats.SPELL_CRIT)))
             string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
         elif self.spell.type == HealingSpell.TYPE_HYBRID:
-            direct_avg, tick = self.spell.get_healing(character)
-            if self.spell.direct_first or (self.duration >= self.spell.base_duration):
+            if (self.spell.direct_first and self.start >= start) or (not self.spell.direct_first and start + self.spell.duration(character) <= end):
                 timestamps.append(self.start if self.spell.direct_first else self.end)
+                direct_avg = self._direct_with_on_use(character, on_use=on_use)
                 with_crit = apply_crit(direct_avg, character.get_stat(Stats.SPELL_CRIT))
                 heals.append(direct_avg if isinstance(self.spell, Lifebloom) else with_crit)
                 string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
-            period = self.spell.base_tick_period
-            tick_str = "#{spell}.hot_tick{tick}#".format(spell=self.spell.identifier, tick="" if self.spell.base_max_stacks == 1 else self.stacks)
-            t, h, s = zip(*[(self.start + (i + 1) * period, tick * self.stacks, tick_str)
-                            for i in range(self.spell.base_n_ticks)
-                            if (i + 1) * period < (self.end - self.start)])
+            tick_str = "#{spell}.hot_tick{tick}#".format(spell=self.spell.identifier, tick="" if self.spell.max_stacks(character) == 1 else self.stacks)
+            t, h = zip(*self._hot_with_on_use(character, start, end, on_use=on_use))
             timestamps.extend(t)
             heals.extend(h)
-            string_heals.extend(s)
+            string_heals.extend([tick_str] * len(t))
 
         tuple_array = [(t, h, s) for t, h, s in zip(timestamps, heals, string_heals) if start <= t <= end]
         if len(tuple_array) == 0:
@@ -212,7 +251,17 @@ class BusyEvent(Event):
         super().__init__(start, duration)
 
 
-class Timeline():
+class OnUseEvent(Event):
+    def __init__(self, start, duration, item):
+        super().__init__(start, duration)
+        self._item = item
+
+    @property
+    def item(self):
+        return self._item
+
+
+class Timeline(object):
     def __init__(self, name):
         self._name = name
         self._events = list()
@@ -242,6 +291,9 @@ class Timeline():
 
     def add_busy_event(self, start, duration):
         self._events.append(BusyEvent(start, duration=duration))
+
+    def add_on_use_event(self, event: OnUseEvent):
+        self._events.append(event)
 
     @property
     def duration(self):
@@ -299,13 +351,13 @@ class Timeline():
         return (event.end - at) if event is not None else 0
 
     def total_time(self):
-        """time between 0 and last event end's time"""
+        """time between 0 and last self end's time"""
         if len(self) == 0:
             return 0
         else:
             return self._events[-1].end
 
-    def stats(self, character, start=0, end=None):
+    def stats(self, character, start=0, end=None, on_use=None):
         if end is None:
             end = start if len(self) == 0 else self._events[-1].end
         filtered = [e for e in self._events
@@ -316,7 +368,7 @@ class Timeline():
         string_heals = list()
 
         for event in filtered:
-            t, h, s = event.get_heals(start, end, character)
+            t, h, s = event.get_heals(start, end, character, on_use=on_use)
             timestamps.extend(t)
             heals.extend(h)
             string_heals.extend(s)
@@ -493,7 +545,7 @@ class Rotation(object):
         self._timelines[filler_assignment.identifier] = Timeline(str(filler_assignment))
         return -1, filler_assignment
 
-    def stats(self, character, start=0, end=None):
+    def stats(self, character, start=0, end=None, on_use=None):
         if end is None:
             end = self.end
         stats = dict()
@@ -508,7 +560,7 @@ class Rotation(object):
                 comp_character = character
             else:
                 comp_character = BuffedCharacter(character, stats_buffs=self._assignments.buffs(id2assign[identifier].target))
-            stats["timelines"][timeline.name] = timeline.stats(comp_character, start=start, end=end)
+            stats["timelines"][timeline.name] = timeline.stats(comp_character, start=start, end=end, on_use=on_use)
             self._per_unit_stats(stats["timelines"][timeline.name], character)
 
         stats.update(**self._merge_timeline_stats(*stats["timelines"].values()))
@@ -577,7 +629,8 @@ class Rotation(object):
 
         return wasted_gcds
 
-    def _merge_timeline_stats(self, *timeline_stats):
+    @classmethod
+    def _merge_timeline_stats(cls, *timeline_stats):
         stats = dict()
         stats["start"] = min([t["start"] for t in timeline_stats])
         stats["end"] = min([t["end"] for t in timeline_stats])
@@ -607,4 +660,16 @@ class Rotation(object):
             "total_heal": sum(heals)
         })
         return stats
+
+
+def make_on_use_timelines(duration, items):
+    timelines = list()
+    for item in items:
+        timeline = Timeline(item.name)
+        t = 0
+        while t < duration:
+            timeline.add_on_use_event(OnUseEvent(t, min(t + item.duration, duration) - t, item))
+            t += item.cooldown
+        timelines.append(timeline)
+    return timelines
 

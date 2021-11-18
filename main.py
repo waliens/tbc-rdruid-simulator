@@ -6,12 +6,12 @@ from argparse import ArgumentParser
 
 from buffs import ALL_STATS_BUFFS, ALL_SPELL_BUFFS
 from gems import GemSlotsCollection, ItemGemSlots, optimize_slots
-from items import Gear, get_items
+from items import Gear, get_items, ALL_ON_USE_ITEMS
 from statsmodifiers import StatsModifierArray, ConstantStatsModifier, StatsModifier
 from character import DruidCharacter, FULL_DRUID
 from excel import write_compare_setups_wb, write_spells_wb
 from plot import plot_rotation
-from rotation import Rotation, Assignments
+from rotation import Rotation, Assignments, make_on_use_timelines
 from talents import DruidTalents
 
 
@@ -76,14 +76,16 @@ def main(argv):
         comb_name = "_".join([charac_info["name"], talents.name, stats_buffs.name, assignments.name, gems_policy_str])
         rotation = Rotation(assignments)
         rotation.optimal_rotation(character, _in["fight_duration"])
-        stats = rotation.stats(character, start=0, end=_in["fight_duration"])
+        on_use_timelines = make_on_use_timelines(_in["fight_duration"], [ALL_ON_USE_ITEMS[k] for k in charac_info.get("on_use", [])])
+        stats = rotation.stats(character, start=0, end=_in["fight_duration"], on_use=on_use_timelines)
         combinations.append((charac_info["name"], charac_info["description"], character, assignments, rotation, stats, gems_policy))
 
         if args.graphs:
             plot_rotation(
                 path=os.path.join(args.out_folder, "{}.png".format(comb_name)),
                 rotation=rotation,
-                maxx=_in["fight_duration"]
+                maxx=_in["fight_duration"],
+                on_use=on_use_timelines
             )
 
     if args.spreadsheets:

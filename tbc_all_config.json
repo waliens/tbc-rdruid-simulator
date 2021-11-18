@@ -2,10 +2,102 @@
   "fight_duration": 300,
   "characters": [
     {
+    "bonuses": [
+      "idol_of_the_emerald_queen",
+      "memento_of_tyrande"
+    ], "on_use": [
+      "direbrew_hops"
+    ],
+    "description": "https://seventyupgrades.com/set/gD9Z8x7431s8F894Tv269L",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 4 },
+          { "stat": "spell_damage", "value": 2 }
+        ],
+        "name": "rejuvenating_bracers",
+        "slots": [ "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "belt_of_divine_guidance",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_manarius_bis_bh",
+    "stats": {
+      "agility": 75,
+      "bonus_healing": 2115,
+      "intellect": 463,
+      "mp5": 74,
+      "spell_crit_rating": 0,
+      "spell_damage": 696,
+      "spell_haste_rating": 37,
+      "spirit": 384,
+      "stamina": 537,
+      "strength": 73
+    }
+  },
+    {
       "bonuses": [
         "idol_of_the_emerald_queen",
         "lower_city_prayer_book",
         "t4_malorne_raiment_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr"
       ],
       "description": "https://seventyupgrades.com/set/mPnHLS3HsALjwr1ZeSgxmh",
       "gems": [
@@ -120,6 +212,9 @@
         "t4_malorne_raiment_2p",
         "t4_malorne_raiment_4p"
       ],
+      "on-use": [
+        "essence_of_the_martyr"
+      ],
       "description": "https://seventyupgrades.com/set/vJbNVaHuoFumufZzb7kYEZ",
       "gems": [
         {
@@ -227,6 +322,9 @@
         "t4_malorne_raiment_2p",
         "primal_mooncloth_3p"
       ],
+      "on-use": [
+        "essence_of_the_martyr"
+      ],
       "description": "https://seventyupgrades.com/set/ef7CYKysXRE4qTUfaA9J9Z",
       "gems": [
         {
@@ -320,6 +418,9 @@
         "idol_of_the_emerald_queen",
         "t4_malorne_raiment_2p",
         "whitemend_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr"
       ],
       "description": "https://seventyupgrades.com/set/4JBauw3SowxcgzsdPx5Tdi",
       "gems": [
@@ -434,6 +535,9 @@
         "lower_city_prayer_book",
         "t4_malorne_raiment_2p",
         "whitemend_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr"
       ],
       "description": "https://seventyupgrades.com/set/vV1zuctLqKHKGnC8FJynDX",
       "gems": [
@@ -555,6 +659,9 @@
         "lower_city_prayer_book",
         "primal_mooncloth_3p",
         "whitemend_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr"
       ],
       "description": "https://seventyupgrades.com/set/9ijrYdV8DAdqQ1xfMfZ8Hh",
       "gems": [
@@ -710,6 +817,10 @@
         "primal_mooncloth_3p",
         "whitemend_2p"
       ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
+      ],
       "description": "https://seventyupgrades.com/set/o3z4p853mW1x61QU2FxhPV",
       "gems": [
         {
@@ -816,6 +927,10 @@
       "bonuses": [
         "idol_of_the_emerald_queen",
         "t4_malorne_raiment_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
       ],
       "description": "https://seventyupgrades.com/set/ubPGejqfkakv4TaJajaYa2",
       "gems": [
@@ -949,6 +1064,10 @@
         "idol_of_the_emerald_queen",
         "t4_malorne_raiment_2p"
       ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
+      ],
       "description": "https://seventyupgrades.com/set/fCAB7ThwoutabqBUKBC38E",
       "gems": [
         {
@@ -1060,6 +1179,10 @@
         "idol_of_the_emerald_queen",
         "primal_mooncloth_3p"
       ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
+      ],
       "description": "https://seventyupgrades.com/set/iQdupV181SV59tA5JWn2MY",
       "gems": [
         {
@@ -1166,6 +1289,10 @@
         "idol_of_the_emerald_queen",
         "primal_mooncloth_3p",
         "whitemend_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
       ],
       "description": "https://seventyupgrades.com/set/iXkwdz184rwRXPxXH3BaDf",
       "gems": [
@@ -1285,6 +1412,10 @@
       "bonuses": [
         "idol_of_the_emerald_queen",
         "t4_malorne_raiment_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
       ],
       "description": "https://seventyupgrades.com/set/s487BqHyjE3ReAaEAyXTiC",
       "gems": [
@@ -1417,6 +1548,10 @@
       "bonuses": [
         "idol_of_the_emerald_queen",
         "t4_malorne_raiment_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
       ],
       "description": "https://seventyupgrades.com/set/ubPGejqfkakv4TaJajaYa2",
       "gems": [
@@ -1555,6 +1690,10 @@
         "primal_mooncloth_3p",
         "whitemend_2p"
       ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
+      ],
       "description": "https://seventyupgrades.com/set/4BwWqU8xMUwFjwB2kFB4MY",
       "gems": [
         {
@@ -1645,6 +1784,10 @@
         "idol_of_the_emerald_queen",
         "t5_nordrassil_raiment_2p",
         "t5_nordrassil_raiment_4p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
       ],
       "description": "https://seventyupgrades.com/set/eN4DP3v6oLJWrJ3yXjcvAN",
       "gems": [
@@ -1764,6 +1907,10 @@
         "t5_nordrassil_raiment_2p",
         "t5_nordrassil_raiment_4p"
       ],
+      "on-use": [
+        "essence_of_the_martyr",
+        "oshugun_relic"
+      ],
       "description": "https://seventyupgrades.com/set/a8E5fLPk6pUWaYFn3cmfdB",
       "gems": [
         {
@@ -1882,6 +2029,9 @@
         "lower_city_prayer_book",
         "t5_nordrassil_raiment_2p",
         "whitemend_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr"
       ],
       "description": "https://seventyupgrades.com/set/diCncVKKJyZuGhpVpnaweZ",
       "gems": [
@@ -2014,6 +2164,9 @@
         "t5_nordrassil_raiment_2p",
         "whitemend_2p"
       ],
+      "on-use": [
+        "essence_of_the_martyr"
+      ],
       "description": "https://seventyupgrades.com/set/pNSvru2zheLv6CJgpT5GHg",
       "gems": [
         {
@@ -2127,6 +2280,9 @@
         "primal_mooncloth_3p",
         "whitemend_2p"
       ],
+      "on-use": [
+        "essence_of_the_martyr"
+      ],
       "description": "https://seventyupgrades.com/set/5hzS8dY9AvvdVfPiLM3bTD",
       "gems": [
         {
@@ -2232,6 +2388,9 @@
         "primal_mooncloth_3p",
         "whitemend_2p"
       ],
+      "on-use": [
+        "essence_of_the_martyr"
+      ],
       "description": "https://seventyupgrades.com/set/63DfBdGNmokxXkaHLrSUo",
       "gems": [
         {
@@ -2335,6 +2494,9 @@
         "idol_of_the_emerald_queen",
         "lower_city_prayer_book",
         "t5_nordrassil_raiment_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr"
       ],
       "description": "https://seventyupgrades.com/set/peqadEif8J7MY1kABQcAAq",
       "gems": [
@@ -2464,6 +2626,9 @@
         "idol_of_the_emerald_queen",
         "lower_city_prayer_book",
         "t5_nordrassil_raiment_2p"
+      ],
+      "on-use": [
+        "essence_of_the_martyr"
       ],
       "description": "https://seventyupgrades.com/set/uyuMBCQZytMWkmMeWe1P92",
       "gems": [
@@ -2603,6 +2768,9 @@
         "t5_nordrassil_raiment_2p",
         "whitemend_2p"
       ],
+      "on-use": [
+        "essence_of_the_martyr"
+      ],
       "description": "https://seventyupgrades.com/set/3nHX95D9xW8EoCshi12LPk",
       "gems": [
         {
@@ -2737,13 +2905,15 @@
       "filler": { "spell": "rejuvenation" }
     },
     {
-      "name": "2t_lb_rj",
-      "description": "Keeping lifebloom and rejuv on two targets.",
+      "name": "2t_lb_rj_rg",
+      "description": "Keeping lifebloom, rejuv and regrowth on two targets.",
       "assignments": [
         { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
         { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
         { "spell": "rejuvenation", "target": "tank1" },
-        { "spell": "rejuvenation", "target": "tank2" }
+        { "spell": "rejuvenation", "target": "tank2" },
+        { "spell": "regrowth", "target": "tank1" },
+        { "spell": "regrowth", "target": "tank2" }
       ],
       "buffs": {},
       "filler": { "spell": "rejuvenation" }

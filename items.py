@@ -254,3 +254,34 @@ def get_items(names):
     stats_items.extend([ALL_STATS_ITEMS[n] for n in names if n in ALL_STATS_ITEMS])
     spell_items.extend([ALL_SPELL_ITEMS[n] for n in names if n in ALL_SPELL_ITEMS])
     return stats_items, spell_items
+
+
+class OnUseItemBonus(ItemBonus):
+    def __init__(self, name, duration, cooldown, spell_effects=None, stats_effects=None):
+        super().__init__(name, spell_effects=spell_effects, stats_effects=stats_effects)
+        self._duration = duration
+        self._cooldown = cooldown
+
+    @property
+    def duration(self):
+        return self._duration
+
+    @property
+    def cooldown(self):
+        return self._cooldown
+
+
+
+_on_use_items = [
+    OnUseItemBonus("direbrew_hops", 20, 120, stats_effects=StatsModifierArray([
+        ConstantStatsModifier("direbrew_hops_bh", effects=[(Stats.BONUS_HEALING, 297), (Stats.BONUS_HEALING, 99)], _type=StatsModifier.TYPE_ADDITIVE)
+    ])),
+    OnUseItemBonus("essence_of_the_martyr", 20, 120,  stats_effects=StatsModifierArray([
+        ConstantStatsModifier("essence_of_the_martyr_bh", effects=[(Stats.BONUS_HEALING, 297), (Stats.BONUS_HEALING, 99)], _type=StatsModifier.TYPE_ADDITIVE)
+    ])),
+    OnUseItemBonus("oshugun_relic", 20, 120,  stats_effects=StatsModifierArray([
+        ConstantStatsModifier("oshugun_relic_bh", effects=[(Stats.BONUS_HEALING, 213), (Stats.BONUS_HEALING, 71)], _type=StatsModifier.TYPE_ADDITIVE)
+    ]))
+]
+
+ALL_ON_USE_ITEMS = {item.name: item for item in _on_use_items}

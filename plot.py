@@ -1,13 +1,11 @@
-from pprint import pprint
 
-from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.ticker import MultipleLocator
 
-from rotation import SpellEvent, Rotation, SingleAssignment
+from rotation import SpellEvent, OnUseEvent
 from spell import Regrowth, Rejuvenation, HealingTouch, Lifebloom, HealingSpell
 
 HT_COLOR = "#4B7494"
@@ -26,9 +24,10 @@ def plot_timeline(timeline, y, maxx, color, height=2., eps=0.03):
                     xmin=event.start/maxx, xmax=min(event.end, maxx)/maxx,
                     facecolor=color, alpha=0.8, edgecolor="k")
 
-        if isinstance(event, SpellEvent):
-            dec_height = (1 - eps) * height
+        path = None
+        dec_height = (1 - eps) * height
 
+        if isinstance(event, SpellEvent):
             spell = event.spell
             if spell.type == HealingSpell.TYPE_HOT or spell.type == HealingSpell.TYPE_HYBRID:
                 period = spell.base_tick_period
@@ -44,19 +43,32 @@ def plot_timeline(timeline, y, maxx, color, height=2., eps=0.03):
                 path = 'images/spell_nature_regrowth.png'
             else:
                 path = 'images/spell_nature_lifebloom.png'
+
+            if event.spell.base_max_stacks > 1:
+                plt.text(event.start + eps, y - dec_height / 2 + eps, str(event.stacks),
+                         fontfamily="serif", color="w", fontsize="large", fontweight="bold", zorder=3)
+
+        elif isinstance(event, OnUseEvent):
+            if event.item.name == "direbrew_hops":
+                path = 'images/direbrew_hops.jpg'
+            elif event.item.name == "essence_of_the_martyr":
+                path = 'images/essence_of_the_martyr.jpg'
+            elif event.item.name == "oshugun_relic":
+                path = 'images/oshugun_relic.jpg'
+
+        if path is not None:
             spell_img = mpimg.imread(path)
             img_extent = (event.start + eps, event.start + dec_height, y - dec_height / 2, y + dec_height / 2)
             plt.imshow(spell_img, extent=img_extent, aspect="equal", zorder=2)
 
-            if event.spell.base_max_stacks > 1:
-                plt.text(event.start + eps, y - dec_height / 2 + eps, str(event.stacks),
-                         fontfamily="serif", color="w", fontsize="large", fontweight="bold")
 
-
-def plot_rotation(path, rotation, maxx, height=0.5):
+def plot_rotation(path, rotation, maxx, height=0.5, on_use=None):
+    if on_use is None:
+        on_use = []
     duration = rotation.end
     n_assigments = len(rotation.timelines)
-    n_timelines = 2 + n_assigments
+    n_on_use = len(on_use)
+    n_timelines = 2 + n_assigments + n_on_use
     plt.figure(figsize=(duration / 2, n_timelines / 2))
     plt.xlim(rotation.start, maxx)
     plt.ylim(-height + height / 2, (n_timelines - 0.5) * height)
@@ -70,12 +82,17 @@ def plot_rotation(path, rotation, maxx, height=0.5):
 
     plot_timeline(rotation.gcd_timeline, 0, maxx, color=GCD_COLOR, height=height)
     plot_timeline(rotation.cast_timeline, height, maxx, color=CAST_COLOR, height=height)
+    for i, on_use_timeline in enumerate(on_use):
+        plot_timeline(on_use_timeline, (i+2) * height, maxx,
+                      color=CAST_COLOR, height=height)
     color_dict = {Regrowth: RG_COLOR, Rejuvenation: RJ_COLOR, HealingTouch: HT_COLOR, Lifebloom: LB_COLOR}
     yticks = np.arange(n_timelines) * height
-    ylabels = ["GCD", "Casts", *[a.target.capitalize() for a in rotation.assignments], *rotation.filler_targets]
+    ylabels = ["GCD", "Casts",
+               *[t[0].item.name.capitalize().replace("_", " ") for t in on_use],
+               *[a.target.capitalize() for a in rotation.assignments], *rotation.filler_targets]
     for i, (assignment, timeline) in enumerate(rotation.timelines):
         plot_timeline(
-            timeline, (i+2) * height, maxx,
+            timeline, (i+2+n_on_use) * height, maxx,
             color=color_dict[assignment.spell.__class__],
             height=height)
     plt.gca().set_yticks(yticks)
