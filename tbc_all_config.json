@@ -8,7 +8,7 @@
       "direbrew_hops",
       "essence_of_the_martyr"
     ],
-    "description": "https://seventyupgrades.com/set/7FubzfyZsLkNUv9WRUsoFA",
+    "description": "https://seventyupgrades.com/set/euHAfNVV8jQoyeDrMCSq6H",
     "gems": [
       {
         "bonus": [
@@ -20,11 +20,10 @@
       },
       {
         "bonus": [
-          { "stat": "bonus_healing", "value": 7 },
-          { "stat": "spell_damage", "value": 3 }
+          { "stat": "stamina", "value": 3 }
         ],
-        "name": "thunderhearth_spaulders",
-        "slots": [ "blue", "blue" ]
+        "name": "vindicators_pendant_of_reprieve",
+        "slots": [ "yellow" ]
       },
       {
         "bonus": [
@@ -36,14 +35,6 @@
       },
       {
         "bonus": [
-          { "stat": "bonus_healing", "value": 4 },
-          { "stat": "spell_damage", "value": 2 }
-        ],
-        "name": "rejuvenating_bracers",
-        "slots": [ "blue" ]
-      },
-      {
-        "bonus": [
           { "stat": "bonus_healing", "value": 7 },
           { "stat": "spell_damage", "value": 3 }
         ],
@@ -52,10 +43,67 @@
       },
       {
         "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
           { "stat": "bonus_healing", "value": 7 },
           { "stat": "spell_damage", "value": 3 }
         ],
-        "name": "belt_of_divine_guidance",
+        "name": "glod_leaf_wildboots",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_5gcd_kazzak_lightfathom_past8%",
+    "stats": {
+      "bonus_healing": 2032,
+      "spell_damage": 669,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 182,
+      "mp5": 70,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 492,
+      "intellect": 456,
+      "spirit": 300
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
+    "description": "https://seventyupgrades.com/set/3o7UGN4gMxY2co7fhLZXM9",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
         "slots": [ "yellow", "blue" ]
       },
       {
@@ -729,14 +777,6 @@
       },
       {
         "bonus": [
-          { "stat": "bonus_healing", "value": 7 },
-          { "stat": "spell_damage", "value": 3 }
-        ],
-        "name": "thunderhearth_spaulders",
-        "slots": [ "blue", "blue" ]
-      },
-      {
-        "bonus": [
           { "stat": "bonus_healing", "value": 9 },
           { "stat": "spell_damage", "value": 3 }
         ],
@@ -745,26 +785,10 @@
       },
       {
         "bonus": [
-          { "stat": "bonus_healing", "value": 4 },
-          { "stat": "spell_damage", "value": 2 }
-        ],
-        "name": "rejuvenating_bracers",
-        "slots": [ "blue" ]
-      },
-      {
-        "bonus": [
           { "stat": "bonus_healing", "value": 7 },
           { "stat": "spell_damage", "value": 3 }
         ],
         "name": "bontanist_gloves_of_growth",
-        "slots": [ "yellow", "blue" ]
-      },
-      {
-        "bonus": [
-          { "stat": "bonus_healing", "value": 7 },
-          { "stat": "spell_damage", "value": 3 }
-        ],
-        "name": "belt_of_divine_guidance",
         "slots": [ "yellow", "blue" ]
       },
       {
@@ -818,14 +842,6 @@
       },
       {
         "bonus": [
-          { "stat": "bonus_healing", "value": 7 },
-          { "stat": "spell_damage", "value": 3 }
-        ],
-        "name": "thunderhearth_spaulders",
-        "slots": [ "blue", "blue" ]
-      },
-      {
-        "bonus": [
           { "stat": "bonus_healing", "value": 9 },
           { "stat": "spell_damage", "value": 3 }
         ],
@@ -834,26 +850,10 @@
       },
       {
         "bonus": [
-          { "stat": "bonus_healing", "value": 4 },
-          { "stat": "spell_damage", "value": 2 }
-        ],
-        "name": "rejuvenating_bracers",
-        "slots": [ "blue" ]
-      },
-      {
-        "bonus": [
           { "stat": "bonus_healing", "value": 7 },
           { "stat": "spell_damage", "value": 3 }
         ],
         "name": "bontanist_gloves_of_growth",
-        "slots": [ "yellow", "blue" ]
-      },
-      {
-        "bonus": [
-          { "stat": "bonus_healing", "value": 7 },
-          { "stat": "spell_damage", "value": 3 }
-        ],
-        "name": "belt_of_divine_guidance",
         "slots": [ "yellow", "blue" ]
       },
       {
