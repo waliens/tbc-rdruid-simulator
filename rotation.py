@@ -6,6 +6,12 @@ from talents import DruidTalents
 from util import bisect_right, sort_by, apply_crit
 
 
+def robust_zipstar(*arrays, tuple_size=2):
+    if len(arrays) == 0:
+        return [() for i in range(tuple_size)]
+    return zip(*arrays)
+
+
 class SingleAssignment(object):
     """single target and single spell assigment"""
     def __init__(self, spell, target, allow_fade=True, fade_at_stacks=1):
@@ -182,24 +188,36 @@ class SpellEvent(Event):
             spell_buffs=StatsModifierArray([b for event in active_at_cast_on_use_events for b in event.item.spell_effects.buffs]),
             stats_buffs=StatsModifierArray([b for event in active_at_cast_on_use_events for b in event.item.stats_effects.buffs]))
 
-    def _hot_with_on_use(self, character, start, end, on_use=None):
+    @classmethod
+    def _get_hot_first_tick_with_cadence(cls, start, period, cadence=None):
+        if cadence is None:
+            return start + period
+        duration_between = int(start - cadence)
+        first = cadence + duration_between * period
+        if first <= start:
+            first += period
+        return first
+
+    def _hot_with_on_use(self, character, start, end, on_use=None, prev_tick_cadence=None):
         active_at_cast = self._on_use_active_at_cast(on_use=on_use)
         ticks = list()
-        for tick_nb in range(self.spell.n_ticks(character)):
-            t = self.start + tick_nb * self.spell.tick_period(character)
-            if t < start:
-                continue
-            if t > end:
-                break
-            character_at_tick = self._on_use_buffed_characters(character, active_at_cast)
-            if self.spell.type == HealingSpell.TYPE_HOT:
-                tick = self.spell.get_healing(character_at_tick)
-            elif self.spell.type == HealingSpell.TYPE_HYBRID:
-                _, tick = self.spell.get_healing(character_at_tick)
-            else:
-                raise ValueError("non hot spell cannot be applied on_use with hots")
+        max_ticks = self.spell.n_ticks(character)
+        period = self.spell.tick_period(character)
+        n_ticks = 0
+        t = self._get_hot_first_tick_with_cadence(self.start, period, cadence=prev_tick_cadence)
+        while t <= end and t <= self.end and n_ticks < max_ticks:
+            if t >= start:
+                character_at_tick = self._on_use_buffed_characters(character, active_at_cast)
+                if self.spell.type == HealingSpell.TYPE_HOT:
+                    tick = self.spell.get_healing(character_at_tick)
+                elif self.spell.type == HealingSpell.TYPE_HYBRID:
+                    _, tick = self.spell.get_healing(character_at_tick)
+                else:
+                    raise ValueError("non hot spell cannot be applied on_use with hots")
+                ticks.append((t, tick * self.stacks))
+            t += period
+            n_ticks += 1
 
-            ticks.append((t, tick * self.stacks))
         return ticks
 
     def _direct_with_on_use(self, character, on_use=None):
@@ -213,12 +231,12 @@ class SpellEvent(Event):
             raise ValueError("non hot spell cannot be applied on_use with hots")
         return direct
 
-    def get_heals(self, start, end, character, on_use=None):
+    def get_heals(self, start, end, character, on_use=None, prev_tick_cadence=None):
         # TODO spell duration and max_stacks are not applying any on use effects
         timestamps, heals, string_heals = list(), list(), list()
         if self.spell.type == HealingSpell.TYPE_HOT:
             tick_str = "#{spell}.hot_tick#".format(spell=self.spell.identifier)
-            t, h = zip(*self._hot_with_on_use(character, start, end, on_use=on_use))
+            t, h = robust_zipstar(*self._hot_with_on_use(character, start, end, on_use=on_use, prev_tick_cadence=prev_tick_cadence))
             timestamps.extend(t)
             heals.extend(h)
             string_heals.extend([tick_str] * len(t))
@@ -228,14 +246,14 @@ class SpellEvent(Event):
             heals.append(apply_crit(_avg, character.get_stat(Stats.SPELL_CRIT)))
             string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
         elif self.spell.type == HealingSpell.TYPE_HYBRID:
-            if (self.spell.direct_first and self.start >= start) or (not self.spell.direct_first and start + self.spell.duration(character) <= end):
+            if (self.spell.direct_first and self.start >= start) or (not self.spell.direct_first and start + self.spell.duration(character) <= end and self.spell.duration(character) <= self.duration):
                 timestamps.append(self.start if self.spell.direct_first else self.end)
                 direct_avg = self._direct_with_on_use(character, on_use=on_use)
                 with_crit = apply_crit(direct_avg, character.get_stat(Stats.SPELL_CRIT))
                 heals.append(direct_avg if isinstance(self.spell, Lifebloom) else with_crit)
                 string_heals.append("#{spell}.avg_direct_heal#".format(spell=self.spell.identifier))
             tick_str = "#{spell}.hot_tick{tick}#".format(spell=self.spell.identifier, tick="" if self.spell.max_stacks(character) == 1 else self.stacks)
-            t, h = zip(*self._hot_with_on_use(character, start, end, on_use=on_use))
+            t, h = robust_zipstar(*self._hot_with_on_use(character, start, end, on_use=on_use, prev_tick_cadence=prev_tick_cadence))
             timestamps.extend(t)
             heals.extend(h)
             string_heals.extend([tick_str] * len(t))
@@ -379,8 +397,14 @@ class Timeline(object):
         heals = list()
         string_heals = list()
 
+        prev_tick_cadence = None
         for event in filtered:
-            t, h, s = event.get_heals(start, end, character, on_use=on_use)
+            if isinstance(event, SpellEvent) and event.spell.name == "lifebloom" and event.stacks == 1:
+                prev_tick_cadence = event.start
+            t, h, s = event.get_heals(start, end, character, on_use=on_use, prev_tick_cadence=prev_tick_cadence)
+            if isinstance(event, SpellEvent) and event.spell.name == "lifebloom" and len(t) == event.spell.n_ticks(character):
+                # does tick reset ? seven ticks = reset
+                prev_tick_cadence = None
             timestamps.extend(t)
             heals.extend(h)
             string_heals.extend(s)
@@ -432,14 +456,14 @@ class Rotation(object):
         out_5sr = 2 * (mp5 + regen) / 5
         return in_5sr, out_5sr
 
-    def optimal_rotation(self, character, fight_duration=120, reaction=0.01, eps=1e-6):
+    def optimal_rotation(self, character, fight_duration=120, reaction=0.01, eps=1e-6, opt_for_ticks=False):
         self._reset_state()
         gcd = character.get_stat(Stats.GCD)
         current_time = 0
         mana = character.get_stat(Stats.MANA)
         last_mana_tick = 2
         while (fight_duration < 0 and mana > 0) or current_time < fight_duration:
-            wait, assignment = self._action_at(current_time + eps, gcd, character, reaction=reaction)
+            wait, assignment = self._action_at(current_time + eps, gcd, character, reaction=reaction, opt_for_ticks=opt_for_ticks)
             if wait < 0:
                 start_time = current_time + eps
                 cast_time = assignment.spell.cast_time(character)
@@ -498,7 +522,7 @@ class Rotation(object):
     def assignments(self):
         return self._assignments
 
-    def _action_at(self, current_time, gcd, character, reaction=0.01):
+    def _action_at(self, current_time, gcd, character, reaction=0.01, opt_for_ticks=False):
         """(wait_duration|-1, assigment|None)"""
         lookahead = 9999  # to store the time before a higher priority hot must be reapplied
         wait = 9999
@@ -525,11 +549,12 @@ class Rotation(object):
                     return -1, assignment
                 else:
                     wait = min(wait, remaining_time - cast_time + reaction)
-            elif remaining_time <= period:
+            # for sure needs refresh but might be worth
+            elif (opt_for_ticks and remaining_time <= 2 * reaction) or (not opt_for_ticks and remaining_time <= period):
                 return -1, assignment
             else:
                 lookahead = min(lookahead, remaining_time - cast_time - reaction)
-                wait = min(wait, remaining_time - cast_time - period + reaction)
+                wait = min(wait, remaining_time - cast_time + reaction - (period if not opt_for_ticks else 0))
 
         # wait for the lookahead, or take filler action
         return self._check_filler(current_time, wait, character, reaction=reaction)

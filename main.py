@@ -4,6 +4,8 @@ import os
 import sys
 from argparse import ArgumentParser
 
+from joblib import Parallel, delayed
+
 from buffs import ALL_STATS_BUFFS, ALL_SPELL_BUFFS
 from gems import GemSlotsCollection, ItemGemSlots, optimize_slots
 from items import Gear, get_items, ALL_ON_USE_ITEMS
@@ -27,12 +29,54 @@ def parse_gems_slots(gems_data):
     ])
 
 
+def sim_loop(i, n_comb, charac_info, buffs, talents, assignments, gems_policy, fight_duration, plot_graphs, out_folder, plot_gems):
+    stats_buffs, spell_buffs = buffs
+    gems_policy_str = "_".join(map(str, gems_policy.values()))
+    print("#{: <3} ({:3.2f}%) char:{} buffs:{} tal:{} assign:{} gems:{}".format(i + 1, 100 * i / n_comb,
+                                                                                charac_info["name"], stats_buffs.name,
+                                                                                talents.name, assignments.name,
+                                                                                gems_policy_str))
+    gem_slots = optimize_slots(
+        slots=parse_gems_slots(charac_info["gems"]),
+        strategy=gems_policy["policy"],
+        heroic=gems_policy["heroic"],
+        jewelcrafting=gems_policy["jewelcrafting"]
+    )
+    if plot_gems:
+        for item_slots in gem_slots.slots:
+            print(", ".join(["{}:{}".format(c, g.name) for c, g in zip(item_slots.colors, item_slots.gems)]))
+    character = DruidCharacter(
+        stats=charac_info["stats"],
+        talents=talents,
+        stats_buffs=stats_buffs,
+        spell_buffs=spell_buffs,
+        gear=Gear(*get_items(charac_info.get("bonuses")), gem_slots),
+        level=charac_info["level"]
+    )
+    comb_name = "_".join([charac_info["name"], talents.name, stats_buffs.name, assignments.name, gems_policy_str])
+    rotation = Rotation(assignments)
+    rotation.optimal_rotation(character, fight_duration)
+    on_use_timelines = make_on_use_timelines(fight_duration,
+                                             [ALL_ON_USE_ITEMS[k] for k in charac_info.get("on_use", [])],
+                                             rotation.cast_timeline)
+    stats = rotation.stats(character, start=0, end=fight_duration, on_use=on_use_timelines)
+    if plot_graphs:
+        plot_rotation(
+            path=os.path.join(out_folder, "{}.png".format(comb_name)),
+            rotation=rotation,
+            maxx=fight_duration,
+            on_use=on_use_timelines
+        )
+    return charac_info["name"], charac_info["description"], character, assignments, rotation, stats, gems_policy
+
+
 def main(argv):
     parser = ArgumentParser()
     parser.add_argument("-c", "--config", type=str, dest="config_filepath", required=True)
     parser.add_argument("-g", "--graphs", action="store_true", dest="graphs")
     parser.add_argument("-s", "--spreadsheets", action="store_true", dest="spreadsheets")
     parser.add_argument("-o", "--out_folder", dest="out_folder", default="./generated")
+    parser.add_argument("-j", "--n_jobs", dest="n_jobs", default=1, type=int)
     parser.add_argument("--gems", dest="gems", action="store_true")
     parser.set_defaults(graphs=False, spreadsheet=False, gems=False)
     args, _ = parser.parse_known_args(argv)
@@ -51,42 +95,12 @@ def main(argv):
     all_talents = [DruidTalents(talent["points"], name=talent["name"]) for talent in _in["talents"]]
     all_assignments = [Assignments.from_dict(rotation) for rotation in _in["rotations"]]
 
-    combinations = list()
     n_comb = len(_in["characters"]) * len(all_buffs) * len(all_talents) * len(all_assignments) * len(_in["gems_policy"])
-    for i, (charac_info, (stats_buffs, spell_buffs), talents, assignments, gems_policy) in enumerate(itertools.product(_in["characters"], all_buffs, all_talents, all_assignments, _in["gems_policy"])):
-        gems_policy_str = "_".join(map(str, gems_policy.values()))
-        print("#{: <3} ({:3.2f}%) char:{} buffs:{} tal:{} assign:{} gems:{}".format(i + 1, 100 * i / n_comb, charac_info["name"], stats_buffs.name, talents.name, assignments.name, gems_policy_str))
-        gem_slots = optimize_slots(
-            slots=parse_gems_slots(charac_info["gems"]),
-            strategy=gems_policy["policy"],
-            heroic=gems_policy["heroic"],
-            jewelcrafting=gems_policy["jewelcrafting"]
-        )
-        if args.gems:
-            for item_slots in gem_slots.slots:
-                print(", ".join(["{}:{}".format(c, g.name) for c, g in zip(item_slots.colors, item_slots.gems)]))
-        character = DruidCharacter(
-            stats=charac_info["stats"],
-            talents=talents,
-            stats_buffs=stats_buffs,
-            spell_buffs=spell_buffs,
-            gear=Gear(*get_items(charac_info.get("bonuses")), gem_slots),
-            level=charac_info["level"]
-        )
-        comb_name = "_".join([charac_info["name"], talents.name, stats_buffs.name, assignments.name, gems_policy_str])
-        rotation = Rotation(assignments)
-        rotation.optimal_rotation(character, _in["fight_duration"])
-        on_use_timelines = make_on_use_timelines(_in["fight_duration"], [ALL_ON_USE_ITEMS[k] for k in charac_info.get("on_use", [])], rotation.cast_timeline)
-        stats = rotation.stats(character, start=0, end=_in["fight_duration"], on_use=on_use_timelines)
-        combinations.append((charac_info["name"], charac_info["description"], character, assignments, rotation, stats, gems_policy))
 
-        if args.graphs:
-            plot_rotation(
-                path=os.path.join(args.out_folder, "{}.png".format(comb_name)),
-                rotation=rotation,
-                maxx=_in["fight_duration"],
-                on_use=on_use_timelines
-            )
+    combinations = Parallel(n_jobs=args.n_jobs)(
+        delayed(sim_loop)(i, n_comb, charac_info, buffs, talents, assignments, gems_policy, _in["fight_duration"], args.graphs, args.out_folder, args.gems)
+        for i, (charac_info, buffs, talents, assignments, gems_policy)
+        in enumerate(itertools.product(_in["characters"], all_buffs, all_talents, all_assignments, _in["gems_policy"])))
 
     if args.spreadsheets:
         write_spells_wb(FULL_DRUID, "spells", outfolder=args.out_folder)
