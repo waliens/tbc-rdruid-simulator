@@ -557,9 +557,9 @@ class Rotation(object):
                 wait = min(wait, remaining_time - cast_time + reaction - (period if not opt_for_ticks else 0))
 
         # wait for the lookahead, or take filler action
-        return self._check_filler(current_time, wait, character, reaction=reaction)
+        return self._check_filler(current_time, wait, lookahead, character, reaction=reaction)
 
-    def _check_filler(self, current_time, wait, character, reaction=0.01):
+    def _check_filler(self, current_time, wait, lookahead, character, reaction=0.01):
         """attempt to use wait time to"""
         if not self._assignments.has_filler:
             return wait, None
@@ -567,7 +567,7 @@ class Rotation(object):
         filler = self._assignments.filler
         cast_time = filler.spell.cast_time(character)
         downtime = max(character.get_stat(Stats.GCD), cast_time)
-        if downtime > wait:
+        if downtime > lookahead:
             return wait, None
 
         for target_suffix in self._filler_target_suffixes:
