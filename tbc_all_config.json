@@ -8,6 +8,79 @@
       "direbrew_hops",
       "essence_of_the_martyr"
     ],
+    "description": "https://seventyupgrades.com/set/9N6dyBcA98CY2LfzLsn7MZ",
+    "gems": [
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_helmet",
+        "slots": [ "meta", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_spaulders",
+        "slots": [ "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "thunderhearth_tunic",
+        "slots": [ "yellow", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "bontanist_gloves_of_growth",
+        "slots": [ "yellow", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 9 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "leggings_of_eternity",
+        "slots": [ "blue", "blue", "blue" ]
+      },
+      {
+        "bonus": [
+          { "stat": "bonus_healing", "value": 7 },
+          { "stat": "spell_damage", "value": 3 }
+        ],
+        "name": "boots_of_divine_light",
+        "slots": [ "yellow", "blue" ]
+      }
+    ],
+    "level": 70,
+    "name": "phase_3_niche_oklea_5gcd_nokazzak_notailoring",
+    "stats": {
+      "bonus_healing": 2092,
+      "spell_damage": 690,
+      "spell_crit_rating": 0,
+      "spell_haste_rating": 132,
+      "mp5": 79,
+      "strength": 73,
+      "agility": 75,
+      "stamina": 545,
+      "intellect": 474,
+      "spirit": 297
+    }
+  },
+    {
+    "bonuses": [
+      "idol_of_the_emerald_queen"
+    ], "on_use": [
+      "direbrew_hops",
+      "essence_of_the_martyr"
+    ],
     "description": "https://seventyupgrades.com/set/euHAfNVV8jQoyeDrMCSq6H",
     "gems": [
       {
