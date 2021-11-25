@@ -195,7 +195,7 @@ For generating stats about a rotation, the simulator needs to know stats of one 
     "bonus_healing": 1263
   },
   "gems": [
-    {"name": "a_name", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]},
+    {"name": "a_name", "slots": ["meta", "red"], "bonus": [{"stat": "intellect", "value": 4}]}
   ]
 }
 ```
@@ -340,3 +340,10 @@ For simplicity, I therefore consider that the proc effect is equivalent to **17 
 ### Glimmering Naaru Sliver
 
 Consider one full usage of the on-use effect, equivalent to **2k additional mana**.
+
+### Effect of haste on hps efficiency of lifebloom
+
+Because of the cadence mechanic and the 7th tick problem haste has a non-linear effect of hps because adding more
+haste can sometimes reduce hps efficiency, see graph below.
+
+![haste efficiency](https://github.com/waliens/tbc-rdruid-simulator/raw/main/images/haste_efficiency.png)
