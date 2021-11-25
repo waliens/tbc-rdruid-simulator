@@ -399,7 +399,7 @@ class Timeline(object):
 
         prev_tick_cadence = None
         for event in filtered:
-            if isinstance(event, SpellEvent) and event.spell.name == "lifebloom" and event.stacks == 1:
+            if isinstance(event, SpellEvent) and event.spell.name == "lifebloom" and (prev_tick_cadence is None or event.stacks == 1):
                 prev_tick_cadence = event.start
             t, h, s = event.get_heals(start, end, character, on_use=on_use, prev_tick_cadence=prev_tick_cadence)
             if isinstance(event, SpellEvent) and event.spell.name == "lifebloom" and len(t) == event.spell.n_ticks(character):
