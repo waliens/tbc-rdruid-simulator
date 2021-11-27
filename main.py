@@ -107,7 +107,10 @@ def main(argv):
         write_compare_setups_wb(combinations, _in["fight_duration"], outfolder=args.out_folder)
 
     with open(os.path.join(args.out_folder, "output.json"), mode="w+", encoding="utf8") as file:
-        json.dump({n: d for n, _, _, _, _, d, _ in combinations}, file)
+        json.dump([{"character": c_name, "description": c_info, "stats": stats, "gems": gems,
+                    "spec": char.talents.name, "assignments": assignments.name}
+                   for c_name, c_info, char, assignments, _, stats, gems in combinations], file)
+
 
 
 
