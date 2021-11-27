@@ -1,3 +1,5 @@
+import operator
+
 
 def bisect_right(a, x, lo=0, hi=None, *, key=None):
     """Return the index where to insert item x in list a, assuming a is sorted.
@@ -45,3 +47,21 @@ def sort_by(t, *arrays, f=None):
 
 def apply_crit(value, crit_proba):
     return (1 + crit_proba * 0.5) * value
+
+
+def argopt(iterable, cmp=operator.lt, key=None):
+    if key is None:
+        key = lambda v: v
+    opt, opt_idx = None, 0
+    for i, v in enumerate(iterable):
+        if opt is None or cmp(opt, key(v)):
+            opt, opt_idx = key(v), i
+    return opt_idx, opt
+
+
+def argmax(iterable):
+    return argopt(iterable)
+
+
+def argmin(iterable):
+    return argopt(iterable, cmp=operator.gt)

@@ -3,7 +3,7 @@ from character import Stats, BuffedCharacter
 from spell import HealingSpell, Lifebloom, HEALING_TOUCH, REJUVENATION, REGROWTH, LIFEBLOOM, TRANQUILITY
 from statsmodifiers import StatsModifierArray
 from talents import DruidTalents
-from util import bisect_right, sort_by, apply_crit
+from util import bisect_right, sort_by, apply_crit, argmin
 
 
 def robust_zipstar(*arrays, tuple_size=2):
@@ -14,11 +14,16 @@ def robust_zipstar(*arrays, tuple_size=2):
 
 class SingleAssignment(object):
     """single target and single spell assigment"""
-    def __init__(self, spell, target, allow_fade=True, fade_at_stacks=1):
+    def __init__(self, spell, target, allow_fade=True, fade_at_stacks=1, spell_queue=False):
         self._target = target
         self._spell = spell
         self._allow_fade = allow_fade
         self._fade_at_stacks = fade_at_stacks  # nb of stacks before allowing fade
+        self._spell_queue = spell_queue
+
+    @property
+    def spell_queue(self):
+        return self._spell_queue
 
     @property
     def target(self):
@@ -49,7 +54,8 @@ class SingleAssignment(object):
             spell=get_spell_from_assign(kwargs),
             target=kwargs["target"],
             allow_fade=kwargs.get("allow_fade", True),
-            fade_at_stacks=kwargs.get("fade_at_stacks", 1)
+            fade_at_stacks=kwargs.get("fade_at_stacks", 1),
+            spell_queue=kwargs.get("spell_queue", False)
         )
 
 
@@ -124,6 +130,11 @@ class Assignments(object):
             filler={"target": "_filler", **data.get("filler")} if "filler" in data else None,
             target_buffs=data.get("buffs")
         )
+
+    @property
+    def spell_queued(self):
+        """Returns assignments that have a spell-queue requirement (excluding filler)"""
+        return [a for a in self._assignments if a.spell_queue]
 
 
 class Event(object):
@@ -543,7 +554,7 @@ class Rotation(object):
             remaining_time = timeline.remaining_uptime(current_time)
             period = assignment.spell.base_tick_period
             if assignment.allow_fade and spell_event.stacks == assignment.fade_at_stacks:
-                # cast right after last tick, or wait so that casting time
+                # cast right after last tick (t_cast + duration - period + reaction), or wait so that casting time
                 # results in landing the heal right after the last tick
                 if cast_time > remaining_time:
                     return -1, assignment
@@ -555,6 +566,22 @@ class Rotation(object):
             else:
                 lookahead = min(lookahead, remaining_time - cast_time - reaction)
                 wait = min(wait, remaining_time - cast_time + reaction - (period if not opt_for_ticks else 0))
+
+        # check if any spell should be spell-queued
+        spell_queued = self._assignments.spell_queued
+        if len(spell_queued) > 0:
+            min_assign, min_time = None, 0
+            for assignment in spell_queued:
+                timeline = self._timelines[assignment.identifier]
+                if len(timeline) == 0 or timeline[-1].end < current_time:
+                    continue
+                remaining = timeline[-1].end - current_time
+                if min_assign is None or min_time > remaining:
+                    min_time = remaining
+                    min_assign = assignment
+            # if not true, means that a higher priority spell should have been applied
+            assert min_assign is not None
+            return -1, min_assign
 
         # wait for the lookahead, or take filler action
         return self._check_filler(current_time, wait, lookahead, character, reaction=reaction)

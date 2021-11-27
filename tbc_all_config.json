@@ -3801,16 +3801,13 @@
       "assignments": [
         { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
         { "spell": "lifebloom", "allow_fade": false, "target": "tank2" },
-        { "spell": "lifebloom", "allow_fade": false, "target": "tank3" },
-        { "spell": "rejuvenation", "target": "tank1" },
-        { "spell": "rejuvenation", "target": "tank2" },
-        { "spell": "rejuvenation", "target": "tank3" }
+        { "spell": "lifebloom", "allow_fade": false, "target": "tank3" }
       ],
       "buffs": {},
       "filler": { "spell": "rejuvenation" }
     },
     {
-      "name": "4t_lb",
+      "name": "4t_lb_rj",
       "description": "Keeping lifebloom on four targets.",
       "assignments": [
         { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
@@ -3822,7 +3819,7 @@
       "filler": { "spell": "rejuvenation" }
     },
     {
-      "name": "5t_lb",
+      "name": "5t_lb_rj",
       "description": "Keeping lifebloom on five targets.",
       "assignments": [
         { "spell": "lifebloom", "allow_fade": false, "target": "tank1" },
@@ -3830,6 +3827,42 @@
         { "spell": "lifebloom", "allow_fade": false, "target": "tank3" },
         { "spell": "lifebloom", "allow_fade": false, "target": "tank4" },
         { "spell": "lifebloom", "allow_fade": false, "target": "tank5" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "3t_lb_sq",
+      "description": "Keeping lifebloom on three targets with spell queuing (whenever everything is active restart the loop even if the hots haven't faded).",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank1" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank2" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank3" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "4t_lb_sq",
+      "description": "Keeping lifebloom on four targets with spell queuing (whenever everything is active restart the loop even if the hots haven't faded).",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank1" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank2" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank3" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank4" }
+      ],
+      "buffs": {},
+      "filler": { "spell": "rejuvenation" }
+    },
+    {
+      "name": "5t_lb_sq",
+      "description": "Keeping lifebloom on five targets with spell queuing (whenever everything is active restart the loop even if the hots haven't faded).",
+      "assignments": [
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank1" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank2" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank3" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank4" },
+        { "spell": "lifebloom", "allow_fade": false, "spell_queue": true, "target": "tank5" }
       ],
       "buffs": {},
       "filler": { "spell": "rejuvenation" }
